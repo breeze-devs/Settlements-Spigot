@@ -116,7 +116,7 @@ public abstract class InteractAtTargetBehavior extends BaseVillagerBehavior {
     protected final boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull Villager villager) {
         // Not -1 because this method is rate limited
         this.cooldown -= this.getMaxStartConditionCheckCooldown();
-        MessageUtil.broadcast("Cooldown for " + this.getClass().getSimpleName() + " is " + this.cooldown);
+        MessageUtil.debug("&a[Debug] Cooldown for " + this.getClass().getSimpleName() + " is " + this.cooldown);
         if (this.cooldown > 0)
             return false;
         return this.scan(level, villager);

@@ -34,7 +34,7 @@ public abstract class BaseWolfBehavior extends Behavior<Wolf> {
 
     @Override
     protected void start(@Nonnull ServerLevel level, @Nonnull Wolf wolf, long gameTime) {
-        MessageUtil.broadcast("&a[Debug] Wolf behavior " + this.getClass().getSimpleName() + " has started");
+        MessageUtil.debug("&a[Debug] Wolf behavior " + this.getClass().getSimpleName() + " has started");
     }
 
     @Override
@@ -50,7 +50,7 @@ public abstract class BaseWolfBehavior extends Behavior<Wolf> {
 
     @Override
     protected void stop(@Nonnull ServerLevel level, @Nonnull Wolf wolf, long gameTime) {
-        MessageUtil.broadcast("&c[Debug] Wolf behavior " + this.getClass().getSimpleName() + " has stopped");
+        MessageUtil.debug("&c[Debug] Wolf behavior " + this.getClass().getSimpleName() + " has stopped");
     }
 
 }

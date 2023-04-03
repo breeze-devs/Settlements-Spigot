@@ -45,12 +45,12 @@ public abstract class BaseVillagerBehavior extends Behavior<Villager> {
 
     @Override
     protected void start(@Nonnull ServerLevel level, @Nonnull Villager villager, long gameTime) {
-        MessageUtil.broadcast("&a[Debug] Villager behavior " + this.getClass().getSimpleName() + " has started");
+        MessageUtil.debug("&a[Debug] Villager behavior " + this.getClass().getSimpleName() + " has started");
     }
 
     @Override
     protected void stop(@Nonnull ServerLevel level, @Nonnull Villager villager, long gameTime) {
-        MessageUtil.broadcast("&c[Debug] Villager behavior " + this.getClass().getSimpleName() + " has stopped");
+        MessageUtil.debug("&c[Debug] Villager behavior " + this.getClass().getSimpleName() + " has stopped");
     }
 
 }

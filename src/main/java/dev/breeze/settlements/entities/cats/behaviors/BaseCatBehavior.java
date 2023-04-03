@@ -34,7 +34,7 @@ public abstract class BaseCatBehavior extends Behavior<Cat> {
 
     @Override
     protected void start(@Nonnull ServerLevel level, @Nonnull Cat cat, long gameTime) {
-        MessageUtil.broadcast("&a[Debug] Cat behavior " + this.getClass().getSimpleName() + " has started");
+        MessageUtil.debug("&a[Debug] Cat behavior " + this.getClass().getSimpleName() + " has started");
     }
 
     @Override
@@ -50,7 +50,7 @@ public abstract class BaseCatBehavior extends Behavior<Cat> {
 
     @Override
     protected void stop(@Nonnull ServerLevel level, @Nonnull Cat cat, long gameTime) {
-        MessageUtil.broadcast("&c[Debug] Cat behavior " + this.getClass().getSimpleName() + " has stopped");
+        MessageUtil.debug("&c[Debug] Cat behavior " + this.getClass().getSimpleName() + " has stopped");
     }
 
 }
