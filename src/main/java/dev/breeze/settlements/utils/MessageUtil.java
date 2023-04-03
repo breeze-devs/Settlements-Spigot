@@ -1,5 +1,6 @@
 package dev.breeze.settlements.utils;
 
+import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -10,8 +11,9 @@ import org.bukkit.entity.Player;
 
 public class MessageUtil {
 
+    @Getter
     @Setter
-    private static boolean debug = false;
+    private static boolean debugging = false;
 
     /**
      * Sends a colored and formatted message to the target
@@ -32,7 +34,7 @@ public class MessageUtil {
      * Broadcasts a colored and formatted message in the server, if debug is enabled
      */
     public static void debug(String format, Object... args) {
-        if (debug) {
+        if (debugging) {
             broadcast(format, args);
         }
     }
