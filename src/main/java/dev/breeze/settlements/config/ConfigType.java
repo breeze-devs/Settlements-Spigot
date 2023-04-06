@@ -8,9 +8,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 @Getter
 public enum ConfigType {
@@ -18,7 +17,8 @@ public enum ConfigType {
     /**
      * Should only be used if no subtypes are applicable
      */
-    OBJECT(Object.class, new ConfigTypeSpecification<>() {
+    @Deprecated
+    OBJECT("any object", Object.class, new ConfigTypeSpecification<>() {
         @Override
         public Object get(FileConfiguration config, String path) {
             return config.get(path);
@@ -29,63 +29,69 @@ public enum ConfigType {
      * Should only be used for specifying category comments
      * - note that the value and default value of this type will be ignored
      */
-    EMPTY(Object.class, new EmptyConfigTypeSpecification()),
+    EMPTY("N/A", Object.class, new EmptyConfigTypeSpecification()),
 
-    BOOLEAN(Boolean.class, new ConfigTypeSpecification<Boolean>() {
+    BOOLEAN("boolean (true/false)", Boolean.class, new ConfigTypeSpecification<Boolean>() {
         @Override
         public Boolean get(FileConfiguration config, String path) {
             return config.getBoolean(path);
         }
     }),
-    COLOR(Color.class, new ConfigTypeSpecification<Color>() {
+    COLOR("bukkit color", Color.class, new ConfigTypeSpecification<Color>() {
         @Override
         protected Color get(FileConfiguration config, String path) {
             return config.getColor(path);
         }
     }),
-    DOUBLE(Double.class, new ConfigTypeSpecification<Double>() {
+    DOUBLE("floating-point number (double)", Double.class, new ConfigTypeSpecification<Double>() {
         @Override
         public Double get(FileConfiguration config, String path) {
             return config.getDouble(path);
         }
     }),
-    INT(Integer.class, new ConfigTypeSpecification<Integer>() {
+    FLOAT("floating-point number (float)", Float.class, new ConfigTypeSpecification<Float>() {
+        @Override
+        public Float get(FileConfiguration config, String path) {
+            return (float) config.getDouble(path);
+        }
+    }),
+    INT("whole number (integer)", Integer.class, new ConfigTypeSpecification<Integer>() {
         @Override
         public Integer get(FileConfiguration config, String path) {
             return config.getInt(path);
         }
     }),
-    ITEM_STACK(ItemStack.class, new ConfigTypeSpecification<ItemStack>() {
+    ITEM_STACK("bukkit itemstack", ItemStack.class, new ConfigTypeSpecification<ItemStack>() {
         @Override
         protected ItemStack get(FileConfiguration config, String path) {
             return config.getItemStack(path);
         }
     }),
-    LOCATION(Location.class, new ConfigTypeSpecification<Location>() {
+    LOCATION("bukkit location", Location.class, new ConfigTypeSpecification<Location>() {
         @Override
         protected Location get(FileConfiguration config, String path) {
             return config.getLocation(path);
         }
     }),
-    LONG(Long.class, new ConfigTypeSpecification<Long>() {
+    LONG("whole number (long)", Long.class, new ConfigTypeSpecification<Long>() {
         @Override
         protected Long get(FileConfiguration config, String path) {
             return config.getLong(path);
         }
     }),
-    OFFLINE_PLAYER(OfflinePlayer.class, new ConfigTypeSpecification<OfflinePlayer>() {
+    OFFLINE_PLAYER("bukkit player", OfflinePlayer.class, new ConfigTypeSpecification<OfflinePlayer>() {
         @Override
         protected OfflinePlayer get(FileConfiguration config, String path) {
             return config.getOfflinePlayer(path);
         }
     }),
-    STRING(String.class, new ConfigTypeSpecification<String>() {
+    STRING("string (text)", String.class, new ConfigTypeSpecification<String>() {
         @Override
         public String get(FileConfiguration config, String path) {
             return config.getString(path);
         }
     }),
-    VECTOR(Vector.class, new ConfigTypeSpecification<Vector>() {
+    VECTOR("bukkit vector", Vector.class, new ConfigTypeSpecification<Vector>() {
         @Override
         protected Vector get(FileConfiguration config, String path) {
             return config.getVector(path);
@@ -95,60 +101,55 @@ public enum ConfigType {
     /**
      * Should only be used if no specified list subtypes are applicable
      */
-    GENERIC_LIST(List.class, new ConfigTypeSpecification<List<?>>() {
+    @Deprecated
+    GENERIC_LIST("list of objects", List.class, new ConfigTypeSpecification<List<?>>() {
         @Override
         protected List<?> get(FileConfiguration config, String path) {
             return config.getList(path);
         }
     }),
-    BOOLEAN_LIST(List.class, new ConfigTypeSpecification<List<Boolean>>() {
+    BOOLEAN_LIST("list of booleans", List.class, new ConfigTypeSpecification<List<Boolean>>() {
         @Override
         protected List<Boolean> get(FileConfiguration config, String path) {
             return config.getBooleanList(path);
         }
     }),
-    BYTE_LIST(List.class, new ConfigTypeSpecification<List<Byte>>() {
+    BYTE_LIST("list of bytes", List.class, new ConfigTypeSpecification<List<Byte>>() {
         @Override
         protected List<Byte> get(FileConfiguration config, String path) {
             return config.getByteList(path);
         }
     }),
-    DOUBLE_LIST(List.class, new ConfigTypeSpecification<List<Double>>() {
+    DOUBLE_LIST("list of floating-point numbers (doubles)", List.class, new ConfigTypeSpecification<List<Double>>() {
         @Override
         protected List<Double> get(FileConfiguration config, String path) {
             return config.getDoubleList(path);
         }
     }),
-    INT_LIST(List.class, new ConfigTypeSpecification<List<Integer>>() {
+    INT_LIST("list of whole numbers (integers)", List.class, new ConfigTypeSpecification<List<Integer>>() {
         @Override
         protected List<Integer> get(FileConfiguration config, String path) {
             return config.getIntegerList(path);
         }
     }),
-    LONG_LIST(List.class, new ConfigTypeSpecification<List<Long>>() {
+    LONG_LIST("list of whole numbers (longs)", List.class, new ConfigTypeSpecification<List<Long>>() {
         @Override
         protected List<Long> get(FileConfiguration config, String path) {
             return config.getLongList(path);
         }
     }),
-    STRING_LIST(List.class, new ConfigTypeSpecification<List<String>>() {
+    STRING_LIST("list of text (strings)", List.class, new ConfigTypeSpecification<List<String>>() {
         @Override
         protected List<String> get(FileConfiguration config, String path) {
             return config.getStringList(path);
         }
     });
 
+    private static final Set<ConfigType> LIST_TYPES = Set.of(GENERIC_LIST, BOOLEAN_LIST, BYTE_LIST, DOUBLE_LIST, INT_LIST, LONG_LIST, STRING_LIST);
 
+    private final String description;
     private final Class<?> valueClass;
     private final ConfigTypeSpecification<?> specification;
-
-    private static final Map<Class<?>, ConfigType> CLASS_TO_TYPE = new HashMap<>();
-
-    static {
-        for (ConfigType type : values()) {
-            CLASS_TO_TYPE.put(type.valueClass, type);
-        }
-    }
 
     /**
      * Creates a new ConfigType with the given specification.
@@ -157,13 +158,18 @@ public enum ConfigType {
      * @param valueClass the type of the raw value that's stored here, e.g. Integer, Boolean, etc
      * @param configType the specification for reading and writing values of this type from a configuration file
      */
-    <T> ConfigType(Class<?> valueClass, ConfigTypeSpecification<T> configType) {
+    <T> ConfigType(String description, Class<?> valueClass, ConfigTypeSpecification<T> configType) {
+        this.description = description;
         this.valueClass = valueClass;
         this.specification = configType;
     }
 
     public boolean isTypeValid(Class<?> valueClass) {
         return this.valueClass.isAssignableFrom(valueClass);
+    }
+
+    public boolean isListType() {
+        return LIST_TYPES.contains(this);
     }
 
     /**

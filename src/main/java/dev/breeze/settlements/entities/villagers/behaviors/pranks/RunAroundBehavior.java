@@ -1,5 +1,6 @@
 package dev.breeze.settlements.entities.villagers.behaviors.pranks;
 
+import dev.breeze.settlements.config.files.NitwitPranksConfig;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.behaviors.BaseVillagerBehavior;
 import dev.breeze.settlements.utils.MessageUtil;
@@ -30,10 +31,9 @@ import java.util.Map;
 
 public final class RunAroundBehavior extends BaseVillagerBehavior {
 
-    private static final float SPEED_MODIFIER = 1.0F;
-
-    private static final int MAX_RUN_DURATION = TimeUtil.seconds(10);
-    private static final int BEHAVIOR_COOLDOWN = TimeUtil.minutes(3);
+    private static final float SPEED_MODIFIER = NitwitPranksConfig.getInstance().getRunAroundSpeed().getValue();
+    private static final int BEHAVIOR_COOLDOWN = NitwitPranksConfig.getInstance().getRunAroundCooldown().getValue();
+    private static final int MAX_RUN_DURATION = NitwitPranksConfig.getInstance().getRunAroundDuration().getValue();
 
     private int cooldown;
     private int duration;

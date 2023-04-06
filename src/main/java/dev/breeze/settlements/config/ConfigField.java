@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -124,7 +125,16 @@ public final class ConfigField<T> {
         if (this.type != ConfigType.EMPTY) {
             this.file.setAsType(this.name, this.type, this.value);
         }
-        this.file.setComment(this.name, this.description);
+
+        // Append default value to comments
+        List<String> comments = new ArrayList<>(this.description);
+        if (this.type != ConfigType.EMPTY) {
+            comments.add(String.format("Type: %s", this.type.getDescription()));
+            comments.add(String.format("Default: %s", this.defaultValue));
+        }
+
+        this.file.setComment(this.name, comments);
+        this.file.save();
     }
 
 }

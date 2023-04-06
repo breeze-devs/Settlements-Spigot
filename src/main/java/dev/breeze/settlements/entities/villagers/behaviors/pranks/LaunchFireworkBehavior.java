@@ -1,5 +1,6 @@
 package dev.breeze.settlements.entities.villagers.behaviors.pranks;
 
+import dev.breeze.settlements.config.files.NitwitPranksConfig;
 import dev.breeze.settlements.utils.RandomUtil;
 import dev.breeze.settlements.utils.SoundUtil;
 import dev.breeze.settlements.utils.TimeUtil;
@@ -23,7 +24,9 @@ public final class LaunchFireworkBehavior extends PrankEntityBehavior {
 
     public LaunchFireworkBehavior() {
         // Preconditions to this behavior
-        super(TimeUtil.minutes(5), Math.pow(6, 2), TimeUtil.seconds(2));
+        super(NitwitPranksConfig.getInstance().getLaunchFireworkCooldown().getValue(),
+                Math.pow(NitwitPranksConfig.getInstance().getLaunchFireworkRange().getValue(), 2),
+                TimeUtil.seconds(2));
     }
 
     @Override
