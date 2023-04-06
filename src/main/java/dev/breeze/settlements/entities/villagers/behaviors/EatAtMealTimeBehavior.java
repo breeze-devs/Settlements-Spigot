@@ -66,7 +66,7 @@ public final class EatAtMealTimeBehavior extends BaseVillagerBehavior {
     protected boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull Villager villager) {
         // Not -1 because this method is rate limited
         this.cooldown -= this.getMaxStartConditionCheckCooldown();
-        MessageUtil.broadcast("Cooldown for " + this.getClass().getSimpleName() + " is " + this.cooldown);
+        MessageUtil.debug("&b[Debug] Cooldown for " + this.getClass().getSimpleName() + " is " + this.cooldown);
         return this.cooldown <= 0;
     }
 
