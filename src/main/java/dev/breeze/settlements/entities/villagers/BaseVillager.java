@@ -3,6 +3,7 @@ package dev.breeze.settlements.entities.villagers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
+import dev.breeze.settlements.config.files.WolfFetchItemConfig;
 import dev.breeze.settlements.entities.villagers.inventory.VillagerInventory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.entities.villagers.navigation.VillagerNavigation;
@@ -13,7 +14,6 @@ import lombok.Setter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -30,7 +30,6 @@ import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.schedule.Schedule;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bukkit.Location;
@@ -236,48 +235,7 @@ public class BaseVillager extends Villager {
             if (itemEntity == null)
                 return false;
             ItemStack item = itemEntity.getItem();
-
-            boolean wantsItem = false;
-            if (profession == VillagerProfession.BUTCHER) {
-                // Cow
-                wantsItem = item.is(Items.BEEF);
-                // Sheep
-                wantsItem = wantsItem || item.is(Items.MUTTON);
-                // Chicken
-                wantsItem = wantsItem || item.is(Items.CHICKEN);
-                // Pig
-                wantsItem = wantsItem || item.is(Items.PORKCHOP);
-                // Rabbit
-                wantsItem = wantsItem || item.is(Items.RABBIT);
-            } else if (profession == VillagerProfession.FARMER) {
-                // Wheat
-                wantsItem = item.is(Items.WHEAT) || item.is(Items.WHEAT_SEEDS);
-                // Potato
-                wantsItem = wantsItem || item.is(Items.POTATO) || item.is(Items.POISONOUS_POTATO);
-                // Carrot
-                wantsItem = wantsItem || item.is(Items.CARROT);
-                // Beetroot
-                wantsItem = wantsItem || item.is(Items.BEETROOT) || item.is(Items.BEETROOT_SEEDS);
-                // Pumpkin
-                wantsItem = wantsItem || item.is(Items.PUMPKIN) || item.is(Items.PUMPKIN_SEEDS);
-                // Melon
-                wantsItem = wantsItem || item.is(Items.MELON_SLICE) || item.is(Items.MELON) || item.is(Items.MELON_SEEDS);
-                // Sugarcane
-                wantsItem = wantsItem || item.is(Items.SUGAR_CANE);
-                // Egg
-                wantsItem = wantsItem || item.is(Items.EGG);
-            } else if (profession == VillagerProfession.LEATHERWORKER) {
-                // Leather
-                wantsItem = item.is(Items.LEATHER);
-                // Rabbit hide
-                wantsItem = wantsItem || item.is(Items.RABBIT_HIDE);
-            } else if (profession == VillagerProfession.SHEPHERD) {
-                // Wool (when sheared)
-                wantsItem = item.is(ItemTags.WOOL);
-            }
-
-            // Return false on all other professions
-            return wantsItem;
+            return WolfFetchItemConfig.getInstance().wantsItem(profession, CraftItemStack.asBukkitCopy(item).getType());
         };
     }
 

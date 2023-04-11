@@ -1,7 +1,7 @@
 package dev.breeze.settlements.utils;
 
+import dev.breeze.settlements.config.files.GeneralConfig;
 import lombok.Getter;
-import lombok.Setter;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -12,8 +12,12 @@ import org.bukkit.entity.Player;
 public class MessageUtil {
 
     @Getter
-    @Setter
-    private static boolean debugging = false;
+    private static boolean debugging = GeneralConfig.getInstance().getDebugEnabled().getValue();
+
+    public static void toggleDebugging() {
+        debugging = !debugging;
+        GeneralConfig.getInstance().getDebugEnabled().setValue(debugging);
+    }
 
     /**
      * Sends a colored and formatted message to the target

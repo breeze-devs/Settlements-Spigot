@@ -46,7 +46,7 @@ public class TestCommandHandler implements TabExecutor {
         MessageUtil.sendMessage(p, "Starting test execution...");
         Block target = p.getTargetBlockExact(100);
 
-        switch(subCommand) {
+        switch (subCommand) {
             case "basevillager" -> {
                 if (target == null) {
                     MessageUtil.sendMessage(p, "&cInvalid block target!");
@@ -116,7 +116,7 @@ public class TestCommandHandler implements TabExecutor {
     }
 
     public static void toggleDebug(Player p) {
-        MessageUtil.setDebugging(!MessageUtil.isDebugging());
+        MessageUtil.toggleDebugging();
         MessageUtil.sendMessage(p, MessageUtil.isDebugging() ? "&aEnabled Debugging!" : "&cDisabled Debugging");
     }
 }

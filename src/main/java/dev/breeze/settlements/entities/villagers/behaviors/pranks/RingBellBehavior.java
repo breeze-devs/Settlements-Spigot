@@ -1,5 +1,6 @@
 package dev.breeze.settlements.entities.villagers.behaviors.pranks;
 
+import dev.breeze.settlements.config.files.NitwitPranksConfig;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.behaviors.InteractAtTargetBehavior;
 import dev.breeze.settlements.utils.TimeUtil;
@@ -23,7 +24,7 @@ public final class RingBellBehavior extends InteractAtTargetBehavior {
     /**
      * How close should the villager be to the water before casting
      */
-    private static final int MAX_DISTANCE_FROM_BELL = 3;
+    private static final int MAX_DISTANCE_FROM_BELL = NitwitPranksConfig.getInstance().getRingBellDistance().getValue();
     private static final double MAX_DISTANCE_FROM_BELL_SQUARED = Math.pow(MAX_DISTANCE_FROM_BELL, 2);
 
     @Nullable
@@ -35,7 +36,7 @@ public final class RingBellBehavior extends InteractAtTargetBehavior {
                         // The villager should have seen water nearby
                         MemoryModuleType.MEETING_POINT, MemoryStatus.VALUE_PRESENT
                 ), TimeUtil.minutes(1), 0,
-                TimeUtil.minutes(30), MAX_DISTANCE_FROM_BELL_SQUARED,
+                NitwitPranksConfig.getInstance().getRingBellCooldown().getValue(), MAX_DISTANCE_FROM_BELL_SQUARED,
                 5, 10,
                 TimeUtil.seconds(20), TimeUtil.seconds(1));
     }

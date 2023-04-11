@@ -1,5 +1,6 @@
 package dev.breeze.settlements.entities.villagers.behaviors.pranks;
 
+import dev.breeze.settlements.config.files.NitwitPranksConfig;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.behaviors.InteractAtTargetBehavior;
 import dev.breeze.settlements.utils.RandomUtil;
@@ -25,8 +26,8 @@ import java.util.Map;
 
 public abstract class PrankEntityBehavior extends InteractAtTargetBehavior {
 
-    private static final float MIN_MOVE_SPEED = 0.4F;
-    private static final float MAX_MOVE_SPEED = 0.7F;
+    private static final float MIN_MOVE_SPEED = NitwitPranksConfig.getInstance().getPrankMoveSpeedMin().getValue();
+    private static final float MAX_MOVE_SPEED = NitwitPranksConfig.getInstance().getPrankMoveSpeedMax().getValue();
 
     @Getter
     @Nullable

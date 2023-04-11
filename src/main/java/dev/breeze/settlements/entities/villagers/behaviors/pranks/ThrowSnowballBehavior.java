@@ -1,6 +1,7 @@
 package dev.breeze.settlements.entities.villagers.behaviors.pranks;
 
 import dev.breeze.settlements.Main;
+import dev.breeze.settlements.config.files.NitwitPranksConfig;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.utils.RandomUtil;
 import dev.breeze.settlements.utils.SafeRunnable;
@@ -28,7 +29,9 @@ public final class ThrowSnowballBehavior extends PrankEntityBehavior {
 
     public ThrowSnowballBehavior() {
         // Preconditions to this behavior
-        super(TimeUtil.minutes(3), Math.pow(20, 2), TimeUtil.seconds(3));
+        super(NitwitPranksConfig.getInstance().getSnowballCooldown().getValue(),
+                Math.pow(NitwitPranksConfig.getInstance().getSnowballTargetRange().getValue(), 2),
+                TimeUtil.seconds(3));
     }
 
     @Override
