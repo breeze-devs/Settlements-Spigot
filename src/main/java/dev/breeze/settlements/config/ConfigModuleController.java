@@ -1,5 +1,6 @@
 package dev.breeze.settlements.config;
 
+import dev.breeze.settlements.config.files.GeneralConfig;
 import dev.breeze.settlements.config.files.NitwitPranksConfig;
 import dev.breeze.settlements.config.files.WolfFetchItemConfig;
 import dev.breeze.settlements.utils.BaseModuleController;
@@ -11,7 +12,7 @@ public class ConfigModuleController extends BaseModuleController {
     @Override
     protected boolean preload(JavaPlugin plugin) {
         // Create instances of all config singletons
-//        GeneralConfig.getInstance();
+        GeneralConfig.getInstance();
         NitwitPranksConfig.getInstance();
         WolfFetchItemConfig.getInstance();
         return true;
