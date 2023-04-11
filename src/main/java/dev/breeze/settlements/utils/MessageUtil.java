@@ -1,5 +1,7 @@
 package dev.breeze.settlements.utils;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -8,6 +10,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class MessageUtil {
+
+    @Getter
+    @Setter
+    private static boolean debugging = false;
 
     /**
      * Sends a colored and formatted message to the target
@@ -22,6 +28,15 @@ public class MessageUtil {
      */
     public static void broadcast(String format, Object... args) {
         Bukkit.broadcastMessage(translateColorCode(format, args));
+    }
+
+    /**
+     * Broadcasts a colored and formatted message in the server, if debug is enabled
+     */
+    public static void debug(String format, Object... args) {
+        if (debugging) {
+            broadcast(format, args);
+        }
     }
 
     public static String translateColorCode(String format, Object... args) {
