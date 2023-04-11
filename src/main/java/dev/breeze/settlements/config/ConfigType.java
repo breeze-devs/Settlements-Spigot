@@ -16,6 +16,7 @@ public enum ConfigType {
 
     /**
      * Should only be used if no subtypes are applicable
+     * - note that there might be some issues when loading from YAML
      */
     @Deprecated
     OBJECT("any object", Object.class, new ConfigTypeSpecification<>() {
@@ -100,6 +101,7 @@ public enum ConfigType {
 
     /**
      * Should only be used if no specified list subtypes are applicable
+     * - note that there might be some issues when loading from YAML
      */
     @Deprecated
     GENERIC_LIST("list of objects", List.class, new ConfigTypeSpecification<List<?>>() {
