@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Objects;
 /**
  * A class representing a field in a config file
  */
+@ParametersAreNonnullByDefault
 @Getter
 public final class ConfigField<T> {
 
@@ -67,8 +69,7 @@ public final class ConfigField<T> {
     @Nonnull
     private ItemStack guiItem = new ItemStackBuilder(Material.PAPER).build();
 
-    public ConfigField(@Nonnull ConfigFileWrapper file, @Nonnull ConfigType type, @Nonnull String name, @Nonnull List<String> description,
-                       @Nonnull T defaultValue) {
+    public ConfigField(ConfigFileWrapper file, ConfigType type, String name, List<String> description, T defaultValue) {
         // Check type correspondence as a pre-condition
         Preconditions.checkArgument(type.isTypeValid(defaultValue.getClass()),
                 "Invalid config type to data type mapping! Config type is '%s' while value type is '%s'",
@@ -95,15 +96,14 @@ public final class ConfigField<T> {
     /**
      * Shorthand constructor for fields that only require one line of description
      */
-    public ConfigField(@Nonnull ConfigFileWrapper file, @Nonnull ConfigType type, @Nonnull String name, @Nonnull String description,
-                       @Nonnull T defaultValue) {
+    public ConfigField(ConfigFileWrapper file, ConfigType type, String name, String description, T defaultValue) {
         this(file, type, name, Collections.singletonList(description), defaultValue);
     }
 
     @Nonnull
     public T getValue() {
         if (this.type == ConfigType.EMPTY) {
-            throw new RuntimeException("Cannot get an empty config object!");
+            throw new IllegalStateException("Cannot get an empty config object!");
         }
         return Objects.requireNonNull(this.value);
     }

@@ -60,7 +60,7 @@ public final class WolfFetchItemConfig {
                         Material.PURPLE_WOOL, Material.BLUE_WOOL, Material.BROWN_WOOL, Material.GREEN_WOOL, Material.RED_WOOL, Material.BLACK_WOOL))));
 
 
-        // Cache wanted items to memory
+        // Validate & cache wanted items to memory
         this.cachedProfessionWantItemMap = new HashMap<>();
         for (Map.Entry<VillagerProfession, ConfigField<List<String>>> entry : professionWantItemMap.entrySet()) {
             Set<Material> materials = new HashSet<>();
@@ -83,10 +83,12 @@ public final class WolfFetchItemConfig {
      * @return true if this profession wants to pick the item up; false otherwise
      */
     public boolean wantsItem(@Nonnull VillagerProfession profession, @Nonnull Material bukkitMaterial) {
+        // If the profession does not exist in the config file, default to false
         if (!this.cachedProfessionWantItemMap.containsKey(profession)) {
             return false;
         }
 
+        // Check if the material is in the map
         return this.cachedProfessionWantItemMap.get(profession).contains(bukkitMaterial);
     }
 
@@ -102,7 +104,7 @@ public final class WolfFetchItemConfig {
         return materials.stream().map(Enum::toString).toList();
     }
 
-    public static WolfFetchItemConfig getInstance() {
+    public static synchronized WolfFetchItemConfig getInstance() {
         if (instance == null) {
             instance = new WolfFetchItemConfig();
         }

@@ -18,7 +18,6 @@ public enum ConfigType {
      * Should only be used if no subtypes are applicable
      * - note that there might be some issues when loading from YAML
      */
-    @Deprecated
     OBJECT("any object", Object.class, new ConfigTypeSpecification<>() {
         @Override
         public Object get(FileConfiguration config, String path) {
@@ -30,7 +29,22 @@ public enum ConfigType {
      * Should only be used for specifying category comments
      * - note that the value and default value of this type will be ignored
      */
-    EMPTY("N/A", Object.class, new EmptyConfigTypeSpecification()),
+    EMPTY("N/A", Object.class, new ConfigTypeSpecification<>() {
+        @Override
+        protected Object get(FileConfiguration config, String path) {
+            throw new IllegalStateException("Cannot get an empty config object!");
+        }
+
+        @Override
+        public Object get(FileConfiguration config, String path, Object defaultValue) throws ClassCastException {
+            throw new IllegalStateException("Cannot get an empty config object!");
+        }
+
+        @Override
+        public void set(FileConfiguration config, String path, Object value) throws ClassCastException {
+            throw new IllegalStateException("Cannot set an empty config object!");
+        }
+    }),
 
     BOOLEAN("boolean (true/false)", Boolean.class, new ConfigTypeSpecification<Boolean>() {
         @Override
@@ -103,7 +117,6 @@ public enum ConfigType {
      * Should only be used if no specified list subtypes are applicable
      * - note that there might be some issues when loading from YAML
      */
-    @Deprecated
     GENERIC_LIST("list of objects", List.class, new ConfigTypeSpecification<List<?>>() {
         @Override
         protected List<?> get(FileConfiguration config, String path) {
@@ -188,7 +201,6 @@ public enum ConfigType {
          * @param path   the path in the configuration file to read from
          * @return the value of the specified type that is stored in the configuration file at the given path
          */
-        @Deprecated
         protected abstract T get(FileConfiguration config, String path);
 
         /**
@@ -229,24 +241,6 @@ public enum ConfigType {
 
             // Set the value
             config.set(path, typedData);
-        }
-    }
-
-    public static class EmptyConfigTypeSpecification extends ConfigTypeSpecification<Object> {
-
-        @Override
-        protected Object get(FileConfiguration config, String path) {
-            throw new RuntimeException("Cannot get an empty config object!");
-        }
-
-        @Override
-        public Object get(FileConfiguration config, String path, Object defaultValue) throws ClassCastException {
-            throw new RuntimeException("Cannot get an empty config object!");
-        }
-
-        @Override
-        public void set(FileConfiguration config, String path, Object value) throws ClassCastException {
-            throw new RuntimeException("Cannot set an empty config object!");
         }
     }
 

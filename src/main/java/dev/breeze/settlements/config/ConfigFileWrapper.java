@@ -2,7 +2,6 @@ package dev.breeze.settlements.config;
 
 import dev.breeze.settlements.Main;
 import dev.breeze.settlements.utils.LogUtil;
-import dev.breeze.settlements.utils.RandomUtil;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -55,16 +54,15 @@ public final class ConfigFileWrapper {
     /**
      * Attempts to save the loaded configuration file to disk
      *
-     * @return true if the save was successful, false otherwise
+     * @throws RuntimeException if config file saving failed
      */
-    public boolean save() {
+    public void save() {
         try {
             this.config.save(this.fileInstance);
             this.commentFile();
-            return true;
         } catch (IOException e) {
             LogUtil.exception(e, "Failed to save config file '%s.yml'!", this.fileName);
-            return false;
+            throw new RuntimeException(e);
         }
     }
 
@@ -111,12 +109,15 @@ public final class ConfigFileWrapper {
      * <p>
      * Reference:
      * <a href="https://github.com/BentoBoxWorld/BentoBox/blob/develop/src/main/java/world/bentobox/bentobox/database/yaml/YamlDatabaseConnector.java#L144">Bento box config API</a>
+     * <p>
+     * TODO: in the future, it might be better to use a YAML library like SnakeYAML
      */
     private void commentFile() throws IOException {
         // Run through the file and add in the comments
-        File commentedFile = new File(String.format("%s-%s.tmp", this.fileInstance.getPath(), RandomUtil.randomString()));
-        List<String> newFile = new ArrayList<>();
+        File tempFile = File.createTempFile("stm", null);
+        tempFile.deleteOnExit();
 
+        List<String> linesToWrite = new ArrayList<>();
         try (Scanner scanner = new Scanner(this.fileInstance, StandardCharsets.UTF_8)) {
             // Save indentations
             Deque<String> indentationStack = new ArrayDeque<>();
@@ -151,20 +152,20 @@ public final class ConfigFileWrapper {
                     // Add all comment lines with the correct indentation
                     String indentation = " ".repeat(level * 2);
                     for (String comment : entry.getValue()) {
-                        newFile.add(String.format("%s# %s", indentation, comment));
+                        linesToWrite.add(String.format("%s# %s", indentation, comment));
                     }
                     break;
                 }
 
                 // Add original line
-                newFile.add(line);
+                linesToWrite.add(line);
             }
 
             // Write lines to the temporary file
-            Files.write(commentedFile.toPath(), (Iterable<String>) newFile.stream()::iterator);
+            Files.write(tempFile.toPath(), (Iterable<String>) linesToWrite.stream()::iterator);
 
             // Try to copy the temporary file to the original YAML file
-            try (InputStream is = new FileInputStream(commentedFile); OutputStream os = new FileOutputStream(this.fileInstance)) {
+            try (InputStream is = new FileInputStream(tempFile); OutputStream os = new FileOutputStream(this.fileInstance)) {
                 byte[] buffer = new byte[1024];
                 int length;
                 while ((length = is.read(buffer)) > 0) {
@@ -173,7 +174,7 @@ public final class ConfigFileWrapper {
             }
         } finally {
             // Delete the temporary file
-            Files.delete(commentedFile.toPath());
+            Files.delete(tempFile.toPath());
         }
     }
 

@@ -96,7 +96,7 @@ public final class NitwitPranksConfig {
                 20);
     }
 
-    public static NitwitPranksConfig getInstance() {
+    public static synchronized NitwitPranksConfig getInstance() {
         if (instance == null) {
             instance = new NitwitPranksConfig();
         }
