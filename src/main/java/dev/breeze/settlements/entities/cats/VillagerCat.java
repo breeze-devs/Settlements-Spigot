@@ -42,7 +42,6 @@ import net.minecraft.world.level.Level;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -188,7 +187,7 @@ public class VillagerCat extends Cat {
         return Brain.provider(memoryTypes, sensorTypes);
     }
 
-    private void refreshBrain(@NotNull ServerLevel level) {
+    private void refreshBrain(@Nonnull ServerLevel level) {
         Brain<Cat> brain = this.getBrain();
 
         brain.stopAll(level, this);

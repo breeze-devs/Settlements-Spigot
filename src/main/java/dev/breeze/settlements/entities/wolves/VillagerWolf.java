@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
-import dev.breeze.settlements.Main;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.wolves.behaviors.WolfChaseSheepBehavior;
 import dev.breeze.settlements.entities.wolves.behaviors.WolfFetchItemBehavior;
@@ -55,7 +54,6 @@ import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -68,6 +66,11 @@ import java.util.List;
 public class VillagerWolf extends Wolf {
 
     public static final String ENTITY_TYPE = "settlements_wolf";
+
+    /**
+     * Are all behaviors (including owner-related ones) registered successfully?
+     */
+    private boolean behaviorsRegisteredSuccessfully;
 
     @Getter
     @Setter
@@ -119,6 +122,7 @@ public class VillagerWolf extends Wolf {
         // Set step height to 1.5 (able to cross fences)
         this.maxUpStep = 1.5F;
 
+        this.behaviorsRegisteredSuccessfully = false;
         this.stopFollowOwner = false;
         this.lookLocked = false;
         this.movementLocked = false;
@@ -192,6 +196,7 @@ public class VillagerWolf extends Wolf {
                 .add(WolfMemoryType.NEARBY_SHEEP)
                 .build();
         ImmutableList<SensorType<? extends Sensor<Wolf>>> sensorTypes = new ImmutableList.Builder<SensorType<? extends Sensor<Wolf>>>()
+                .add(WolfSensorType.OWNER)
                 .add(WolfSensorType.NEARBY_ITEMS)
                 .add(WolfSensorType.NEARBY_SNIFFABLE_ENTITIES)
                 .add(WolfSensorType.NEAREST_FENCE_AREA)
@@ -200,14 +205,22 @@ public class VillagerWolf extends Wolf {
         return Brain.provider(memoryTypes, sensorTypes);
     }
 
+    private void refreshBrain(@Nonnull ServerLevel level) {
+        Brain<Wolf> brain = this.getBrain();
+
+        brain.stopAll(level, this);
+        this.brain = brain.copyWithoutBehaviors();
+        this.registerBrainGoals(this.getBrain());
+    }
+
     @Override
     @Nonnull
     protected Brain<?> makeBrain(@Nonnull Dynamic<?> dynamic) {
         Brain<Wolf> brain = this.brainProvider().makeBrain(dynamic);
 
-        // Register brain goals a second later (let the owner load first)
-        // TODO: replace with scan for owner behavior
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), () -> this.registerBrainGoals(brain), 20L);
+        // Note: owner might not have loaded now, so this registration might fail
+        // - which is acceptable because we have the owner sensor as a fallback
+        this.registerBrainGoals(brain);
 
         return brain;
     }
@@ -282,6 +295,9 @@ public class VillagerWolf extends Wolf {
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
         brain.setDefaultActivity(Activity.IDLE);
         brain.setActiveActivityIfPossible(Activity.IDLE);
+
+        // Set flag
+        this.behaviorsRegisteredSuccessfully = true;
     }
 
     @Override
@@ -308,6 +324,17 @@ public class VillagerWolf extends Wolf {
         this.setOwnerUUID(villager.getUUID());
         this.setCollarColor(DyeColor.LIME);
     }
+
+    public void onOwnerSensorTick() {
+        // Check if we've already registered the behaviors
+        if (this.behaviorsRegisteredSuccessfully) {
+            return;
+        }
+
+        LogUtil.info("Owner detected, refreshing wolf brain goals!");
+        this.refreshBrain(this.level.getMinecraftWorld());
+    }
+
 
     /*
      * Custom navigation for wolves to step over fences

@@ -203,6 +203,7 @@ public class EntityModuleController extends BaseModuleController {
         VillagerSensorType.IS_MEAL_TIME = registerSensor(VillagerSensorType.REGISTRY_KEY_IS_MEAL_TIME, VillagerMealTimeSensor::new);
 
         // Wolf sensors
+        WolfSensorType.OWNER = registerSensor(WolfSensorType.REGISTRY_KEY_OWNER, WolfOwnerSensor::new);
         WolfSensorType.NEARBY_ITEMS = registerSensor(WolfSensorType.REGISTRY_KEY_NEARBY_ITEMS, WolfNearbyItemsSensor::new);
         WolfSensorType.NEARBY_SNIFFABLE_ENTITIES = registerSensor(WolfSensorType.REGISTRY_KEY_NEARBY_SNIFFABLE_ENTITIES, WolfSniffableEntitiesSensor::new);
         WolfSensorType.NEAREST_FENCE_AREA = registerSensor(WolfSensorType.REGISTRY_KEY_NEAREST_FENCE_AREA, WolfFenceAreaSensor::new);
