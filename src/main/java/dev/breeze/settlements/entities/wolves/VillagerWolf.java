@@ -181,6 +181,7 @@ public class VillagerWolf extends Wolf {
      */
     @Override
     @Nonnull
+    @SuppressWarnings("unchecked")
     public Brain<Wolf> getBrain() {
         return (Brain<Wolf>) super.getBrain();
     }
@@ -239,7 +240,7 @@ public class VillagerWolf extends Wolf {
      */
     private void registerBrainGoals(Brain<Wolf> brain) {
         if (this.getOwner() == null || !this.getOwner().isAlive()) {
-            LogUtil.warning("Skipping registration of brain goals because owner is not available");
+            LogUtil.warning("Skipping registration of wolf brain goals because owner is not available");
             return;
         }
 
@@ -331,7 +332,7 @@ public class VillagerWolf extends Wolf {
             return;
         }
 
-        LogUtil.info("Owner detected, refreshing wolf brain goals!");
+        LogUtil.info("Owner detected, refreshing wolf brain goals");
         this.refreshBrain(this.level.getMinecraftWorld());
     }
 

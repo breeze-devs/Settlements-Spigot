@@ -170,6 +170,7 @@ public class VillagerCat extends Cat {
      */
     @Override
     @Nonnull
+    @SuppressWarnings("unchecked")
     public Brain<Cat> getBrain() {
         return (Brain<Cat>) super.getBrain();
     }
@@ -304,7 +305,7 @@ public class VillagerCat extends Cat {
             return;
         }
 
-        LogUtil.info("Owner detected, refreshing cat brain goals!");
+        LogUtil.info("Owner detected, refreshing cat brain goals");
         this.refreshBrain(this.level.getMinecraftWorld());
     }
 
