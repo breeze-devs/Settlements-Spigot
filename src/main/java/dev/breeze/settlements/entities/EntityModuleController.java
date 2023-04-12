@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.breeze.settlements.entities.cats.VillagerCat;
 import dev.breeze.settlements.entities.cats.memories.CatMemoryType;
 import dev.breeze.settlements.entities.cats.sensors.CatNearbyItemsSensor;
+import dev.breeze.settlements.entities.cats.sensors.CatOwnerSensor;
 import dev.breeze.settlements.entities.cats.sensors.CatSensorType;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.events.VillagerRestockEvent;
@@ -208,6 +209,7 @@ public class EntityModuleController extends BaseModuleController {
         WolfSensorType.NEARBY_SHEEP = registerSensor(WolfSensorType.REGISTRY_KEY_NEARBY_SHEEP, WolfNearbySheepSensor::new);
 
         // Cat sensors
+        CatSensorType.OWNER = registerSensor(CatSensorType.REGISTRY_KEY_OWNER, CatOwnerSensor::new);
         CatSensorType.NEARBY_ITEMS = registerSensor(CatSensorType.REGISTRY_KEY_NEARBY_ITEMS, CatNearbyItemsSensor::new);
 
         // Re-freeze registry

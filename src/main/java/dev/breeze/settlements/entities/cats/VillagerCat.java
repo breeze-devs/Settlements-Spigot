@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
-import dev.breeze.settlements.Main;
 import dev.breeze.settlements.entities.cats.behaviors.CatFetchOrEatBehavior;
 import dev.breeze.settlements.entities.cats.behaviors.CatFollowOwnerBehaviorController;
 import dev.breeze.settlements.entities.cats.behaviors.CatSleepBehavior;
@@ -40,10 +39,10 @@ import net.minecraft.world.entity.schedule.Schedule;
 import net.minecraft.world.entity.schedule.ScheduleBuilder;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -52,6 +51,11 @@ import java.util.List;
 public class VillagerCat extends Cat {
 
     public static final String ENTITY_TYPE = "settlements_cat";
+
+    /**
+     * Are all behaviors (including owner-related ones) registered successfully?
+     */
+    private boolean behaviorsRegisteredSuccessfully;
 
     @Getter
     @Setter
@@ -102,6 +106,8 @@ public class VillagerCat extends Cat {
 
         // Set step height to 1.5 (able to cross fences)
         this.maxUpStep = 1.5F;
+
+        this.behaviorsRegisteredSuccessfully = false;
 
         this.stopFollowOwner = false;
         this.lookLocked = false;
@@ -176,9 +182,18 @@ public class VillagerCat extends Cat {
                 .add(CatMemoryType.NEARBY_ITEMS)
                 .build();
         ImmutableList<SensorType<? extends Sensor<Cat>>> sensorTypes = new ImmutableList.Builder<SensorType<? extends Sensor<Cat>>>()
+                .add(CatSensorType.OWNER)
                 .add(CatSensorType.NEARBY_ITEMS)
                 .build();
         return Brain.provider(memoryTypes, sensorTypes);
+    }
+
+    private void refreshBrain(@NotNull ServerLevel level) {
+        Brain<Cat> brain = this.getBrain();
+
+        brain.stopAll(level, this);
+        this.brain = brain.copyWithoutBehaviors();
+        this.registerBrainGoals(this.getBrain());
     }
 
     @Override
@@ -186,9 +201,9 @@ public class VillagerCat extends Cat {
     protected Brain<?> makeBrain(@Nonnull Dynamic<?> dynamic) {
         Brain<Cat> brain = this.brainProvider().makeBrain(dynamic);
 
-        // Register brain goals a second later (let the owner load first)
-        // TODO: replace with scan for owner behavior
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), () -> this.registerBrainGoals(brain), 20L);
+        // Note: owner might not have loaded now, so this registration might fail
+        // - which is acceptable because we have the owner sensor as a fallback
+        this.registerBrainGoals(brain);
 
         return brain;
     }
@@ -247,6 +262,9 @@ public class VillagerCat extends Cat {
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
         brain.setDefaultActivity(Activity.REST);
         brain.setActiveActivityIfPossible(Activity.REST);
+
+        // Set flag
+        this.behaviorsRegisteredSuccessfully = true;
     }
 
     @Override
@@ -279,6 +297,16 @@ public class VillagerCat extends Cat {
             maxHealth.setBaseValue(20.0D);
 
         this.setHealth(this.getMaxHealth());
+    }
+
+    public void onOwnerSensorTick() {
+        // Check if we've already registered the behaviors
+        if (this.behaviorsRegisteredSuccessfully) {
+            return;
+        }
+
+        LogUtil.info("Owner detected, refreshing cat brain goals!");
+        this.refreshBrain(this.level.getMinecraftWorld());
     }
 
 }
