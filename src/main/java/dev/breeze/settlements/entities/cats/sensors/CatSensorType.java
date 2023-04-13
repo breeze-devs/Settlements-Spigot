@@ -9,6 +9,7 @@ public class CatSensorType {
      */
     public static final String REGISTRY_KEY_OWNER = "settlements_cat_owner_sensor";
     public static SensorType<CatOwnerSensor> OWNER;
+
     /**
      * Sensor for scanning nearby items
      */
