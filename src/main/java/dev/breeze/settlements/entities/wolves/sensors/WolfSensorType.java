@@ -5,6 +5,12 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 public class WolfSensorType {
 
     /**
+     * Sensor for detecting owner
+     */
+    public static final String REGISTRY_KEY_OWNER = "settlements_wolf_owner_sensor";
+    public static SensorType<WolfOwnerSensor> OWNER;
+
+    /**
      * Sensor for scanning nearby items
      */
     public static final String REGISTRY_KEY_NEARBY_ITEMS = "settlements_wolf_nearby_items_sensor";

@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.breeze.settlements.entities.cats.VillagerCat;
 import dev.breeze.settlements.entities.cats.memories.CatMemoryType;
 import dev.breeze.settlements.entities.cats.sensors.CatNearbyItemsSensor;
+import dev.breeze.settlements.entities.cats.sensors.CatOwnerSensor;
 import dev.breeze.settlements.entities.cats.sensors.CatSensorType;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.events.VillagerRestockEvent;
@@ -202,12 +203,14 @@ public class EntityModuleController extends BaseModuleController {
         VillagerSensorType.IS_MEAL_TIME = registerSensor(VillagerSensorType.REGISTRY_KEY_IS_MEAL_TIME, VillagerMealTimeSensor::new);
 
         // Wolf sensors
+        WolfSensorType.OWNER = registerSensor(WolfSensorType.REGISTRY_KEY_OWNER, WolfOwnerSensor::new);
         WolfSensorType.NEARBY_ITEMS = registerSensor(WolfSensorType.REGISTRY_KEY_NEARBY_ITEMS, WolfNearbyItemsSensor::new);
         WolfSensorType.NEARBY_SNIFFABLE_ENTITIES = registerSensor(WolfSensorType.REGISTRY_KEY_NEARBY_SNIFFABLE_ENTITIES, WolfSniffableEntitiesSensor::new);
         WolfSensorType.NEAREST_FENCE_AREA = registerSensor(WolfSensorType.REGISTRY_KEY_NEAREST_FENCE_AREA, WolfFenceAreaSensor::new);
         WolfSensorType.NEARBY_SHEEP = registerSensor(WolfSensorType.REGISTRY_KEY_NEARBY_SHEEP, WolfNearbySheepSensor::new);
 
         // Cat sensors
+        CatSensorType.OWNER = registerSensor(CatSensorType.REGISTRY_KEY_OWNER, CatOwnerSensor::new);
         CatSensorType.NEARBY_ITEMS = registerSensor(CatSensorType.REGISTRY_KEY_NEARBY_ITEMS, CatNearbyItemsSensor::new);
 
         // Re-freeze registry
