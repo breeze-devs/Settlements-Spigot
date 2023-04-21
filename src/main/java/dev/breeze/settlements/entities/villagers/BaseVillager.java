@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import dev.breeze.settlements.config.files.WolfFetchItemConfig;
+import dev.breeze.settlements.entities.villagers.behaviors.BaseVillagerBehavior;
 import dev.breeze.settlements.entities.villagers.inventory.VillagerInventory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.entities.villagers.navigation.VillagerNavigation;
@@ -42,6 +43,8 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -68,6 +71,9 @@ public class BaseVillager extends Villager {
             Map.entry(VillagerProfession.TOOLSMITH, Material.SMITHING_TABLE),
             Map.entry(VillagerProfession.WEAPONSMITH, Material.GRINDSTONE)
     );
+
+    @Getter
+    private final Map<Activity, List<BaseVillagerBehavior>> activityBehaviorListMap = new HashMap<>();
 
     @Getter
     @Nonnull
@@ -200,6 +206,17 @@ public class BaseVillager extends Villager {
         this.registerBrainGoals(this.getBrain());
     }
 
+    private void addActivity(Brain<Villager> brain, Activity activity, CustomVillagerBehaviorPackages.BehaviorContainer container) {
+        brain.addActivity(activity, container.behaviors());
+        this.activityBehaviorListMap.put(activity, container.customBehaviors());
+    }
+
+    private void addActivityWithConditions(Brain<Villager> brain, Activity activity, CustomVillagerBehaviorPackages.BehaviorContainer container,
+                                           Set<Pair<MemoryModuleType<?>, MemoryStatus>> conditions) {
+        brain.addActivityWithConditions(activity, container.behaviors(), conditions);
+        this.activityBehaviorListMap.put(activity, container.customBehaviors());
+    }
+
     /**
      * Core components copied from parent class
      */
@@ -207,20 +224,20 @@ public class BaseVillager extends Villager {
         VillagerProfession profession = this.getVillagerData().getProfession();
 
         // Register activities & behaviors
-        brain.addActivity(Activity.CORE, CustomVillagerBehaviorPackages.getCorePackage(profession, 0.5F));
-        brain.addActivity(Activity.IDLE, CustomVillagerBehaviorPackages.getIdlePackage(profession, 0.5F));
+        this.addActivity(brain, Activity.CORE, CustomVillagerBehaviorPackages.getCorePackage(profession, 0.5F));
+        this.addActivity(brain, Activity.IDLE, CustomVillagerBehaviorPackages.getIdlePackage(profession, 0.5F));
 
         if (this.isBaby()) {
             // If baby, register PLAY activities
             brain.addActivity(Activity.PLAY, CustomVillagerBehaviorPackages.getPlayPackage(0.5F));
         } else {
             // Otherwise, register WORK activities if job site is present
-            brain.addActivityWithConditions(Activity.WORK, CustomVillagerBehaviorPackages.getWorkPackage(profession, 0.5F),
+            this.addActivityWithConditions(brain, Activity.WORK, CustomVillagerBehaviorPackages.getWorkPackage(profession, 0.5F),
                     ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryStatus.VALUE_PRESENT)));
         }
 
         // Register meet activities if meeting point is present
-        brain.addActivityWithConditions(Activity.MEET, CustomVillagerBehaviorPackages.getMeetPackage(profession, 0.5F),
+        this.addActivityWithConditions(brain, Activity.MEET, CustomVillagerBehaviorPackages.getMeetPackage(profession, 0.5F),
                 Set.of(Pair.of(MemoryModuleType.MEETING_POINT, MemoryStatus.VALUE_PRESENT)));
 
         // Register other activities

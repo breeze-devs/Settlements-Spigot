@@ -79,6 +79,13 @@ public class ItemStackBuilder {
         return this;
     }
 
+    public ItemStackBuilder insertLore(int index, String lore) {
+        List<String> colored = this.itemMeta.hasLore() ? this.itemMeta.getLore() : new ArrayList<>();
+        colored.add(index, MessageUtil.translateColorCode(lore));
+        this.itemMeta.setLore(colored);
+        return this;
+    }
+
     public ItemStackBuilder addEnchantment(Enchantment enchantment, int level) {
         this.itemMeta.addEnchant(enchantment, level, true);
         return this;

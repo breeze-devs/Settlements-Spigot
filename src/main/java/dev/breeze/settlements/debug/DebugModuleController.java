@@ -1,5 +1,6 @@
 package dev.breeze.settlements.debug;
 
+import dev.breeze.settlements.debug.guis.villager.VillagerDebugBehaviorGui;
 import dev.breeze.settlements.debug.guis.villager.VillagerDebugMainGui;
 import dev.breeze.settlements.debug.guis.villager.VillagerDebugMemoryGui;
 import dev.breeze.settlements.utils.BaseModuleController;
@@ -23,6 +24,7 @@ public class DebugModuleController extends BaseModuleController {
 
         // Inventory events
         pm.registerEvents(new VillagerDebugMainGui(), plugin);
+        pm.registerEvents(new VillagerDebugBehaviorGui(), plugin);
         pm.registerEvents(new VillagerDebugMemoryGui(), plugin);
         return true;
     }

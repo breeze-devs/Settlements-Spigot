@@ -5,6 +5,7 @@ import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.utils.RandomUtil;
 import dev.breeze.settlements.utils.SoundUtil;
+import dev.breeze.settlements.utils.StringUtil;
 import dev.breeze.settlements.utils.TimeUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import dev.breeze.settlements.utils.particle.ParticleUtil;
@@ -189,6 +190,17 @@ public final class TameCatBehavior extends InteractAtTargetBehavior {
     @Override
     protected boolean isTargetReachable(Villager villager) {
         return this.target != null && villager.distanceToSqr(this.target) < this.getInteractRangeSquared();
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.COD)
+                .setDisplayName("&eTame cat behavior")
+                .setLore(
+                        "&7Attempts to adopt a nearby stray cat if no cat owned",
+                        "&7Taming has a %s chance to succeed".formatted(StringUtil.getPercentageDisplay(TAME_CHANCE))
+                );
     }
 
 }

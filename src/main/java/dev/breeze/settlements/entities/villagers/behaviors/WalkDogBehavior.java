@@ -5,6 +5,7 @@ import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
 import dev.breeze.settlements.entities.wolves.behaviors.WolfWalkBehavior;
 import dev.breeze.settlements.utils.PacketUtil;
+import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.npc.Villager;
+import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -94,6 +96,19 @@ public final class WalkDogBehavior extends BaseVillagerBehavior {
             ClientboundSetEntityLinkPacket packet = new ClientboundSetEntityLinkPacket(this.cachedWolf, null);
             PacketUtil.sendPacketToAllPlayers(packet);
         }
+    }
+
+    @Override
+    public int getCurrentCooldown() {
+        return -1;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.LEAD)
+                .setDisplayName("&eWalk dog behavior")
+                .setLore("&7Villagers like to occasionally take their dogs for a walk");
     }
 
 }

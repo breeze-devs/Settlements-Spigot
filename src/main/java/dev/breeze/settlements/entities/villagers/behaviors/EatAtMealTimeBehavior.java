@@ -133,6 +133,19 @@ public final class EatAtMealTimeBehavior extends BaseVillagerBehavior {
             baseVillager.clearHeldItem();
     }
 
+    @Override
+    public int getCurrentCooldown() {
+        return this.cooldown;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.BREAD)
+                .setDisplayName("&eEat at meal time behavior")
+                .setLore("&7Eating will regenerate some health");
+    }
+
     private int randomCooldown() {
         return RandomUtil.RANDOM.nextInt(MIN_EAT_COOLDOWN, MAX_EAT_COOLDOWN);
     }

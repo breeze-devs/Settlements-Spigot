@@ -103,7 +103,8 @@ public class VillagerDebugMainGui implements Listener {
 
         int slot = event.getSlot();
         if (slot == SLOT_BEHAVIORS) {
-            // TODO: Show villager's registered behaviors
+            // Show villager's registered behaviors
+            VillagerDebugBehaviorGui.getViewableInventory(player, holder.getVillager()).showToPlayer(player);
             SoundPresets.inventoryClickEnter(player);
         } else if (slot == SLOT_MEMORIES) {
             // Show villager's memories

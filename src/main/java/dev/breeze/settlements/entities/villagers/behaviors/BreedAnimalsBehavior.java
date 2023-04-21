@@ -239,6 +239,14 @@ public final class BreedAnimalsBehavior extends InteractAtTargetBehavior {
         return target != null && villager.distanceToSqr(target) < this.getInteractRangeSquared();
     }
 
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.WHEAT)
+                .setDisplayName("&eBreed animals behavior")
+                .setLore("&7Can breed: " + String.join(", ", this.canBreed.stream().map(EntityType::toShortString).toList()));
+    }
+
     @Nullable
     private Animal getCurrentTarget() {
         return this.status == BreedStatus.FEEDING_FIRST ? this.targetAnimal1 : this.targetAnimal2;

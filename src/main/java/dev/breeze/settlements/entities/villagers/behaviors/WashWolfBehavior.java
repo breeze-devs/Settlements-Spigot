@@ -176,4 +176,13 @@ public final class WashWolfBehavior extends InteractAtTargetBehavior {
     protected boolean isTargetReachable(Villager villager) {
         return this.targetWolf != null && villager.distanceToSqr(this.targetWolf) < this.getInteractRangeSquared();
     }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.WET_SPONGE)
+                .setDisplayName("&eWash dog behavior")
+                .setLore("&7There's a reason why villagers never wash cats");
+    }
+
 }

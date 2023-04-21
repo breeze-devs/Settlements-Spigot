@@ -105,4 +105,8 @@ public class StringUtil {
         return false;
     }
 
+    public static String getPercentageDisplay(double percentage) {
+        return Math.round(percentage * 100) + "%";
+    }
+
 }

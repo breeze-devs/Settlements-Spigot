@@ -235,4 +235,9 @@ public abstract class InteractAtTargetBehavior extends BaseVillagerBehavior {
      */
     protected abstract boolean isTargetReachable(Villager villager);
 
+    @Override
+    public int getCurrentCooldown() {
+        return this.cooldown;
+    }
+
 }

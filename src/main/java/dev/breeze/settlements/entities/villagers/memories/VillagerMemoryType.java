@@ -2,6 +2,7 @@ package dev.breeze.settlements.entities.villagers.memories;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
+import dev.breeze.settlements.utils.StringUtil;
 import dev.breeze.settlements.utils.particle.ParticlePreset;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -34,7 +35,8 @@ public class VillagerMemoryType {
                 List<String> lore = new ArrayList<>();
                 for (GlobalPos globalPos : memory) {
                     BlockPos pos = globalPos.pos();
-                    lore.add("&7- &e%s&7: x: %d, y: %d, z: %d".formatted(globalPos.dimension().location().toString(), pos.getX(), pos.getY(), pos.getZ()));
+                    lore.add("&7- &e%s&7: x: %d, y: %d, z: %d".formatted(StringUtil.toTitleCase(globalPos.dimension().location().toShortLanguageKey()),
+                            pos.getX(), pos.getY(), pos.getZ()));
                 }
                 return lore;
             })

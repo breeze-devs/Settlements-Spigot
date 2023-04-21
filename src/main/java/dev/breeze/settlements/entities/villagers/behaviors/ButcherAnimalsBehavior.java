@@ -3,6 +3,7 @@ package dev.breeze.settlements.entities.villagers.behaviors;
 import dev.breeze.settlements.Main;
 import dev.breeze.settlements.entities.EntityModuleController;
 import dev.breeze.settlements.utils.SafeRunnable;
+import dev.breeze.settlements.utils.StringUtil;
 import dev.breeze.settlements.utils.TimeUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import dev.breeze.settlements.utils.particle.ParticleUtil;
@@ -32,6 +33,7 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -231,5 +233,20 @@ public final class ButcherAnimalsBehavior extends InteractAtTargetBehavior {
     protected boolean isTargetReachable(Villager villager) {
         return this.target != null && villager.distanceToSqr(this.target) < this.getInteractRangeSquared();
     }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        List<String> lore = new ArrayList<>();
+        lore.add("&7Can butcher if more than:");
+        for (Map.Entry<EntityType<? extends Animal>, Integer> entry : this.butcherAtLeastCount.entrySet()) {
+            lore.add("&7- %s: %d".formatted(StringUtil.toTitleCase(entry.getKey().toShortString()), entry.getValue()));
+        }
+
+        return new ItemStackBuilder(Material.IRON_AXE)
+                .setDisplayName("&eButcher animals behavior")
+                .setLore(lore);
+    }
+
 
 }

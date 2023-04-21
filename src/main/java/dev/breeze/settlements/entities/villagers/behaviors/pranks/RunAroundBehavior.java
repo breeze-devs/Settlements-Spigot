@@ -7,6 +7,7 @@ import dev.breeze.settlements.utils.MessageUtil;
 import dev.breeze.settlements.utils.RandomUtil;
 import dev.breeze.settlements.utils.SoundUtil;
 import dev.breeze.settlements.utils.TimeUtil;
+import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import dev.breeze.settlements.utils.particle.ParticleUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -22,6 +23,7 @@ import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 
@@ -117,6 +119,11 @@ public final class RunAroundBehavior extends BaseVillagerBehavior {
         this.duration = 0;
     }
 
+    @Override
+    public int getCurrentCooldown() {
+        return this.cooldown;
+    }
+
     @Nullable
     private static BlockPos getVillageBoundRandomPos(@Nonnull ServerLevel level, @Nonnull Villager villager) {
         final int horizontalRange = 15;
@@ -143,6 +150,14 @@ public final class RunAroundBehavior extends BaseVillagerBehavior {
             return null;
 
         return new BlockPos(target);
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.LEATHER_BOOTS)
+                .setDisplayName("&eRun around behavior")
+                .setLore("&7I like to move it, move it~");
     }
 
 }

@@ -181,6 +181,19 @@ public final class FishingBehavior extends InteractAtTargetBehavior {
         return villager.distanceToSqr(this.targetWater.getX(), this.targetWater.getY(), this.targetWater.getZ()) < MAX_DISTANCE_FROM_WATER_SQUARED;
     }
 
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.FISHING_ROD)
+                .setDisplayName("&eFish in open waters behavior")
+                .setLore(
+                        "&7A medium-sized pond is required to fish",
+                        "&7High chance of catching cod and salmon",
+                        "&7Low chance of catching puffer fish and tropical fish"
+                );
+    }
+
+
     public static ServerPlayer createFakePlayer(@Nonnull BaseVillager villager) {
         // Create fake player
         MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();

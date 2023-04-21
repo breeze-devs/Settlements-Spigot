@@ -178,6 +178,17 @@ public final class FeedWolfBehavior extends InteractAtTargetBehavior {
         return this.targetWolf != null && villager.distanceToSqr(this.targetWolf) < this.getInteractRangeSquared();
     }
 
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.COOKED_BEEF)
+                .setDisplayName("&eFeed tamed wolves behavior")
+                .setLore(
+                        "&7Fed wolves will regenerate some health depending on the food used",
+                        "&7Villager with at least &ejourneyman &7expertise will feed using higher quality food"
+                );
+    }
+
     private boolean canBeFed(@Nonnull Wolf wolf) {
         return wolf.isTame() && wolf.getHealth() < wolf.getMaxHealth();
     }

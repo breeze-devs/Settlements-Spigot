@@ -2,6 +2,7 @@ package dev.breeze.settlements.entities.villagers.behaviors;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.utils.TimeUtil;
+import dev.breeze.settlements.utils.VillagerUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -19,6 +20,7 @@ import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -150,6 +152,21 @@ public final class ShearSheepBehavior extends InteractAtTargetBehavior {
     @Override
     protected boolean isTargetReachable(Villager villager) {
         return this.targetSheep != null && villager.distanceToSqr(this.targetSheep) < this.getInteractRangeSquared();
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        List<String> lore = new ArrayList<>();
+        lore.add("&7Occasionally shears nearby adult sheep");
+        lore.add("&7Number of sheep sheared depends on expertise:");
+        for (int key : MAX_SHEAR_COUNT_MAP.keySet().stream().sorted().toList()) {
+            lore.add("&7- %s&7: %d sheep".formatted(VillagerUtil.getExpertiseName(key, true), MAX_SHEAR_COUNT_MAP.get(key)));
+        }
+
+        return new ItemStackBuilder(Material.SHEARS)
+                .setDisplayName("&eShear sheep behavior")
+                .setLore(lore);
     }
 
     @Nullable

@@ -3,6 +3,7 @@ package dev.breeze.settlements.entities.villagers.behaviors;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.utils.SoundUtil;
 import dev.breeze.settlements.utils.TimeUtil;
+import dev.breeze.settlements.utils.VillagerUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import dev.breeze.settlements.utils.particle.ParticleUtil;
 import net.minecraft.server.level.ServerLevel;
@@ -25,6 +26,7 @@ import org.bukkit.event.entity.EntityRegainHealthEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -170,6 +172,21 @@ public final class RepairIronGolemBehavior extends InteractAtTargetBehavior {
     @Override
     protected boolean isTargetReachable(Villager villager) {
         return this.targetGolem != null && villager.distanceToSqr(this.targetGolem) < this.getInteractRangeSquared();
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        List<String> lore = new ArrayList<>();
+        lore.add("&7Occasionally repairs nearby injured iron golems");
+        lore.add("&7Health regenerated depends on expertise:");
+        for (int key : REPAIR_AMOUNT_MAP.keySet().stream().sorted().toList()) {
+            lore.add("&7- %s&7: %d HP per ingot".formatted(VillagerUtil.getExpertiseName(key, true), Math.round(REPAIR_AMOUNT_MAP.get(key))));
+        }
+
+        return new ItemStackBuilder(Material.IRON_INGOT)
+                .setDisplayName("&eRepair iron golem behavior")
+                .setLore(lore);
     }
 
     private boolean needHealing(@Nonnull LivingEntity entity) {

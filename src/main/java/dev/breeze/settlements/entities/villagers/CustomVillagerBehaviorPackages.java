@@ -42,7 +42,7 @@ public final class CustomVillagerBehaviorPackages {
     /**
      * Core behaviors
      */
-    public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super Villager>>> getCorePackage(VillagerProfession profession, float speed) {
+    public static BehaviorContainer getCorePackage(VillagerProfession profession, float speed) {
         List<Pair<Integer, ? extends BehaviorControl<? super Villager>>> coreBehaviors = new ArrayList<>();
 
         // Add default behaviors
@@ -71,13 +71,21 @@ public final class CustomVillagerBehaviorPackages {
         ));
 
         // Add custom behaviors
+        List<BaseVillagerBehavior> customBehaviors = new ArrayList<>();
+        BaseVillagerBehavior temp;
+
         if (CAN_OPEN_FENCE_GATE.contains(profession)) {
             coreBehaviors.add(Pair.of(0, new InteractWithFenceGate()));
         }
 
-        coreBehaviors.add(Pair.of(4, new EatAtMealTimeBehavior()));
+        // Eat meals behavior
+        temp = new EatAtMealTimeBehavior();
+        coreBehaviors.add(Pair.of(4, temp));
+        customBehaviors.add(temp);
+
         coreBehaviors.add(Pair.of(20, ScanForPetsBehaviorController.scanForPets()));
 
+        // TODO: refactor this into other activities
         if (profession == VillagerProfession.NITWIT) {
             ArrayList<Pair<? extends BehaviorControl<? super Villager>, Integer>> nitwitBehaviors = new ArrayList<>();
             nitwitBehaviors.add(Pair.of(new LaunchFireworkBehavior(), 1));
@@ -90,13 +98,13 @@ public final class CustomVillagerBehaviorPackages {
         }
 
         // Return behaviors
-        return ImmutableList.copyOf(coreBehaviors);
+        return new BehaviorContainer(ImmutableList.copyOf(coreBehaviors), customBehaviors);
     }
 
     /**
      * Work activity behaviors
      */
-    public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super Villager>>> getWorkPackage(VillagerProfession profession, float speed) {
+    public static BehaviorContainer getWorkPackage(VillagerProfession profession, float speed) {
         ArrayList<Pair<? extends BehaviorControl<? super Villager>, Integer>> workBehaviors = new ArrayList<>();
 
         // Add default behaviors
@@ -110,53 +118,98 @@ public final class CustomVillagerBehaviorPackages {
         ));
 
         // Assign custom work behaviors based on profession
+        List<BaseVillagerBehavior> customBehaviors = new ArrayList<>();
+        BaseVillagerBehavior temp;
+
         int customGoalWeight = 10;
         if (profession == VillagerProfession.NONE || profession == VillagerProfession.NITWIT) {
             // Unreachable code, because villager does not have job site
         } else if (profession == VillagerProfession.ARMORER) {
-            workBehaviors.add(Pair.of(new RepairIronGolemBehavior(), customGoalWeight));
+            temp = new RepairIronGolemBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
         } else if (profession == VillagerProfession.BUTCHER) {
-            workBehaviors.add(Pair.of(new TameWolfBehavior(), customGoalWeight));
-            workBehaviors.add(Pair.of(new BreedAnimalsBehavior(Set.of(EntityType.COW, EntityType.PIG, EntityType.RABBIT)), customGoalWeight));
-            workBehaviors.add(Pair.of(new ButcherAnimalsBehavior(Map.of(
+            temp = new TameWolfBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
+
+            temp = new BreedAnimalsBehavior(Set.of(EntityType.COW, EntityType.PIG, EntityType.RABBIT));
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
+
+            temp = new ButcherAnimalsBehavior(Map.of(
                     EntityType.COW, 3,
                     EntityType.SHEEP, 5,
                     EntityType.CHICKEN, 3,
-                    EntityType.PIG, 3,
-                    EntityType.RABBIT, 3
-            )), customGoalWeight));
+                    EntityType.PIG, 2,
+                    EntityType.RABBIT, 2
+            ));
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
         } else if (profession == VillagerProfession.CARTOGRAPHER) {
 
         } else if (profession == VillagerProfession.CLERIC) {
 
         } else if (profession == VillagerProfession.FARMER) {
-            workBehaviors.add(Pair.of(new TameWolfBehavior(), customGoalWeight));
-            workBehaviors.add(Pair.of(new TameCatBehavior(), customGoalWeight));
-            workBehaviors.add(Pair.of(new BreedAnimalsBehavior(Set.of(EntityType.CHICKEN)), customGoalWeight));
+            temp = new TameWolfBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
+
+            temp = new TameCatBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
+
+            temp = new BreedAnimalsBehavior(Set.of(EntityType.CHICKEN));
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
         } else if (profession == VillagerProfession.FISHERMAN) {
-            workBehaviors.add(Pair.of(new TameCatBehavior(), customGoalWeight));
-            workBehaviors.add(Pair.of(new FishingBehavior(), customGoalWeight));
+            temp = new TameCatBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
+
+            temp = new FishingBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
         } else if (profession == VillagerProfession.FLETCHER) {
             // TODO: pluck feather from chicken
-            workBehaviors.add(Pair.of(new BreedAnimalsBehavior(Set.of(EntityType.CHICKEN)), customGoalWeight));
+            temp = new BreedAnimalsBehavior(Set.of(EntityType.CHICKEN));
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
         } else if (profession == VillagerProfession.LEATHERWORKER) {
-            workBehaviors.add(Pair.of(new TameWolfBehavior(), customGoalWeight));
-            workBehaviors.add(Pair.of(new BreedAnimalsBehavior(Set.of(EntityType.COW)), customGoalWeight));
+            temp = new TameWolfBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
+
+            temp = new BreedAnimalsBehavior(Set.of(EntityType.COW));
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
         } else if (profession == VillagerProfession.LIBRARIAN) {
 
         } else if (profession == VillagerProfession.MASON) {
 
         } else if (profession == VillagerProfession.SHEPHERD) {
-            workBehaviors.add(Pair.of(new TameWolfBehavior(), customGoalWeight));
-            workBehaviors.add(Pair.of(new ShearSheepBehavior(), customGoalWeight));
-            workBehaviors.add(Pair.of(new BreedAnimalsBehavior(Set.of(EntityType.SHEEP)), customGoalWeight));
+            temp = new TameWolfBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
+
+            temp = new ShearSheepBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
+
+            temp = new BreedAnimalsBehavior(Set.of(EntityType.SHEEP));
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
         } else if (profession == VillagerProfession.TOOLSMITH) {
-            workBehaviors.add(Pair.of(new RepairIronGolemBehavior(), customGoalWeight));
+            temp = new RepairIronGolemBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
         } else if (profession == VillagerProfession.WEAPONSMITH) {
-            workBehaviors.add(Pair.of(new RepairIronGolemBehavior(), customGoalWeight));
+            temp = new RepairIronGolemBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
         }
 
-        return ImmutableList.of(
+        ImmutableList<Pair<Integer, ? extends BehaviorControl<? super Villager>>> behaviors = ImmutableList.of(
                 getMinimalLookBehavior(),
                 Pair.of(2, CustomSetWalkTargetFromBlockMemory.create(MemoryModuleType.JOB_SITE, speed, 9, 100, 1200)),
                 Pair.of(3, new GiveGiftToHero(100)),
@@ -165,6 +218,8 @@ public final class CustomVillagerBehaviorPackages {
                 Pair.of(10, SetLookAndInteract.create(EntityType.PLAYER, 4)),
                 Pair.of(99, UpdateActivityFromSchedule.create())
         );
+
+        return new BehaviorContainer(behaviors, customBehaviors);
     }
 
     /**
@@ -208,31 +263,44 @@ public final class CustomVillagerBehaviorPackages {
         );
     }
 
-    public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super Villager>>> getMeetPackage(VillagerProfession profession, float speed) {
+    public static BehaviorContainer getMeetPackage(VillagerProfession profession, float speed) {
         ArrayList<Pair<? extends BehaviorControl<? super Villager>, Integer>> customMeetBehaviors = new ArrayList<>();
+
+        // Add custom behaviors
+        List<BaseVillagerBehavior> customBehaviors = new ArrayList<>();
+        BaseVillagerBehavior temp;
 
         // Feed wolf behavior
         if (profession == VillagerProfession.BUTCHER) {
-            customMeetBehaviors.add(Pair.of(new FeedWolfBehavior(), 1));
+            temp = new FeedWolfBehavior();
+            customMeetBehaviors.add(Pair.of(temp, 1));
+            customBehaviors.add(temp);
         }
 
         // Tame wolf behavior
         if (profession == VillagerProfession.SHEPHERD || profession == VillagerProfession.FARMER || profession == VillagerProfession.LEATHERWORKER
                 || profession == VillagerProfession.BUTCHER) {
-            customMeetBehaviors.add(Pair.of(new TameWolfBehavior(), 1));
+            temp = new TameWolfBehavior();
+            customMeetBehaviors.add(Pair.of(temp, 1));
+            customBehaviors.add(temp);
         }
 
         // Tame cat behavior
         if (profession == VillagerProfession.FARMER || profession == VillagerProfession.FISHERMAN) {
-            customMeetBehaviors.add(Pair.of(new TameCatBehavior(), 1));
+            temp = new TameCatBehavior();
+            customMeetBehaviors.add(Pair.of(temp, 1));
+            customBehaviors.add(temp);
         }
 
         // Throw healing potion behavior
         if (profession == VillagerProfession.CLERIC) {
-            customMeetBehaviors.add(Pair.of(new ThrowHealingPotionBehavior(), 1));
+            temp = new ThrowHealingPotionBehavior();
+            customMeetBehaviors.add(Pair.of(temp, 1));
+            customBehaviors.add(temp);
         }
 
-        return ImmutableList.of(
+        // Default behaviors
+        ImmutableList<Pair<Integer, ? extends BehaviorControl<? super Villager>>> behaviors = ImmutableList.of(
                 getFullLookBehavior(),
                 Pair.of(1, new RunOne<>(customMeetBehaviors)),
                 Pair.of(2, TriggerGate.triggerOneShuffled(ImmutableList.of(
@@ -248,10 +316,14 @@ public final class CustomVillagerBehaviorPackages {
                 Pair.of(10, SetLookAndInteract.create(EntityType.PLAYER, 4)),
                 Pair.of(99, UpdateActivityFromSchedule.create())
         );
+
+        return new BehaviorContainer(behaviors, customBehaviors);
     }
 
-    public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super Villager>>> getIdlePackage(VillagerProfession profession, float speed) {
+    public static BehaviorContainer getIdlePackage(VillagerProfession profession, float speed) {
         List<Pair<Integer, ? extends BehaviorControl<? super Villager>>> idleBehaviors = new ArrayList<>();
+        List<BaseVillagerBehavior> customBehaviors = new ArrayList<>();
+
         idleBehaviors.addAll(List.of(
                 getFullLookBehavior(),
                 Pair.of(3, new GiveGiftToHero(100)),
@@ -278,27 +350,37 @@ public final class CustomVillagerBehaviorPackages {
         ));
 
         // Add custom behaviors
+        BaseVillagerBehavior temp;
+
         // Custom wolf-related behaviors
         if (profession == VillagerProfession.SHEPHERD || profession == VillagerProfession.FARMER || profession == VillagerProfession.LEATHERWORKER
                 || profession == VillagerProfession.BUTCHER) {
             // Add parallel-running behaviors
-            idleBehaviors.add(Pair.of(1, new WalkDogBehavior()));
+            temp = new WalkDogBehavior();
+            idleBehaviors.add(Pair.of(1, temp));
+            customBehaviors.add(temp);
 
             // Add choice behaviors
-            idleChoiceBehaviors.addAll(List.of(
-                    Pair.of(new TameWolfBehavior(), 10),
-                    Pair.of(new WashWolfBehavior(), 10)
-            ));
+            for (BaseVillagerBehavior behavior : List.of(
+                    new TameWolfBehavior(),
+                    new WashWolfBehavior()
+            )) {
+                idleChoiceBehaviors.add(Pair.of(behavior, 10));
+                customBehaviors.add(behavior);
+            }
         }
 
         // Tame cat behavior (cat should be resting now, so no other behaviors)
         if (profession == VillagerProfession.FARMER || profession == VillagerProfession.FISHERMAN) {
-            idleChoiceBehaviors.add(Pair.of(new TameCatBehavior(), 10));
+            temp = new TameCatBehavior();
+            idleChoiceBehaviors.add(Pair.of(temp, 10));
+            customBehaviors.add(temp);
         }
 
         // Add choice behaviors
         idleBehaviors.add(Pair.of(2, new RunOne<>(idleChoiceBehaviors)));
-        return ImmutableList.copyOf(idleBehaviors);
+
+        return new BehaviorContainer(ImmutableList.copyOf(idleBehaviors), customBehaviors);
     }
 
     public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super Villager>>> getPanicPackage(VillagerProfession profession, float speed) {
@@ -389,6 +471,16 @@ public final class CustomVillagerBehaviorPackages {
     private static boolean raidWon(ServerLevel world, LivingEntity entity) {
         Raid raid = world.getRaidAt(entity.blockPosition());
         return raid != null && raid.isVictory();
+    }
+
+    /**
+     * Record used as return data structure
+     *
+     * @param behaviors       minecraft behaviors to be registered
+     * @param customBehaviors custom behaviors (must be same instance)
+     */
+    public record BehaviorContainer(ImmutableList<Pair<Integer, ? extends BehaviorControl<? super Villager>>> behaviors,
+                                    List<BaseVillagerBehavior> customBehaviors) {
     }
 
 }
