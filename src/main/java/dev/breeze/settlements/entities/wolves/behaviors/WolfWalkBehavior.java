@@ -158,7 +158,7 @@ public final class WolfWalkBehavior extends BaseWolfBehavior {
                 // Not close enough to the owner, walk to it
                 villagerWolf.getNavigation().moveTo(villagerWolf.getOwner(), NOTIFY_SPEED_MODIFIER);
             } else {
-                villagerWolf.getOwner().getBrain().setMemory(VillagerMemoryType.WALK_DOG_TARGET, villagerWolf);
+                VillagerMemoryType.WALK_DOG_TARGET.set(villagerWolf.getOwner().getBrain(), villagerWolf);
                 this.status = WalkStatus.SNIFFING;
             }
             return;
@@ -282,8 +282,9 @@ public final class WolfWalkBehavior extends BaseWolfBehavior {
             villagerWolf.setLookLocked(false);
             villagerWolf.setMovementLocked(false);
 
-            if (villagerWolf.getOwner() != null)
-                villagerWolf.getOwner().getBrain().eraseMemory(VillagerMemoryType.WALK_DOG_TARGET);
+            if (villagerWolf.getOwner() != null) {
+                VillagerMemoryType.WALK_DOG_TARGET.set(villagerWolf.getOwner().getBrain(), null);
+            }
 
             // Remove all entities recently sniffed
             villagerWolf.getBrain().eraseMemory(WolfMemoryType.RECENTLY_SNIFFED_ENTITIES);

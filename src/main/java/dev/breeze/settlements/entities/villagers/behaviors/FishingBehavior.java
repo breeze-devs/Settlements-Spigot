@@ -67,7 +67,7 @@ public final class FishingBehavior extends InteractAtTargetBehavior {
         // Preconditions to this behavior
         super(Map.of(
                         // The villager should have seen water nearby
-                        VillagerMemoryType.NEAREST_WATER_AREA, MemoryStatus.VALUE_PRESENT
+                        VillagerMemoryType.NEAREST_WATER_AREA.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT
                 ), TimeUtil.seconds(30), 0,
                 TimeUtil.minutes(2), MAX_DISTANCE_FROM_WATER_SQUARED,
                 5, 5,
@@ -82,7 +82,7 @@ public final class FishingBehavior extends InteractAtTargetBehavior {
 
     @Override
     protected boolean scan(ServerLevel level, Villager villager) {
-        return villager.getBrain().hasMemoryValue(VillagerMemoryType.NEAREST_WATER_AREA);
+        return true;
     }
 
     @Override
@@ -94,7 +94,7 @@ public final class FishingBehavior extends InteractAtTargetBehavior {
         // Disable default walking
         baseVillager.setDefaultWalkTargetDisabled(true);
 
-        this.targetWater = baseVillager.getBrain().getMemory(VillagerMemoryType.NEAREST_WATER_AREA).get();
+        this.targetWater = VillagerMemoryType.NEAREST_WATER_AREA.get(baseVillager.getBrain());
         this.fakePlayer = createFakePlayer(baseVillager);
     }
 

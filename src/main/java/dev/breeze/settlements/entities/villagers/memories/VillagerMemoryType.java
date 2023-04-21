@@ -2,41 +2,168 @@ package dev.breeze.settlements.entities.villagers.memories;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
+import dev.breeze.settlements.utils.particle.ParticlePreset;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.LongTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.world.entity.ai.Brain;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.npc.Villager;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class VillagerMemoryType {
 
     private static final String NBT_TAG_NAME = "settlements_memories";
 
-    public static final String REGISTRY_KEY_FENCE_GATE_TO_CLOSE = "settlements_villager_fence_gates_to_close_memory";
-    public static MemoryModuleType<Set<GlobalPos>> FENCE_GATE_TO_CLOSE;
+    public static final VillagerMemory<Set<GlobalPos>> FENCE_GATE_TO_CLOSE = VillagerMemory.<Set<GlobalPos>>builder()
+            .identifier("fence_gate_to_close")
+            .parser(memory -> {
+                if (memory.isEmpty()) {
+                    return Collections.singletonList("&cNo gates to close");
+                }
 
-    public static final String REGISTRY_KEY_OWNED_DOG = "settlements_villager_owned_dog_memory";
-    public static MemoryModuleType<UUID> OWNED_DOG;
+                List<String> lore = new ArrayList<>();
+                for (GlobalPos globalPos : memory) {
+                    BlockPos pos = globalPos.pos();
+                    lore.add("&7- &e%s&7: x: %d, y: %d, z: %d".formatted(globalPos.dimension().location().toString(), pos.getX(), pos.getY(), pos.getZ()));
+                }
+                return lore;
+            })
+            .serializer(null)
+            .clickEventHandler(null)
+            .displayName("Opened gates")
+            .description(Collections.singletonList("&fThe fence gate(s) that the villager should to close when passing by"))
+            .itemMaterial(Material.OAK_FENCE_GATE)
+            .build();
 
-    public static final String REGISTRY_KEY_OWNED_CAT = "settlements_villager_owned_cat_memory";
-    public static MemoryModuleType<UUID> OWNED_CAT;
+    public static final VillagerMemory<UUID> OWNED_DOG = VillagerMemory.<UUID>builder()
+            .identifier("owned_dog")
+            .parser(memory -> List.of("&7UUID: %s".formatted(memory.toString()), "&eClick &7to show the wolf's location"))
+            .serializer(new VillagerMemory.MemorySerializer<>() {
+                @Nonnull
+                @Override
+                public StringTag toTag(@Nonnull UUID memory) {
+                    return StringTag.valueOf(memory.toString());
+                }
 
-    public static final String REGISTRY_KEY_WALK_DOG_TARGET = "settlements_villager_walk_dog_target_memory";
-    public static MemoryModuleType<VillagerWolf> WALK_DOG_TARGET;
+                @Nonnull
+                @Override
+                public UUID fromTag(@Nonnull CompoundTag memoriesTag, @Nonnull String key) {
+                    return UUID.fromString(memoriesTag.getString(key));
+                }
+            })
+            .clickEventHandler((player, memory) -> {
+                Entity wolf = Bukkit.getEntity((UUID) memory);
+                if (wolf == null) {
+                    return;
+                }
 
-    public static final String REGISTRY_KEY_NEAREST_WATER_AREA = "settlements_villager_nearest_water_area_memory";
-    public static MemoryModuleType<BlockPos> NEAREST_WATER_AREA;
+                player.closeInventory();
+                highlightLocation(player, wolf.getLocation().add(0, 0.2, 0));
+            })
+            .displayName("Tamed wolf")
+            .description(Collections.singletonList("&fThe wolf that this villager has tamed"))
+            .itemMaterial(Material.BONE)
+            .build();
 
-    public static final String REGISTRY_KEY_IS_MEAL_TIME = "settlements_villager_is_meal_time_memory";
-    public static MemoryModuleType<Boolean> IS_MEAL_TIME;
+    public static final VillagerMemory<UUID> OWNED_CAT = VillagerMemory.<UUID>builder()
+            .identifier("owned_cat")
+            .parser(memory -> List.of("&7UUID: %s".formatted(memory.toString()), "&eClick &7to show the cat's location"))
+            .serializer(new VillagerMemory.MemorySerializer<>() {
+                @Nonnull
+                @Override
+                public StringTag toTag(@Nonnull UUID memory) {
+                    return StringTag.valueOf(memory.toString());
+                }
 
+                @Nonnull
+                @Override
+                public UUID fromTag(@Nonnull CompoundTag memoriesTag, @Nonnull String key) {
+                    return UUID.fromString(memoriesTag.getString(key));
+                }
+            })
+            .clickEventHandler((player, memory) -> {
+                Entity cat = Bukkit.getEntity((UUID) memory);
+                if (cat == null) {
+                    return;
+                }
+
+                // Close inventory & display particles to the tamed cat
+                player.closeInventory();
+                highlightLocation(player, cat.getLocation().add(0, 0.2, 0));
+            })
+            .displayName("Tamed cat")
+            .description(Collections.singletonList("&fThe cat that this villager has tamed"))
+            .itemMaterial(Material.COD)
+            .build();
+
+    public static final VillagerMemory<VillagerWolf> WALK_DOG_TARGET = VillagerMemory.<VillagerWolf>builder()
+            .identifier("walk_dog_target")
+            .parser(memory -> Collections.singletonList("&7UUID: %s".formatted(memory.getUUID().toString())))
+            .serializer(null)
+            .clickEventHandler(null)
+            .displayName("Walk target")
+            .description(Collections.singletonList("&fThe tamed wolf that requested to go on a walk"))
+            .itemMaterial(Material.LEAD)
+            .build();
+
+    public static final VillagerMemory<BlockPos> NEAREST_WATER_AREA = VillagerMemory.<BlockPos>builder()
+            .identifier("nearest_water_area")
+            .parser(memory -> Collections.singletonList("&7Location: x: %d, y: %d, z: %d".formatted(memory.getX(), memory.getY(), memory.getZ())))
+            .serializer(new VillagerMemory.MemorySerializer<>() {
+                @Nonnull
+                @Override
+                public LongTag toTag(@Nonnull BlockPos memory) {
+                    return LongTag.valueOf(memory.asLong());
+                }
+
+                @Nonnull
+                @Override
+                public BlockPos fromTag(@Nonnull CompoundTag memoriesTag, @Nonnull String key) {
+                    return BlockPos.of(memoriesTag.getLong(key));
+                }
+            })
+            .clickEventHandler((player, memory) -> {
+                player.closeInventory();
+                BlockPos pos = (BlockPos) memory;
+                highlightLocation(player, new Location(player.getWorld(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5));
+            })
+            .displayName("Nearest fishing location")
+            .description(List.of("&fThe closest location big enough for the villager to fish in", "&eClick &7to show the fishing location"))
+            .itemMaterial(Material.FISHING_ROD)
+            .build();
+
+    public static final VillagerMemory<Boolean> IS_MEAL_TIME = VillagerMemory.<Boolean>builder()
+            .identifier("meal_time")
+            .parser(memory -> Collections.singletonList(memory ? "Yes" : "No"))
+            .serializer(null)
+            .clickEventHandler(null)
+            .displayName("Meal time")
+            .description(List.of(
+                    "&fIs it a good time to eat now?",
+                    "&fMeal times:",
+                    "&7- Breakfast: 1800 - 2200 ticks",
+                    "&7- Lunch: 5800 - 6200 ticks",
+                    "&7- Dinner: 10800 - 11200 ticks"
+            ))
+            .itemMaterial(Material.BREAD)
+            .build();
+
+
+    /**
+     * List of all memories for bulk memory operations such as save/load
+     */
+    public static final List<VillagerMemory<?>> ALL_MEMORIES = Arrays.asList(FENCE_GATE_TO_CLOSE, OWNED_DOG, OWNED_CAT, WALK_DOG_TARGET, NEAREST_WATER_AREA,
+            IS_MEAL_TIME);
 
     /**
      * Export important memories to NBT
@@ -46,20 +173,8 @@ public class VillagerMemoryType {
     public static void save(@Nonnull CompoundTag nbt, @Nonnull BaseVillager villager) {
         Brain<Villager> brain = villager.getBrain();
         CompoundTag memories = new CompoundTag();
-
-        if (brain.hasMemoryValue(OWNED_DOG)) {
-            UUID uuid = brain.getMemory(OWNED_DOG).get();
-            memories.put(REGISTRY_KEY_OWNED_DOG, StringTag.valueOf(uuid.toString()));
-        }
-
-        if (brain.hasMemoryValue(OWNED_CAT)) {
-            UUID uuid = brain.getMemory(OWNED_CAT).get();
-            memories.put(REGISTRY_KEY_OWNED_CAT, StringTag.valueOf(uuid.toString()));
-        }
-
-        if (brain.hasMemoryValue(NEAREST_WATER_AREA)) {
-            BlockPos pos = brain.getMemory(NEAREST_WATER_AREA).get();
-            memories.put(REGISTRY_KEY_NEAREST_WATER_AREA, LongTag.valueOf(pos.asLong()));
+        for (VillagerMemory<?> memory : ALL_MEMORIES) {
+            memory.save(memories, brain);
         }
 
         // Write to NBT tag
@@ -77,17 +192,24 @@ public class VillagerMemoryType {
         // Load memories to brain
         Brain<Villager> brain = villager.getBrain();
         CompoundTag memories = nbt.getCompound(NBT_TAG_NAME);
-        if (memories.contains(REGISTRY_KEY_OWNED_DOG)) {
-            brain.setMemory(OWNED_DOG, UUID.fromString(memories.getString(REGISTRY_KEY_OWNED_DOG)));
+        for (VillagerMemory<?> memory : ALL_MEMORIES) {
+            memory.load(memories, brain);
         }
+    }
 
-        if (memories.contains(REGISTRY_KEY_OWNED_CAT)) {
-            brain.setMemory(OWNED_CAT, UUID.fromString(memories.getString(REGISTRY_KEY_OWNED_CAT)));
-        }
+    /*
+     * Utility methods
+     */
 
-        if (memories.contains(REGISTRY_KEY_NEAREST_WATER_AREA)) {
-            brain.setMemory(NEAREST_WATER_AREA, BlockPos.of(memories.getLong(REGISTRY_KEY_NEAREST_WATER_AREA)));
-        }
+    /**
+     * Displays particles to highlight a location that's only visible to the player
+     *
+     * @param player player to display the particles to
+     * @param target location to highlight
+     */
+    private static void highlightLocation(Player player, Location target) {
+        ParticlePreset.displayLinePrivate(player, player.getEyeLocation(), target, 15, Particle.END_ROD, 2, 0, 0, 0, 0);
+        ParticlePreset.displayCirclePrivate(player, target, 1, 20, Particle.VILLAGER_HAPPY, 1, 0, 0, 0, 0);
     }
 
 }

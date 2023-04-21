@@ -52,7 +52,7 @@ public final class EatAtMealTimeBehavior extends BaseVillagerBehavior {
     public EatAtMealTimeBehavior() {
         super(Map.of(
                 // Only run in meal times
-                VillagerMemoryType.IS_MEAL_TIME, MemoryStatus.VALUE_PRESENT
+                VillagerMemoryType.IS_MEAL_TIME.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT
         ), MAX_EAT_DURATION + MAX_DRINK_DURATION);
 
         this.cooldown = this.randomCooldown();

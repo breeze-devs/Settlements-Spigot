@@ -54,7 +54,7 @@ public final class TameCatBehavior extends InteractAtTargetBehavior {
         // Preconditions to this behavior
         super(Map.of(
                         // The villager should not already have a cat
-                        VillagerMemoryType.OWNED_CAT, MemoryStatus.VALUE_ABSENT,
+                        VillagerMemoryType.OWNED_CAT.getMemoryModuleType(), MemoryStatus.VALUE_ABSENT,
                         // There should be living entities nearby
                         MemoryModuleType.NEAREST_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT
                 ), TimeUtil.seconds(40), Math.pow(20, 2),
@@ -158,7 +158,7 @@ public final class TameCatBehavior extends InteractAtTargetBehavior {
             this.target = null;
 
             // Set memory
-            villager.getBrain().setMemory(VillagerMemoryType.OWNED_CAT, Optional.of(villagerCat.getUUID()));
+            VillagerMemoryType.OWNED_CAT.set(villager.getBrain(), villagerCat.getUUID());
 
             // Stop after taming
             this.doStop(level, villager, gameTime);

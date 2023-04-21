@@ -92,6 +92,7 @@ public class EntityModuleController extends BaseModuleController {
      * - must be done before the world loads
      * - after registering, '/summon' works and the entity can persist restarts
      */
+    @SuppressWarnings("JavaReflectionMemberAccess")
     private void registerEntities(Map<String, EntityType.Builder<Entity>> entityTypeMap) throws IllegalAccessException, InvocationTargetException,
             NoSuchMethodException, NoSuchFieldException {
         // Get entity type registry
@@ -132,6 +133,7 @@ public class EntityModuleController extends BaseModuleController {
      * Registers all memory types created in this module to the registry
      * - must be done before the world loads
      */
+    @SuppressWarnings("JavaReflectionMemberAccess")
     private void registerMemories() throws IllegalAccessException, NoSuchMethodException, NoSuchFieldException {
         // Get memory module type registry
         DedicatedServer dedicatedServer = ((CraftServer) Bukkit.getServer()).getServer();
@@ -149,12 +151,12 @@ public class EntityModuleController extends BaseModuleController {
          * Build & register memories
          */
         // Villager memories
-        VillagerMemoryType.FENCE_GATE_TO_CLOSE = registerMemory(VillagerMemoryType.REGISTRY_KEY_FENCE_GATE_TO_CLOSE, null);
-        VillagerMemoryType.OWNED_DOG = registerMemory(VillagerMemoryType.REGISTRY_KEY_OWNED_DOG, null);
-        VillagerMemoryType.OWNED_CAT = registerMemory(VillagerMemoryType.REGISTRY_KEY_OWNED_CAT, null);
-        VillagerMemoryType.WALK_DOG_TARGET = registerMemory(VillagerMemoryType.REGISTRY_KEY_WALK_DOG_TARGET, null);
-        VillagerMemoryType.NEAREST_WATER_AREA = registerMemory(VillagerMemoryType.REGISTRY_KEY_NEAREST_WATER_AREA, null);
-        VillagerMemoryType.IS_MEAL_TIME = registerMemory(VillagerMemoryType.REGISTRY_KEY_IS_MEAL_TIME, null);
+        VillagerMemoryType.FENCE_GATE_TO_CLOSE.setMemoryModuleType(registerMemory(VillagerMemoryType.FENCE_GATE_TO_CLOSE.getIdentifier(), null));
+        VillagerMemoryType.OWNED_DOG.setMemoryModuleType(registerMemory(VillagerMemoryType.OWNED_DOG.getIdentifier(), null));
+        VillagerMemoryType.OWNED_CAT.setMemoryModuleType(registerMemory(VillagerMemoryType.OWNED_CAT.getIdentifier(), null));
+        VillagerMemoryType.WALK_DOG_TARGET.setMemoryModuleType(registerMemory(VillagerMemoryType.WALK_DOG_TARGET.getIdentifier(), null));
+        VillagerMemoryType.NEAREST_WATER_AREA.setMemoryModuleType(registerMemory(VillagerMemoryType.NEAREST_WATER_AREA.getIdentifier(), null));
+        VillagerMemoryType.IS_MEAL_TIME.setMemoryModuleType(registerMemory(VillagerMemoryType.IS_MEAL_TIME.getIdentifier(), null));
 
         // Wolf memories
         WolfMemoryType.NEARBY_ITEMS = registerMemory(WolfMemoryType.REGISTRY_KEY_NEARBY_ITEMS, null);
@@ -182,6 +184,7 @@ public class EntityModuleController extends BaseModuleController {
      * Registers all sensor types created in this module to the registry
      * - must be done before the world loads
      */
+    @SuppressWarnings("JavaReflectionMemberAccess")
     private void registerSensors() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException,
             InstantiationException {
         // Get sensor type registry
@@ -218,6 +221,7 @@ public class EntityModuleController extends BaseModuleController {
         BuiltInRegistries.SENSOR_TYPE.freeze();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private <U extends Sensor<?>> SensorType<U> registerSensor(@Nonnull String id, @Nonnull Supplier<U> factory) throws NoSuchMethodException,
             InvocationTargetException, InstantiationException, IllegalAccessException {
         Constructor<SensorType> constructor = SensorType.class.getDeclaredConstructor(Supplier.class);

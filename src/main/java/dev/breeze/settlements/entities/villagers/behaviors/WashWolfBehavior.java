@@ -46,7 +46,7 @@ public final class WashWolfBehavior extends InteractAtTargetBehavior {
         // Preconditions to this behavior
         super(Map.of(
                         // The villager should own a wolf
-                        VillagerMemoryType.OWNED_DOG, MemoryStatus.VALUE_PRESENT
+                        VillagerMemoryType.OWNED_DOG.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT
                 ), TimeUtil.seconds(20), Math.pow(20, 2),
                 TimeUtil.minutes(2), Math.pow(1.5, 2),
                 5, 1,
@@ -62,12 +62,12 @@ public final class WashWolfBehavior extends InteractAtTargetBehavior {
         Brain<Villager> brain = villager.getBrain();
 
         if (this.targetWolf == null) {
-            UUID wolfUuid = brain.getMemory(VillagerMemoryType.OWNED_DOG).get();
+            UUID wolfUuid = VillagerMemoryType.OWNED_DOG.get(brain);
             this.targetWolf = (Wolf) villager.level.getMinecraftWorld().getEntity(wolfUuid);
 
             // If wolf is not alive, reset memory
             if (this.targetWolf == null || !this.targetWolf.isAlive()) {
-                villager.getBrain().eraseMemory(VillagerMemoryType.OWNED_DOG);
+                VillagerMemoryType.OWNED_DOG.set(brain, null);
                 return false;
             }
 

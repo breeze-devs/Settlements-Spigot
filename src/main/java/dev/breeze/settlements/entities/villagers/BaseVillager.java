@@ -9,6 +9,8 @@ import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.entities.villagers.navigation.VillagerNavigation;
 import dev.breeze.settlements.entities.villagers.sensors.VillagerSensorType;
 import dev.breeze.settlements.utils.LogUtil;
+import dev.breeze.settlements.utils.StringUtil;
+import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.nbt.CompoundTag;
@@ -33,12 +35,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -46,6 +50,24 @@ public class BaseVillager extends Villager {
 
     public static final String ENTITY_TYPE = "settlements_villager";
     private static final String INVENTORY_NBT_TAG = "custom_inventory";
+
+    private static final Map<VillagerProfession, Material> PROFESSION_MATERIAL_MAP = Map.ofEntries(
+            Map.entry(VillagerProfession.NONE, Material.BARRIER),
+            Map.entry(VillagerProfession.ARMORER, Material.BLAST_FURNACE),
+            Map.entry(VillagerProfession.BUTCHER, Material.SMOKER),
+            Map.entry(VillagerProfession.CARTOGRAPHER, Material.CARTOGRAPHY_TABLE),
+            Map.entry(VillagerProfession.CLERIC, Material.BREWING_STAND),
+            Map.entry(VillagerProfession.FARMER, Material.COMPOSTER),
+            Map.entry(VillagerProfession.FISHERMAN, Material.BARREL),
+            Map.entry(VillagerProfession.FLETCHER, Material.FLETCHING_TABLE),
+            Map.entry(VillagerProfession.LEATHERWORKER, Material.CAULDRON),
+            Map.entry(VillagerProfession.LIBRARIAN, Material.LECTERN),
+            Map.entry(VillagerProfession.MASON, Material.STONECUTTER),
+            Map.entry(VillagerProfession.NITWIT, Material.POTATO),
+            Map.entry(VillagerProfession.SHEPHERD, Material.LOOM),
+            Map.entry(VillagerProfession.TOOLSMITH, Material.SMITHING_TABLE),
+            Map.entry(VillagerProfession.WEAPONSMITH, Material.GRINDSTONE)
+    );
 
     @Getter
     @Nonnull
@@ -136,6 +158,7 @@ public class BaseVillager extends Villager {
 
 
     @Override
+    @SuppressWarnings("unchecked")
     protected @Nonnull Brain.Provider<Villager> brainProvider() {
         try {
             // cB = private static final ImmutableList<MemoryModuleType<?>>
@@ -147,12 +170,12 @@ public class BaseVillager extends Villager {
 
             ImmutableList<MemoryModuleType<?>> customMemoryTypes = new ImmutableList.Builder<MemoryModuleType<?>>()
                     .addAll(DEFAULT_MEMORY_TYPES)
-                    .add(VillagerMemoryType.FENCE_GATE_TO_CLOSE)
-                    .add(VillagerMemoryType.OWNED_DOG)
-                    .add(VillagerMemoryType.OWNED_CAT)
-                    .add(VillagerMemoryType.WALK_DOG_TARGET)
-                    .add(VillagerMemoryType.NEAREST_WATER_AREA)
-                    .add(VillagerMemoryType.IS_MEAL_TIME)
+                    .add(VillagerMemoryType.FENCE_GATE_TO_CLOSE.getMemoryModuleType())
+                    .add(VillagerMemoryType.OWNED_DOG.getMemoryModuleType())
+                    .add(VillagerMemoryType.OWNED_CAT.getMemoryModuleType())
+                    .add(VillagerMemoryType.WALK_DOG_TARGET.getMemoryModuleType())
+                    .add(VillagerMemoryType.NEAREST_WATER_AREA.getMemoryModuleType())
+                    .add(VillagerMemoryType.IS_MEAL_TIME.getMemoryModuleType())
                     .build();
 
             ImmutableList<SensorType<? extends Sensor<Villager>>> customSensorTypes = new ImmutableList.Builder<SensorType<? extends Sensor<Villager>>>()
@@ -314,6 +337,14 @@ public class BaseVillager extends Villager {
      */
     public VillagerProfession getProfession() {
         return this.getVillagerData().getProfession();
+    }
+
+    public org.bukkit.inventory.ItemStack getProfessionGuiItem() {
+        VillagerProfession profession = this.getProfession();
+        return new ItemStackBuilder(PROFESSION_MATERIAL_MAP.get(profession))
+                .setDisplayName("&e&lProfession")
+                .setLore("&7" + (profession == VillagerProfession.NONE ? "Unemployed" : StringUtil.toTitleCase(profession.name())))
+                .build();
     }
 
     public int getExpertiseLevel() {

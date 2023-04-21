@@ -57,16 +57,13 @@ public class VillagerNearbyWaterAreaSensor extends Sensor<Villager> {
 
         // Detect nearby water areas
         Optional<BlockPos> nearestWaterArea = this.findNearestWaterArea(world, villager);
-        if (nearestWaterArea.isEmpty())
-            brain.eraseMemory(VillagerMemoryType.NEAREST_WATER_AREA);
-        else
-            brain.setMemory(VillagerMemoryType.NEAREST_WATER_AREA, nearestWaterArea);
+        VillagerMemoryType.NEAREST_WATER_AREA.set(brain, nearestWaterArea.orElse(null));
     }
 
     @Override
     @Nonnull
     public Set<MemoryModuleType<?>> requires() {
-        return Set.of(VillagerMemoryType.NEAREST_WATER_AREA);
+        return Set.of(VillagerMemoryType.NEAREST_WATER_AREA.getMemoryModuleType());
     }
 
     private Optional<BlockPos> findNearestWaterArea(@Nonnull ServerLevel world, @Nonnull Villager villager) {
