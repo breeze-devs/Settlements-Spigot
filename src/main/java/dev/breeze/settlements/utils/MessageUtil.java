@@ -43,6 +43,10 @@ public class MessageUtil {
         }
     }
 
+    public static String translateColorCode(String message) {
+        return ChatColor.translateAlternateColorCodes('&', message);
+    }
+
     public static String translateColorCode(String format, Object... args) {
         return ChatColor.translateAlternateColorCodes('&', String.format(format, args));
     }

@@ -15,6 +15,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.inventory.meta.FireworkMeta;
 
+import javax.annotation.Nonnull;
+
 public final class LaunchFireworkBehavior extends PrankEntityBehavior {
 
     private static final ItemStack FIREWORK = CraftItemStack.asNMSCopy(new ItemStackBuilder(Material.FIREWORK_ROCKET).build());
@@ -64,6 +66,14 @@ public final class LaunchFireworkBehavior extends PrankEntityBehavior {
         }
 
         return builder.build();
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.FIREWORK_ROCKET)
+                .setDisplayName("&eLaunch firework prank")
+                .setLore("&7Occasionally launch a firework to annoy other villagers");
     }
 
 }

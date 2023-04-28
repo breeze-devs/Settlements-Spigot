@@ -58,6 +58,8 @@ tasks {
     reobfJar {
         // This is an example of how you might change the output location for reobfJar. It's recommended not to do this
         // for a variety of reasons, however it's asked frequently enough that an example of how to do it is included here.
+
+        // Note: change this to your own /server/plugins directory or comment this out for building
         outputJar.set(layout.buildDirectory.file("D:\\One\\Minecraft\\Server\\plugins\\${project.name}-${project.version}.jar"))
     }
 }
@@ -78,7 +80,7 @@ bukkit {
     apiVersion = "1.19"
 
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
-    authors = listOf("Breeze")
+    authors = listOf("Breeze", "JustAHuman")
 //  depend = listOf("WorldEdit")
 //  softDepend = listOf("Essentials")
 //  loadBefore = listOf("BrokenPlugin")
@@ -89,7 +91,14 @@ bukkit {
     commands {
         register("settlements_test") {
             description = "Main command for testing interface"
-            aliases = listOf("s_test")
+            aliases = listOf("stest")
+            permission = "${project.name}.admin"
+            usage = "Just run the command!"
+            permissionMessage = "Permission denied"
+        }
+        register("settlements_debug") {
+            description = "The debugging toolkit for the Settlements plugin"
+            aliases = listOf("sdebug")
             permission = "${project.name}.admin"
             usage = "Just run the command!"
             permissionMessage = "Permission denied"

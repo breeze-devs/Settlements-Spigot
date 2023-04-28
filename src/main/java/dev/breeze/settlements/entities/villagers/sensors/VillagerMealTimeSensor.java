@@ -38,17 +38,13 @@ public class VillagerMealTimeSensor extends Sensor<Villager> {
         }
 
         // Set or erase memory
-        if (isMealTime) {
-            brain.setMemory(VillagerMemoryType.IS_MEAL_TIME, true);
-        } else {
-            brain.eraseMemory(VillagerMemoryType.IS_MEAL_TIME);
-        }
+        VillagerMemoryType.IS_MEAL_TIME.set(brain, isMealTime ? true : null);
     }
 
     @Override
     @Nonnull
     public Set<MemoryModuleType<?>> requires() {
-        return Set.of(VillagerMemoryType.IS_MEAL_TIME);
+        return Set.of(VillagerMemoryType.IS_MEAL_TIME.getMemoryModuleType());
     }
 
 }

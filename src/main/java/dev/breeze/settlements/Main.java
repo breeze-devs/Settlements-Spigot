@@ -1,6 +1,7 @@
 package dev.breeze.settlements;
 
 import dev.breeze.settlements.config.ConfigModuleController;
+import dev.breeze.settlements.debug.DebugModuleController;
 import dev.breeze.settlements.entities.EntityModuleController;
 import dev.breeze.settlements.guis.GuiModuleController;
 import dev.breeze.settlements.test.TestModuleController;
@@ -24,6 +25,7 @@ public final class Main extends JavaPlugin {
 
     private final BaseModuleController[] moduleControllers = new BaseModuleController[]{
             new ConfigModuleController(),
+            new DebugModuleController(),
             new EntityModuleController(),
             new GuiModuleController(),
             new TestModuleController(),

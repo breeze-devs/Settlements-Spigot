@@ -5,6 +5,7 @@ import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
 import dev.breeze.settlements.entities.wolves.behaviors.WolfWalkBehavior;
 import dev.breeze.settlements.utils.PacketUtil;
+import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.npc.Villager;
+import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -25,20 +27,20 @@ public final class WalkDogBehavior extends BaseVillagerBehavior {
     public WalkDogBehavior() {
         super(Map.of(
                 // The villager should own a wolf
-                VillagerMemoryType.OWNED_DOG, MemoryStatus.VALUE_PRESENT,
+                VillagerMemoryType.OWNED_DOG.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT,
                 // A dog must be present to walk
-                VillagerMemoryType.WALK_DOG_TARGET, MemoryStatus.VALUE_PRESENT
+                VillagerMemoryType.WALK_DOG_TARGET.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT
         ), WolfWalkBehavior.MAX_WALK_DURATION);
     }
 
     @Override
     protected boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull Villager villager) {
-        return villager.getBrain().hasMemoryValue(VillagerMemoryType.WALK_DOG_TARGET);
+        return true;
     }
 
     @Override
     protected boolean canStillUse(@Nonnull ServerLevel level, @Nonnull Villager villager, long gameTime) {
-        return villager.getBrain().hasMemoryValue(VillagerMemoryType.WALK_DOG_TARGET);
+        return villager.getBrain().hasMemoryValue(VillagerMemoryType.WALK_DOG_TARGET.getMemoryModuleType());
     }
 
     @Override
@@ -50,7 +52,7 @@ public final class WalkDogBehavior extends BaseVillagerBehavior {
             baseVillager.setDefaultWalkTargetDisabled(true);
 
         // Get wolf to walk
-        VillagerWolf villagerWolf = villager.getBrain().getMemory(VillagerMemoryType.WALK_DOG_TARGET).get();
+        VillagerWolf villagerWolf = VillagerMemoryType.WALK_DOG_TARGET.get(villager.getBrain());
         this.cachedWolf = villagerWolf;
 
         // Clear relevant memories
@@ -75,7 +77,8 @@ public final class WalkDogBehavior extends BaseVillagerBehavior {
             return;
 
         // Follow the wolf
-        VillagerWolf villagerWolf = villager.getBrain().getMemory(VillagerMemoryType.WALK_DOG_TARGET).get();
+        // TODO: check if we can replace with cached wolf
+        VillagerWolf villagerWolf = VillagerMemoryType.WALK_DOG_TARGET.get(villager.getBrain());
         villager.getBrain().setMemory(MemoryModuleType.INTERACTION_TARGET, villagerWolf);
         villager.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(villagerWolf, SPEED_MODIFIER, 3));
     }
@@ -93,6 +96,19 @@ public final class WalkDogBehavior extends BaseVillagerBehavior {
             ClientboundSetEntityLinkPacket packet = new ClientboundSetEntityLinkPacket(this.cachedWolf, null);
             PacketUtil.sendPacketToAllPlayers(packet);
         }
+    }
+
+    @Override
+    public int getCurrentCooldown() {
+        return -1;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.LEAD)
+                .setDisplayName("&eWalk dog behavior")
+                .setLore("&7Villagers like to occasionally take their dogs for a walk");
     }
 
 }

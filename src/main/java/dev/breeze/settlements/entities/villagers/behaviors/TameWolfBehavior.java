@@ -5,6 +5,7 @@ import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
 import dev.breeze.settlements.utils.RandomUtil;
 import dev.breeze.settlements.utils.SoundUtil;
+import dev.breeze.settlements.utils.StringUtil;
 import dev.breeze.settlements.utils.TimeUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import dev.breeze.settlements.utils.particle.ParticleUtil;
@@ -48,7 +49,7 @@ public final class TameWolfBehavior extends InteractAtTargetBehavior {
         // Preconditions to this behavior
         super(Map.of(
                         // The villager should not already have a wolf
-                        VillagerMemoryType.OWNED_DOG, MemoryStatus.VALUE_ABSENT,
+                        VillagerMemoryType.OWNED_DOG.getMemoryModuleType(), MemoryStatus.VALUE_ABSENT,
                         // There should be living entities nearby
                         MemoryModuleType.NEAREST_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT
                 ), TimeUtil.seconds(30), Math.pow(20, 2),
@@ -142,7 +143,7 @@ public final class TameWolfBehavior extends InteractAtTargetBehavior {
                 villagerWolf.tameByVillager(baseVillager);
 
             // Set memory
-            villager.getBrain().setMemory(VillagerMemoryType.OWNED_DOG, Optional.of(villagerWolf.getUUID()));
+            VillagerMemoryType.OWNED_DOG.set(villager.getBrain(), villagerWolf.getUUID());
 
             // Stop after taming
             this.doStop(level, villager, gameTime);
@@ -172,6 +173,17 @@ public final class TameWolfBehavior extends InteractAtTargetBehavior {
     @Override
     protected boolean isTargetReachable(Villager villager) {
         return this.targetWolf != null && villager.distanceToSqr(this.targetWolf) < this.getInteractRangeSquared();
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.BONE)
+                .setDisplayName("&eTame wolf behavior")
+                .setLore(
+                        "&7Attempts to adopt a nearby stray wolf if no wolf owned",
+                        "&7Taming has a %s chance to succeed".formatted(StringUtil.getPercentageDisplay(TAME_CHANCE))
+                );
     }
 
 }

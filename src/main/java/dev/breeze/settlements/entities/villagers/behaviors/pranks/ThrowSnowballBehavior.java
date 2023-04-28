@@ -23,6 +23,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Snowball;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+
 public final class ThrowSnowballBehavior extends PrankEntityBehavior {
 
     private static final ItemStack SNOWBALL = CraftItemStack.asNMSCopy(new ItemStackBuilder(Material.SNOWBALL).build());
@@ -71,6 +73,14 @@ public final class ThrowSnowballBehavior extends PrankEntityBehavior {
     @Override
     protected ItemStack getItemToHold() {
         return SNOWBALL;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.SNOWBALL)
+                .setDisplayName("&eThrow snowballs prank")
+                .setLore("&7Occasionally toss some snowballs at other villagers");
     }
 
     private Vector randomOffset() {

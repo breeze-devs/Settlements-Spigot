@@ -1,14 +1,12 @@
-package dev.breeze.settlements.test;
+package dev.breeze.settlements.debug;
 
 import dev.breeze.settlements.Main;
+import dev.breeze.settlements.debug.guis.villager.VillagerDebugMainGui;
 import dev.breeze.settlements.entities.cats.VillagerCat;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
-import dev.breeze.settlements.entities.villagers.inventory.VillagerInventory;
-import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
 import dev.breeze.settlements.entities.wolves.memories.WolfMemoryType;
 import dev.breeze.settlements.entities.wolves.sensors.WolfFenceAreaSensor;
-import dev.breeze.settlements.guis.CustomInventory;
 import dev.breeze.settlements.utils.MessageUtil;
 import dev.breeze.settlements.utils.TimeUtil;
 import dev.breeze.settlements.utils.particle.ParticlePreset;
@@ -22,10 +20,8 @@ import net.minecraft.world.entity.ai.memory.ExpirableValue;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Wolf;
-import net.minecraft.world.entity.npc.Villager;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R2.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -34,7 +30,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 public class MemoryEvent implements Listener {
 
@@ -44,12 +39,12 @@ public class MemoryEvent implements Listener {
         World world = player.getWorld();
         ItemStack item = player.getInventory().getItem(event.getHand());
 
-        if (item.getType() != Material.DEBUG_STICK)
+        if (item.getType() != Material.DEBUG_STICK || !item.hasItemMeta())
             return;
         Entity entity = ((CraftEntity) event.getRightClicked()).getHandle();
-        if (entity instanceof VillagerWolf wolf) {
-            event.setCancelled(true);
+        event.setCancelled(true);
 
+        if (entity instanceof VillagerWolf wolf) {
             Brain<Wolf> brain = wolf.getBrain();
             Map<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> memories = brain.getMemories();
             MessageUtil.sendMessage(player, "&bMemories of wolf:");
@@ -98,63 +93,10 @@ public class MemoryEvent implements Listener {
                 cat.getOwner().addEffect(new MobEffectInstance(MobEffects.GLOWING, TimeUtil.seconds(5), 0, false, false));
             }
         } else if (entity instanceof BaseVillager villager) {
-            event.setCancelled(true);
-
-            Brain<Villager> brain = villager.getBrain();
-            Map<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> memories = brain.getMemories();
-            MessageUtil.sendMessage(player, "&bMemories of villager:");
-            for (Map.Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> entry : memories.entrySet()) {
-                String prefix = entry.getKey().toString().contains("settlements") ? "&e" : "&b";
-                MessageUtil.sendMessage(player, "%s - %s : %s", prefix, entry.getKey().toString(), entry.getValue().toString());
-            }
-
-            MessageUtil.sendMessage(player, "&eProfession: %s", villager.getProfession().toString());
-            MessageUtil.sendMessage(player, "&eReputation: %d", villager.getPlayerReputation(((CraftPlayer) player).getHandle()));
-
-            // Display water area visually
-            if (brain.hasMemoryValue(VillagerMemoryType.NEAREST_WATER_AREA)) {
-                BlockPos waterPos = brain.getMemory(VillagerMemoryType.NEAREST_WATER_AREA).get();
-                Location waterLocation = new Location(world, waterPos.getX(), waterPos.getY(), waterPos.getZ());
-                ParticleUtil.globalParticle(waterLocation, Particle.VILLAGER_HAPPY, 20, 0.5, 0.5, 0.5, 0);
-                ParticlePreset.displayLine(villager.getBukkitEntity().getLocation(), waterLocation, 20, Particle.END_ROD, 1, 0, 0, 0, 0);
-            }
-
-            // Display owned dogs
-            if (brain.hasMemoryValue(VillagerMemoryType.OWNED_DOG)) {
-                UUID wolfUuid = brain.getMemory(VillagerMemoryType.OWNED_DOG).get();
-                Wolf wolf = (Wolf) villager.level.getMinecraftWorld().getEntity(wolfUuid);
-
-                if (wolf == null || !wolf.isAlive()) {
-                    // If wolf is not alive, reset memory
-                    villager.getBrain().eraseMemory(VillagerMemoryType.OWNED_DOG);
-                } else {
-                    // Otherwise, draw line to it
-                    Location wolfLocation = new Location(world, wolf.getX(), wolf.getY(), wolf.getZ());
-                    ParticlePreset.displayLine(villager.getBukkitEntity().getLocation(), wolfLocation, 20, Particle.END_ROD, 1, 0, 0, 0, 0);
-                    wolf.addEffect(new MobEffectInstance(MobEffects.GLOWING, TimeUtil.seconds(5), 0, false, false));
-                }
-            }
-
-            // Display owned cats
-            if (brain.hasMemoryValue(VillagerMemoryType.OWNED_CAT)) {
-                UUID catUuid = brain.getMemory(VillagerMemoryType.OWNED_CAT).get();
-                Cat cat = (Cat) villager.level.getMinecraftWorld().getEntity(catUuid);
-
-                if (cat == null || !cat.isAlive()) {
-                    // If cat is not alive, reset memory
-                    villager.getBrain().eraseMemory(VillagerMemoryType.OWNED_CAT);
-                } else {
-                    // Otherwise, draw line to it
-                    Location catLocation = new Location(world, cat.getX(), cat.getY(), cat.getZ());
-                    ParticlePreset.displayLine(villager.getBukkitEntity().getLocation(), catLocation, 20, Particle.END_ROD, 1, 0, 0, 0, 0);
-                    cat.addEffect(new MobEffectInstance(MobEffects.GLOWING, TimeUtil.seconds(5), 0, false, false));
-                }
-            }
-
-            // Display inventory
-            VillagerInventory inventory = villager.getCustomInventory();
-            CustomInventory inventoryPreview = inventory.getViewableInventory();
-            Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), () -> inventoryPreview.showToPlayer(player), TimeUtil.ticks(5));
+            Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), () -> {
+                player.closeInventory();
+                player.openInventory(VillagerDebugMainGui.getViewableInventory(player, villager).getBukkitInventory());
+            }, TimeUtil.ticks(5));
         }
 
     }

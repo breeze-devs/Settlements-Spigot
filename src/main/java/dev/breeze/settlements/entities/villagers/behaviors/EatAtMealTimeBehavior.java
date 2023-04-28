@@ -52,7 +52,7 @@ public final class EatAtMealTimeBehavior extends BaseVillagerBehavior {
     public EatAtMealTimeBehavior() {
         super(Map.of(
                 // Only run in meal times
-                VillagerMemoryType.IS_MEAL_TIME, MemoryStatus.VALUE_PRESENT
+                VillagerMemoryType.IS_MEAL_TIME.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT
         ), MAX_EAT_DURATION + MAX_DRINK_DURATION);
 
         this.cooldown = this.randomCooldown();
@@ -131,6 +131,19 @@ public final class EatAtMealTimeBehavior extends BaseVillagerBehavior {
         // Clear held item
         if (villager instanceof BaseVillager baseVillager)
             baseVillager.clearHeldItem();
+    }
+
+    @Override
+    public int getCurrentCooldown() {
+        return this.cooldown;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.BREAD)
+                .setDisplayName("&eEat at meal time behavior")
+                .setLore("&7Eating will regenerate some health");
     }
 
     private int randomCooldown() {

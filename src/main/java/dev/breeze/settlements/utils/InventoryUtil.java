@@ -43,4 +43,25 @@ public class InventoryUtil {
         toDrop.getWorld().dropItem(toDrop, item);
     }
 
+    /**
+     * Converts row-column inventory coordinates to Bukkit inventory index
+     *
+     * @param row the row of the slot (starts at 1)
+     * @param col the column of the slot (starts at 1)
+     * @return the slot's Bukkit inventory index
+     */
+    public static int toIndex(int row, int col) {
+        return (row - 1) * 9 + (col - 1);
+    }
+
+    /**
+     * Returns the index of the middle slot in the given row of a Minecraft inventory
+     *
+     * @param row the row of the slot (starts at 1)
+     * @return the index of the middle slot in the row
+     */
+    public static int rowMiddleIndex(int row) {
+        return toIndex(row, 5);
+    }
+
 }

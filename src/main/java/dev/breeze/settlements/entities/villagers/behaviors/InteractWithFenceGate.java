@@ -129,14 +129,14 @@ public final class InteractWithFenceGate extends OneShot<Villager> {
         Brain<Villager> brain = villager.getBrain();
 
         // If there are no memory of fence gates, create new memory
-        if (!brain.hasMemoryValue(VillagerMemoryType.FENCE_GATE_TO_CLOSE)) {
+        if (!brain.hasMemoryValue(VillagerMemoryType.FENCE_GATE_TO_CLOSE.getMemoryModuleType())) {
             Set<GlobalPos> memory = Sets.newHashSet(globalpos);
-            brain.setMemory(VillagerMemoryType.FENCE_GATE_TO_CLOSE, Optional.of(memory));
+            VillagerMemoryType.FENCE_GATE_TO_CLOSE.set(brain, memory);
             return;
         }
 
         // Otherwise, add to the existing memory
-        Set<GlobalPos> memory = villager.getBrain().getMemory(VillagerMemoryType.FENCE_GATE_TO_CLOSE).get();
+        Set<GlobalPos> memory = VillagerMemoryType.FENCE_GATE_TO_CLOSE.get(brain);
         memory.add(globalpos);
     }
 
@@ -144,11 +144,11 @@ public final class InteractWithFenceGate extends OneShot<Villager> {
         Brain<Villager> brain = villager.getBrain();
 
         // If there are no memory, ignore
-        if (!brain.hasMemoryValue(VillagerMemoryType.FENCE_GATE_TO_CLOSE))
+        if (!brain.hasMemoryValue(VillagerMemoryType.FENCE_GATE_TO_CLOSE.getMemoryModuleType()))
             return;
 
         // Loop through each remembered position
-        Set<GlobalPos> memory = villager.getBrain().getMemory(VillagerMemoryType.FENCE_GATE_TO_CLOSE).get();
+        Set<GlobalPos> memory = VillagerMemoryType.FENCE_GATE_TO_CLOSE.get(brain);
         Iterator<GlobalPos> iterator = memory.iterator();
         while (iterator.hasNext()) {
             GlobalPos pos = iterator.next();

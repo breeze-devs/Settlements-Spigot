@@ -67,7 +67,7 @@ public final class FishingBehavior extends InteractAtTargetBehavior {
         // Preconditions to this behavior
         super(Map.of(
                         // The villager should have seen water nearby
-                        VillagerMemoryType.NEAREST_WATER_AREA, MemoryStatus.VALUE_PRESENT
+                        VillagerMemoryType.NEAREST_WATER_AREA.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT
                 ), TimeUtil.seconds(30), 0,
                 TimeUtil.minutes(2), MAX_DISTANCE_FROM_WATER_SQUARED,
                 5, 5,
@@ -82,7 +82,7 @@ public final class FishingBehavior extends InteractAtTargetBehavior {
 
     @Override
     protected boolean scan(ServerLevel level, Villager villager) {
-        return villager.getBrain().hasMemoryValue(VillagerMemoryType.NEAREST_WATER_AREA);
+        return true;
     }
 
     @Override
@@ -94,7 +94,7 @@ public final class FishingBehavior extends InteractAtTargetBehavior {
         // Disable default walking
         baseVillager.setDefaultWalkTargetDisabled(true);
 
-        this.targetWater = baseVillager.getBrain().getMemory(VillagerMemoryType.NEAREST_WATER_AREA).get();
+        this.targetWater = VillagerMemoryType.NEAREST_WATER_AREA.get(baseVillager.getBrain());
         this.fakePlayer = createFakePlayer(baseVillager);
     }
 
@@ -180,6 +180,19 @@ public final class FishingBehavior extends InteractAtTargetBehavior {
             return false;
         return villager.distanceToSqr(this.targetWater.getX(), this.targetWater.getY(), this.targetWater.getZ()) < MAX_DISTANCE_FROM_WATER_SQUARED;
     }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.FISHING_ROD)
+                .setDisplayName("&eFish in open waters behavior")
+                .setLore(
+                        "&7A medium-sized pond is required to fish",
+                        "&7High chance of catching cod and salmon",
+                        "&7Low chance of catching puffer fish and tropical fish"
+                );
+    }
+
 
     public static ServerPlayer createFakePlayer(@Nonnull BaseVillager villager) {
         // Create fake player

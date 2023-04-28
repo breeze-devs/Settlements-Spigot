@@ -14,8 +14,6 @@ public class TestModuleController extends BaseModuleController {
     @Override
     protected boolean load(JavaPlugin plugin, PluginManager pm) {
         plugin.getCommand("settlements_test").setExecutor(new TestCommandHandler());
-
-        pm.registerEvents(new MemoryEvent(), plugin);
         return true;
     }
 

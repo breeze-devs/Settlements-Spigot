@@ -4,6 +4,7 @@ import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.ReputationLevels;
 import dev.breeze.settlements.utils.SoundUtil;
 import dev.breeze.settlements.utils.TimeUtil;
+import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import dev.breeze.settlements.utils.itemstack.PotionItemStackBuilder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.npc.WanderingTrader;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
@@ -172,6 +174,17 @@ public final class ThrowHealingPotionBehavior extends InteractAtTargetBehavior {
     @Override
     protected boolean isTargetReachable(Villager villager) {
         return this.target != null && villager.distanceToSqr(this.target) < this.getInteractRangeSquared();
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.GLISTERING_MELON_SLICE)
+                .setDisplayName("&eThrow healing potion behavior")
+                .setLore(
+                        "&7Occasionally throws a healing potion at injured villagers",
+                        "&7Villagers with higher expertise can brew more potent potions"
+                );
     }
 
 }

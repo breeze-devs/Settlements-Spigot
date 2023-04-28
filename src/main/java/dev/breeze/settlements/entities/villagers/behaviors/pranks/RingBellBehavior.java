@@ -4,6 +4,7 @@ import dev.breeze.settlements.config.files.NitwitPranksConfig;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.behaviors.InteractAtTargetBehavior;
 import dev.breeze.settlements.utils.TimeUtil;
+import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.level.block.BellBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -125,6 +127,14 @@ public final class RingBellBehavior extends InteractAtTargetBehavior {
         if (this.bell == null)
             return false;
         return villager.distanceToSqr(this.bell.getX(), this.bell.getY(), this.bell.getZ()) < MAX_DISTANCE_FROM_BELL_SQUARED;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getGuiItemBuilderAbstract() {
+        return new ItemStackBuilder(Material.BELL)
+                .setDisplayName("&eRing bell prank")
+                .setLore("&7Infrequently ring the bell to annoy other villagers");
     }
 
     private static boolean isBell(@Nonnull ServerLevel level, @Nonnull BlockPos bellPos) {
