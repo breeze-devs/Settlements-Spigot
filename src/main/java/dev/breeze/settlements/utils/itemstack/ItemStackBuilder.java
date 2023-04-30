@@ -2,6 +2,7 @@ package dev.breeze.settlements.utils.itemstack;
 
 import dev.breeze.settlements.utils.MessageUtil;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -28,17 +29,30 @@ public class ItemStackBuilder {
     }
 
     /**
-     * Copy from another item stack
+     * Copy from another Bukkit item stack
      */
     public ItemStackBuilder(@Nonnull ItemStack itemStack) {
         this.itemStack = new ItemStack(itemStack);
         this.itemMeta = Objects.requireNonNull(this.itemStack.getItemMeta());
     }
 
+    /**
+     * Copy from another NMS item stack
+     */
+    public ItemStackBuilder(@Nonnull net.minecraft.world.item.ItemStack itemStack) {
+        this(ItemUtil.toBukkit(itemStack));
+    }
+
     @Nonnull
     public ItemStack build() {
         this.itemStack.setItemMeta(this.itemMeta);
         return this.itemStack;
+    }
+
+    @Nonnull
+    public net.minecraft.world.item.ItemStack buildNms() {
+        this.itemStack.setItemMeta(this.itemMeta);
+        return CraftItemStack.asNMSCopy(this.itemStack);
     }
 
     /*

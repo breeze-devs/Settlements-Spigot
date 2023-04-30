@@ -1,5 +1,6 @@
 package dev.breeze.settlements.config;
 
+import dev.breeze.settlements.config.files.EnchantItemsConfig;
 import dev.breeze.settlements.config.files.GeneralConfig;
 import dev.breeze.settlements.config.files.NitwitPranksConfig;
 import dev.breeze.settlements.config.files.WolfFetchItemConfig;
@@ -15,6 +16,7 @@ public class ConfigModuleController extends BaseModuleController {
         GeneralConfig.getInstance();
         NitwitPranksConfig.getInstance();
         WolfFetchItemConfig.getInstance();
+        EnchantItemsConfig.getInstance();
         return true;
     }
 

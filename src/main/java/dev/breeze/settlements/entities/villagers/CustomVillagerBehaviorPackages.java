@@ -184,7 +184,9 @@ public final class CustomVillagerBehaviorPackages {
             workBehaviors.add(Pair.of(temp, customGoalWeight));
             customBehaviors.add(temp);
         } else if (profession == VillagerProfession.LIBRARIAN) {
-
+            temp = new EnchantItemBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
         } else if (profession == VillagerProfession.MASON) {
 
         } else if (profession == VillagerProfession.SHEPHERD) {

@@ -4,6 +4,7 @@ import dev.breeze.settlements.config.ConfigField;
 import dev.breeze.settlements.config.ConfigFileWrapper;
 import dev.breeze.settlements.config.ConfigType;
 import dev.breeze.settlements.utils.LogUtil;
+import dev.breeze.settlements.utils.StringUtil;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import org.bukkit.Material;
 
@@ -41,21 +42,21 @@ public final class WolfFetchItemConfig {
         Map<VillagerProfession, ConfigField<List<String>>> professionWantItemMap = new HashMap<>();
         professionWantItemMap.put(VillagerProfession.BUTCHER, new ConfigField<>(wrapper, ConfigType.STRING_LIST, "professions.butcher",
                 DESCRIPTION_FORMAT.formatted("butcher"),
-                this.materialListToStringList(List.of(Material.BEEF, Material.MUTTON, Material.CHICKEN, Material.PORKCHOP, Material.RABBIT))));
+                StringUtil.materialListToStringList(List.of(Material.BEEF, Material.MUTTON, Material.CHICKEN, Material.PORKCHOP, Material.RABBIT))));
 
         professionWantItemMap.put(VillagerProfession.FARMER, new ConfigField<>(wrapper, ConfigType.STRING_LIST, "professions.farmer",
                 DESCRIPTION_FORMAT.formatted("farmer"),
-                this.materialListToStringList(List.of(Material.WHEAT, Material.WHEAT_SEEDS, Material.POTATO, Material.POISONOUS_POTATO, Material.CARROT,
+                StringUtil.materialListToStringList(List.of(Material.WHEAT, Material.WHEAT_SEEDS, Material.POTATO, Material.POISONOUS_POTATO, Material.CARROT,
                         Material.BEETROOT, Material.BEETROOT_SEEDS, Material.PUMPKIN, Material.PUMPKIN_SEEDS, Material.MELON_SLICE, Material.MELON,
                         Material.MELON_SEEDS, Material.SUGAR_CANE, Material.EGG))));
 
         professionWantItemMap.put(VillagerProfession.LEATHERWORKER, new ConfigField<>(wrapper, ConfigType.STRING_LIST, "professions.leather_worker",
                 DESCRIPTION_FORMAT.formatted("leather_worker"),
-                this.materialListToStringList(List.of(Material.LEATHER, Material.RABBIT_HIDE))));
+                StringUtil.materialListToStringList(List.of(Material.LEATHER, Material.RABBIT_HIDE))));
 
         professionWantItemMap.put(VillagerProfession.SHEPHERD, new ConfigField<>(wrapper, ConfigType.STRING_LIST, "professions.shepherd",
                 DESCRIPTION_FORMAT.formatted("shepherd"),
-                this.materialListToStringList(List.of(Material.WHITE_WOOL, Material.ORANGE_WOOL, Material.MAGENTA_WOOL, Material.LIGHT_BLUE_WOOL,
+                StringUtil.materialListToStringList(List.of(Material.WHITE_WOOL, Material.ORANGE_WOOL, Material.MAGENTA_WOOL, Material.LIGHT_BLUE_WOOL,
                         Material.YELLOW_WOOL, Material.LIME_WOOL, Material.PINK_WOOL, Material.GRAY_WOOL, Material.LIGHT_GRAY_WOOL, Material.CYAN_WOOL,
                         Material.PURPLE_WOOL, Material.BLUE_WOOL, Material.BROWN_WOOL, Material.GREEN_WOOL, Material.RED_WOOL, Material.BLACK_WOOL))));
 
@@ -90,18 +91,6 @@ public final class WolfFetchItemConfig {
 
         // Check if the material is in the map
         return this.cachedProfessionWantItemMap.get(profession).contains(bukkitMaterial);
-    }
-
-
-    /**
-     * Converts a list of Material objects to a list of their string representations
-     *
-     * @param materials the list of Material objects to convert
-     * @return the list of string representations of the Material objects
-     */
-    @Nonnull
-    private List<String> materialListToStringList(@Nonnull List<Material> materials) {
-        return materials.stream().map(Enum::toString).toList();
     }
 
     public static synchronized WolfFetchItemConfig getInstance() {

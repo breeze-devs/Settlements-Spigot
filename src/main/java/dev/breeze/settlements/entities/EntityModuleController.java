@@ -9,8 +9,10 @@ import dev.breeze.settlements.entities.cats.sensors.CatSensorType;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.events.VillagerRestockEvent;
 import dev.breeze.settlements.entities.villagers.inventory.VillagerInventoryEditEvents;
+import dev.breeze.settlements.entities.villagers.memories.VillagerMemory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.entities.villagers.sensors.VillagerMealTimeSensor;
+import dev.breeze.settlements.entities.villagers.sensors.VillagerNearbyEnchantingTableSensor;
 import dev.breeze.settlements.entities.villagers.sensors.VillagerNearbyWaterAreaSensor;
 import dev.breeze.settlements.entities.villagers.sensors.VillagerSensorType;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
@@ -151,12 +153,9 @@ public class EntityModuleController extends BaseModuleController {
          * Build & register memories
          */
         // Villager memories
-        VillagerMemoryType.FENCE_GATE_TO_CLOSE.setMemoryModuleType(registerMemory(VillagerMemoryType.FENCE_GATE_TO_CLOSE.getIdentifier(), null));
-        VillagerMemoryType.OWNED_DOG.setMemoryModuleType(registerMemory(VillagerMemoryType.OWNED_DOG.getIdentifier(), null));
-        VillagerMemoryType.OWNED_CAT.setMemoryModuleType(registerMemory(VillagerMemoryType.OWNED_CAT.getIdentifier(), null));
-        VillagerMemoryType.WALK_DOG_TARGET.setMemoryModuleType(registerMemory(VillagerMemoryType.WALK_DOG_TARGET.getIdentifier(), null));
-        VillagerMemoryType.NEAREST_WATER_AREA.setMemoryModuleType(registerMemory(VillagerMemoryType.NEAREST_WATER_AREA.getIdentifier(), null));
-        VillagerMemoryType.IS_MEAL_TIME.setMemoryModuleType(registerMemory(VillagerMemoryType.IS_MEAL_TIME.getIdentifier(), null));
+        for (VillagerMemory<?> memory : VillagerMemoryType.ALL_MEMORIES) {
+            memory.setMemoryModuleType(registerMemory(memory.getIdentifier(), null));
+        }
 
         // Wolf memories
         WolfMemoryType.NEARBY_ITEMS = registerMemory(WolfMemoryType.REGISTRY_KEY_NEARBY_ITEMS, null);
@@ -204,6 +203,8 @@ public class EntityModuleController extends BaseModuleController {
         // Villager sensors
         VillagerSensorType.NEAREST_WATER_AREA = registerSensor(VillagerSensorType.REGISTRY_KEY_NEAREST_WATER_AREA, VillagerNearbyWaterAreaSensor::new);
         VillagerSensorType.IS_MEAL_TIME = registerSensor(VillagerSensorType.REGISTRY_KEY_IS_MEAL_TIME, VillagerMealTimeSensor::new);
+        VillagerSensorType.NEAREST_ENCHANTING_TABLE = registerSensor(VillagerSensorType.REGISTRY_KEY_NEAREST_ENCHANTING_TABLE,
+                VillagerNearbyEnchantingTableSensor::new);
 
         // Wolf sensors
         WolfSensorType.OWNER = registerSensor(WolfSensorType.REGISTRY_KEY_OWNER, WolfOwnerSensor::new);

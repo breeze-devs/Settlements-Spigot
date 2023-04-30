@@ -1,5 +1,6 @@
 package dev.breeze.settlements.utils.itemstack;
 
+import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -84,6 +85,16 @@ public class ItemUtil {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Nonnull
+    public static ItemStack toBukkit(@Nonnull net.minecraft.world.item.ItemStack nmsItemStack) {
+        return CraftItemStack.asBukkitCopy(nmsItemStack);
+    }
+
+    @Nonnull
+    public static net.minecraft.world.item.ItemStack toNms(@Nonnull ItemStack bukkitItemStack) {
+        return CraftItemStack.asNMSCopy(bukkitItemStack);
     }
 
 }

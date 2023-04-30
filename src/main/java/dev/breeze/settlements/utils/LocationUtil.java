@@ -1,10 +1,12 @@
 package dev.breeze.settlements.utils;
 
+import net.minecraft.core.BlockPos;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,6 +119,11 @@ public class LocationUtil {
         double z = Math.pow(s, 3) * source.getZ() + 3 * Math.pow(s, 2) * t * anchor1.getZ()
                 + 3 * s * Math.pow(t, 2) * anchor2.getZ() + Math.pow(t, 3) * target.getZ();
         return new Location(source.getWorld(), x, y, z);
+    }
+
+    @Nonnull
+    public static Location fromBlockPos(@Nonnull World world, @Nonnull BlockPos blockPos) {
+        return new Location(world, blockPos.getX(), blockPos.getY(), blockPos.getZ());
     }
 
 }

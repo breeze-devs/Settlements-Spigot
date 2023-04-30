@@ -5,6 +5,7 @@ import dev.breeze.settlements.guis.CustomInventory;
 import dev.breeze.settlements.utils.LogUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import dev.breeze.settlements.utils.itemstack.ItemUtil;
+import lombok.Getter;
 import net.minecraft.nbt.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -14,7 +15,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ListIterator;
 
 public class VillagerInventory {
 
@@ -30,6 +30,8 @@ public class VillagerInventory {
     private final BaseVillager villager;
 
     private final int rows;
+
+    @Getter
     @Nonnull
     private final ItemStack[] items;
 
@@ -244,44 +246,25 @@ public class VillagerInventory {
      * @return the number of items remaining in the inventory after removal, which can be negative
      */
     public int remove(@Nonnull ItemStack toRemove, int count) {
-//        for (int i = 0; i < this.items.length; i++) {
-//            ItemStack loop = this.items[i];
-//            if (loop == null || !loop.isSimilar(toRemove))
-//                continue;
-//            if (loop.getAmount() > count) {
-//                // If enough, return remaining item count
-//                int remaining = loop.getAmount() - count;
-//                loop.setAmount(remaining);
-//                return remaining;
-//            } else {
-//                // Not enough to remove, subtract amount and clear slot
-//                count -= loop.getAmount();
-//                this.setItem(i, null);
-//            }
-//        }
-//        return -count;
-
-        ListIterator<ItemStack> iterator = Arrays.asList(this.items).listIterator();
-        int remaining = count;
-
-        while (iterator.hasNext() && remaining > 0) {
-            ItemStack item = iterator.next();
-            if (item == null || !item.isSimilar(toRemove))
+        for (int i = 0; i < this.items.length; i++) {
+            ItemStack loop = this.items[i];
+            if (loop == null || !loop.isSimilar(toRemove)) {
                 continue;
+            }
 
-            int itemAmount = item.getAmount();
-            if (itemAmount <= remaining) {
-                // Remove the entire stack
-                iterator.remove();
-                remaining -= itemAmount;
+            // Attempt to remove item
+            if (loop.getAmount() > count) {
+                // If enough, return remaining item count
+                int remaining = loop.getAmount() - count;
+                loop.setAmount(remaining);
+                return remaining;
             } else {
-                // Remove part of the stack
-                item.setAmount(itemAmount - remaining);
-                remaining = 0;
+                // Not enough to remove, subtract amount and clear slot
+                count -= loop.getAmount();
+                this.setItem(i, null);
             }
         }
-
-        return -remaining;
+        return -count;
     }
 
     /**
