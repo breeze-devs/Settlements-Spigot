@@ -69,9 +69,9 @@ public class VillagerMemory<T> {
     private Material itemMaterial = Material.PAPER;
 
     @Builder
-    private VillagerMemory(@Nonnull String identifier,
-                           @Nonnull MemoryParser<T> parser, @Nullable MemorySerializer<T> serializer, @Nullable MemoryClickHandler<T> clickEventHandler,
-                           @Nonnull String displayName, @Nonnull List<String> description, @Nullable Material itemMaterial) {
+    protected VillagerMemory(@Nonnull String identifier,
+                             @Nonnull MemoryParser<T> parser, @Nullable MemorySerializer<T> serializer, @Nullable MemoryClickHandler<T> clickEventHandler,
+                             @Nonnull String displayName, @Nonnull List<String> description, @Nullable Material itemMaterial) {
         this.identifier = IDENTIFIER_FORMATTER.formatted(identifier);
         this.parser = parser;
         this.serializer = serializer;

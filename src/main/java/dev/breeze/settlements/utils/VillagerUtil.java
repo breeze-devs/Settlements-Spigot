@@ -16,7 +16,7 @@ public class VillagerUtil {
 
     public static String getExpertiseName(int level, boolean colored) {
         level = Mth.clamp(level, 1, 5);
-        String name = EXPERTISE_NAME_MAP.get(level);
+        String name = MessageUtil.translateColorCode(EXPERTISE_NAME_MAP.get(level));
         return colored ? name : MessageUtil.stripColor(name);
     }
 

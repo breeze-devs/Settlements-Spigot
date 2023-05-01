@@ -19,4 +19,10 @@ public class VillagerSensorType {
     public static final String REGISTRY_KEY_IS_MEAL_TIME = "settlements_villager_is_meal_time_sensor";
     public static SensorType<VillagerMealTimeSensor> IS_MEAL_TIME;
 
+    /**
+     * Sensor for scanning nearby enchanting tables
+     */
+    public static final String REGISTRY_KEY_NEAREST_ENCHANTING_TABLE = "settlements_villager_nearest_enchanting_table_sensor";
+    public static SensorType<VillagerNearbyEnchantingTableSensor> NEAREST_ENCHANTING_TABLE;
+
 }

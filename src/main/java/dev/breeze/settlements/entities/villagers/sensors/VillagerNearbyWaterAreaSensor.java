@@ -5,9 +5,7 @@ import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.utils.TimeUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.block.Blocks;
@@ -17,47 +15,21 @@ import org.bukkit.block.data.Levelled;
 import org.bukkit.craftbukkit.v1_19_R2.block.data.CraftBlockData;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class VillagerNearbyWaterAreaSensor extends Sensor<Villager> {
-
-    /**
-     * How far away to scan for water areas horizontally
-     */
-    private static final int RANGE_HORIZONTAL = 20;
-
-    /**
-     * How far away to scan for water areas vertically
-     */
-    private static final int RANGE_VERTICAL = 4;
-
-    /**
-     * How often will the villager scan for nearby water areas
-     * - should be infrequent as terrain doesn't change that much
-     */
-    private static final int SENSE_COOLDOWN = TimeUtil.minutes(5);
+public class VillagerNearbyWaterAreaSensor extends VillagerNearbyBlockSensor {
 
     public VillagerNearbyWaterAreaSensor() {
-        super(SENSE_COOLDOWN);
+        super(20, 4, TimeUtil.minutes(5), List.of(Activity.WORK));
     }
 
     @Override
-    protected void doTick(@Nonnull ServerLevel world, @Nonnull Villager villager) {
-        // Type cast checking
-        if (!(villager instanceof BaseVillager baseVillager))
-            return;
-
-        Brain<Villager> brain = baseVillager.getBrain();
-
-        // Check activity == WORK
-        // - cause if we sensed at non-work activities, the water location might be far away from our worksite
-        if (brain.getSchedule().getActivityAt((int) world.getWorld().getTime()) != Activity.WORK)
-            return;
-
+    protected void tickSensor(@Nonnull ServerLevel world, @Nonnull BaseVillager villager) {
         // Detect nearby water areas
         Optional<BlockPos> nearestWaterArea = this.findNearestWaterArea(world, villager);
-        VillagerMemoryType.NEAREST_WATER_AREA.set(brain, nearestWaterArea.orElse(null));
+        VillagerMemoryType.NEAREST_WATER_AREA.set(villager.getBrain(), nearestWaterArea.orElse(null));
     }
 
     @Override
@@ -67,7 +39,7 @@ public class VillagerNearbyWaterAreaSensor extends Sensor<Villager> {
     }
 
     private Optional<BlockPos> findNearestWaterArea(@Nonnull ServerLevel world, @Nonnull Villager villager) {
-        return BlockPos.findClosestMatch(villager.blockPosition(), RANGE_HORIZONTAL, RANGE_VERTICAL, (pos) -> {
+        return BlockPos.findClosestMatch(villager.blockPosition(), this.getRangeHorizontal(), this.getRangeVertical(), (pos) -> {
             // Check if block is water source
             BlockState state = world.getBlockState(pos);
             if (!this.isWaterSource(state))

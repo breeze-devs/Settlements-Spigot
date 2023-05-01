@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.breeze.settlements.config.files.WolfFetchItemConfig;
 import dev.breeze.settlements.entities.villagers.behaviors.BaseVillagerBehavior;
 import dev.breeze.settlements.entities.villagers.inventory.VillagerInventory;
+import dev.breeze.settlements.entities.villagers.memories.VillagerMemory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.entities.villagers.navigation.VillagerNavigation;
 import dev.breeze.settlements.entities.villagers.sensors.VillagerSensorType;
@@ -174,20 +175,18 @@ public class BaseVillager extends Villager {
             final ImmutableList<SensorType<Sensor<Villager>>> DEFAULT_SENSOR_TYPES = (ImmutableList<SensorType<Sensor<Villager>>>)
                     FieldUtils.readStaticField(Villager.class, "cC", true);
 
-            ImmutableList<MemoryModuleType<?>> customMemoryTypes = new ImmutableList.Builder<MemoryModuleType<?>>()
-                    .addAll(DEFAULT_MEMORY_TYPES)
-                    .add(VillagerMemoryType.FENCE_GATE_TO_CLOSE.getMemoryModuleType())
-                    .add(VillagerMemoryType.OWNED_DOG.getMemoryModuleType())
-                    .add(VillagerMemoryType.OWNED_CAT.getMemoryModuleType())
-                    .add(VillagerMemoryType.WALK_DOG_TARGET.getMemoryModuleType())
-                    .add(VillagerMemoryType.NEAREST_WATER_AREA.getMemoryModuleType())
-                    .add(VillagerMemoryType.IS_MEAL_TIME.getMemoryModuleType())
-                    .build();
+            ImmutableList.Builder<MemoryModuleType<?>> customMemoryTypeBuilder = new ImmutableList.Builder<MemoryModuleType<?>>()
+                    .addAll(DEFAULT_MEMORY_TYPES);
+            for (VillagerMemory<?> memory : VillagerMemoryType.ALL_MEMORIES) {
+                customMemoryTypeBuilder.add(memory.getMemoryModuleType());
+            }
+            ImmutableList<MemoryModuleType<?>> customMemoryTypes = customMemoryTypeBuilder.build();
 
             ImmutableList<SensorType<? extends Sensor<Villager>>> customSensorTypes = new ImmutableList.Builder<SensorType<? extends Sensor<Villager>>>()
                     .addAll(DEFAULT_SENSOR_TYPES)
                     .add(VillagerSensorType.NEAREST_WATER_AREA)
                     .add(VillagerSensorType.IS_MEAL_TIME)
+                    .add(VillagerSensorType.NEAREST_ENCHANTING_TABLE)
                     .build();
 
             return Brain.provider(customMemoryTypes, customSensorTypes);

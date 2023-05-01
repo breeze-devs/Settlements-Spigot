@@ -80,7 +80,7 @@ public abstract class BaseVillagerBehavior extends Behavior<Villager> {
         } else {
             // Cooling down or preconditions not met
             if (this.getCurrentCooldown() > 0) {
-                builder.appendLore("&6Cooling down: %d ticks left".formatted(this.getCurrentCooldown()));
+                builder.appendLore("&6Cooling down: %s".formatted(TimeUtil.ticksToReadableTime(this.getCurrentCooldown())));
             } else {
                 builder.appendLore("&cPreconditions not met");
             }

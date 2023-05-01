@@ -7,7 +7,6 @@ import dev.breeze.settlements.utils.particle.ParticlePreset;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.LongTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.npc.Villager;
@@ -118,27 +117,8 @@ public class VillagerMemoryType {
             .itemMaterial(Material.LEAD)
             .build();
 
-    public static final VillagerMemory<BlockPos> NEAREST_WATER_AREA = VillagerMemory.<BlockPos>builder()
+    public static final VillagerMemory<BlockPos> NEAREST_WATER_AREA = VillagerBlockPosMemory.blockPosMemoryBuilder()
             .identifier("nearest_water_area")
-            .parser(memory -> Collections.singletonList("&7Location: x: %d, y: %d, z: %d".formatted(memory.getX(), memory.getY(), memory.getZ())))
-            .serializer(new VillagerMemory.MemorySerializer<>() {
-                @Nonnull
-                @Override
-                public LongTag toTag(@Nonnull BlockPos memory) {
-                    return LongTag.valueOf(memory.asLong());
-                }
-
-                @Nonnull
-                @Override
-                public BlockPos fromTag(@Nonnull CompoundTag memoriesTag, @Nonnull String key) {
-                    return BlockPos.of(memoriesTag.getLong(key));
-                }
-            })
-            .clickEventHandler((player, memory) -> {
-                player.closeInventory();
-                BlockPos pos = (BlockPos) memory;
-                highlightLocation(player, new Location(player.getWorld(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5));
-            })
             .displayName("Nearest fishing location")
             .description(List.of("&fThe closest location big enough for the villager to fish in", "&eClick &7to show the fishing location"))
             .itemMaterial(Material.FISHING_ROD)
@@ -160,12 +140,18 @@ public class VillagerMemoryType {
             .itemMaterial(Material.BREAD)
             .build();
 
+    public static final VillagerMemory<BlockPos> NEAREST_ENCHANTING_TABLE = VillagerBlockPosMemory.blockPosMemoryBuilder()
+            .identifier("nearest_enchanting_table")
+            .displayName("Nearest enchanting table")
+            .description(List.of("&fThe closest visible enchanting table", "&eClick &7to show the enchanting table's location"))
+            .itemMaterial(Material.ENCHANTING_TABLE)
+            .build();
 
     /**
      * List of all memories for bulk memory operations such as save/load
      */
     public static final List<VillagerMemory<?>> ALL_MEMORIES = Arrays.asList(FENCE_GATE_TO_CLOSE, OWNED_DOG, OWNED_CAT, WALK_DOG_TARGET, NEAREST_WATER_AREA,
-            IS_MEAL_TIME);
+            IS_MEAL_TIME, NEAREST_ENCHANTING_TABLE);
 
     /**
      * Export important memories to NBT

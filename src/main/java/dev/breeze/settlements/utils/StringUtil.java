@@ -1,5 +1,10 @@
 package dev.breeze.settlements.utils;
 
+import org.bukkit.Material;
+
+import javax.annotation.Nonnull;
+import java.util.List;
+
 /**
  * A utility class that provides various methods for parsing and manipulating strings
  */
@@ -107,6 +112,17 @@ public class StringUtil {
 
     public static String getPercentageDisplay(double percentage) {
         return Math.round(percentage * 100) + "%";
+    }
+
+    /**
+     * Converts a list of Material objects to a list of their string representations
+     *
+     * @param materials the list of Material objects to convert
+     * @return the list of string representations of the Material objects
+     */
+    @Nonnull
+    public static List<String> materialListToStringList(@Nonnull List<Material> materials) {
+        return materials.stream().map(Enum::toString).toList();
     }
 
 }

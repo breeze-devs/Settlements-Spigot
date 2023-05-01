@@ -22,4 +22,33 @@ public class TimeUtil {
         return hours * HOUR_IN_TICKS;
     }
 
+    public static String ticksToReadableTime(int ticks) {
+        // Split into time units
+        int hours = ticks / HOUR_IN_TICKS;
+        ticks %= HOUR_IN_TICKS;
+
+        int minutes = ticks / MINUTE_IN_TICKS;
+        ticks %= MINUTE_IN_TICKS;
+
+        int seconds = ticks / SECOND_IN_TICKS;
+        ticks %= SECOND_IN_TICKS;
+
+        // Build the string
+        StringBuilder readableTime = new StringBuilder();
+        if (hours > 0) {
+            readableTime.append(hours).append(" hours ");
+        }
+        if (minutes > 0) {
+            readableTime.append(minutes).append(" minutes ");
+        }
+        if (seconds > 0) {
+            readableTime.append(seconds).append(" seconds ");
+        }
+        if (ticks > 0) {
+            readableTime.append(ticks).append(" ticks");
+        }
+
+        return readableTime.toString().trim();
+    }
+
 }
