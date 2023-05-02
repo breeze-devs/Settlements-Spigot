@@ -56,7 +56,7 @@ public final class ShearSheepBehavior extends InteractAtTargetBehavior {
                 ), TimeUtil.seconds(20), Math.pow(30, 2),
                 TimeUtil.minutes(2), Math.pow(2, 2),
                 5, 1,
-                TimeUtil.seconds(20), 1);
+                TimeUtil.seconds(40), TimeUtil.seconds(5));
 
         this.sheepSheared = 0;
         this.targetSheep = null;
@@ -67,15 +67,17 @@ public final class ShearSheepBehavior extends InteractAtTargetBehavior {
         Brain<Villager> brain = villager.getBrain();
 
         // If there are no nearby living entities, ignore
-        if (brain.getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).isEmpty())
+        if (brain.getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).isEmpty()) {
             return false;
+        }
 
         if (this.targetSheep == null) {
             Sheep sheep = this.scanForSheep(villager);
 
             // If there are no nearby sheep to shear, ignore
-            if (sheep == null)
+            if (sheep == null) {
                 return false;
+            }
 
             this.targetSheep = sheep;
             villager.getBrain().setMemory(MemoryModuleType.INTERACTION_TARGET, sheep);
@@ -85,27 +87,31 @@ public final class ShearSheepBehavior extends InteractAtTargetBehavior {
 
     @Override
     protected boolean checkExtraCanStillUseConditions(ServerLevel level, Villager villager, long gameTime) {
-        if (this.targetSheep == null || !this.targetSheep.isAlive())
+        if (!(villager instanceof BaseVillager baseVillager) || this.targetSheep == null || !this.targetSheep.isAlive()) {
             return false;
+        }
 
         // If we've reached the maximum number of sheep sheared, stop
-        return this.sheepSheared < MAX_SHEAR_COUNT_MAP.get(villager.getVillagerData().getLevel());
+        return this.sheepSheared < MAX_SHEAR_COUNT_MAP.get(baseVillager.getExpertiseLevel());
     }
 
     @Override
     protected void tickExtra(ServerLevel level, Villager villager, long gameTime) {
-        if (villager instanceof BaseVillager baseVillager)
+        if (villager instanceof BaseVillager baseVillager) {
             baseVillager.setHeldItem(SHEARS);
+        }
 
-        if (this.targetSheep != null)
+        if (this.targetSheep != null) {
             villager.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(this.targetSheep, true));
+        }
     }
 
     @Override
     protected void navigateToTarget(ServerLevel level, Villager villager, long gameTime) {
         // Safety check
-        if (this.targetSheep == null)
+        if (this.targetSheep == null) {
             return;
+        }
 
         // Pathfind to the sheep
         villager.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(this.targetSheep, 0.5F, 1));
@@ -117,8 +123,9 @@ public final class ShearSheepBehavior extends InteractAtTargetBehavior {
     @Override
     protected void interactWithTarget(ServerLevel level, Villager villager, long gameTime) {
         // Safety check
-        if (this.targetSheep == null)
+        if (this.targetSheep == null) {
             return;
+        }
 
         this.targetSheep.shear(SoundSource.NEUTRAL);
         this.sheepSheared++;
@@ -133,8 +140,9 @@ public final class ShearSheepBehavior extends InteractAtTargetBehavior {
         super.stop(level, villager, gameTime);
 
         // Reset held item
-        if (villager instanceof BaseVillager baseVillager)
+        if (villager instanceof BaseVillager baseVillager) {
             baseVillager.clearHeldItem();
+        }
 
         // Remove golem from interaction memory
         villager.getBrain().eraseMemory(MemoryModuleType.INTERACTION_TARGET);
@@ -171,16 +179,19 @@ public final class ShearSheepBehavior extends InteractAtTargetBehavior {
 
     @Nullable
     private Sheep scanForSheep(Villager villager) {
-        if (villager.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).isEmpty())
+        if (villager.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).isEmpty()) {
             return null;
+        }
 
         // Check for a nearby sheep
         List<LivingEntity> nearbyEntities = villager.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).get();
 
         Sheep sheep = null;
         for (LivingEntity nearby : nearbyEntities) {
-            if (!(nearby instanceof Sheep nearbySheep) || !nearbySheep.readyForShearing())
+            if (!(nearby instanceof Sheep nearbySheep) || !nearbySheep.readyForShearing()) {
                 continue;
+            }
+
             sheep = nearbySheep;
         }
         return sheep;
