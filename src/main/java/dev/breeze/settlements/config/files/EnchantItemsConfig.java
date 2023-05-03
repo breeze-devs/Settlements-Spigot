@@ -122,7 +122,7 @@ public final class EnchantItemsConfig {
             // Create config field & add to map
             bookshelfPerExpertiseMap.put(i, new ConfigField<>(wrapper, ConfigType.INT,
                     "enchant.bookshelves.%s".formatted(VillagerUtil.getExpertiseName(i, false).toLowerCase(Locale.ROOT)),
-                    List.of("The maximum number of bookshelves that %s librarians can use".formatted(VillagerUtil.getExpertiseName(i, false))),
+                    Collections.emptyList(),
                     DEFAULT_BOOKSHELVES_PER_LEVEL.get(i)));
         }
 

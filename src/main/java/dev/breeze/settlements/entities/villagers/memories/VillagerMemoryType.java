@@ -147,11 +147,22 @@ public class VillagerMemoryType {
             .itemMaterial(Material.ENCHANTING_TABLE)
             .build();
 
+    public static final VillagerMemory<BlockPos> NEAREST_HARVESTABLE_SUGARCANE = VillagerBlockPosMemory.blockPosMemoryBuilder()
+            .identifier("nearest_harvestable_sugarcane")
+            .displayName("Nearest harvestable sugarcane")
+            .description(List.of(
+                    "&fThe closest visible sugarcane block that is ready for harvest",
+                    "&fSugarcane that are at least 2 blocks tall are deemed harvestable",
+                    "&eClick &7to show the sugarcane's location"
+            ))
+            .itemMaterial(Material.SUGAR_CANE)
+            .build();
+
     /**
      * List of all memories for bulk memory operations such as save/load
      */
     public static final List<VillagerMemory<?>> ALL_MEMORIES = Arrays.asList(FENCE_GATE_TO_CLOSE, OWNED_DOG, OWNED_CAT, WALK_DOG_TARGET, NEAREST_WATER_AREA,
-            IS_MEAL_TIME, NEAREST_ENCHANTING_TABLE);
+            IS_MEAL_TIME, NEAREST_ENCHANTING_TABLE, NEAREST_HARVESTABLE_SUGARCANE);
 
     /**
      * Export important memories to NBT

@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import dev.breeze.settlements.entities.villagers.behaviors.*;
+import dev.breeze.settlements.entities.villagers.behaviors.farmer.HarvestSugarcaneBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.pranks.LaunchFireworkBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.pranks.RingBellBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.pranks.RunAroundBehavior;
@@ -151,6 +152,10 @@ public final class CustomVillagerBehaviorPackages {
         } else if (profession == VillagerProfession.CLERIC) {
 
         } else if (profession == VillagerProfession.FARMER) {
+            temp = new HarvestSugarcaneBehavior();
+            workBehaviors.add(Pair.of(temp, customGoalWeight));
+            customBehaviors.add(temp);
+
             temp = new TameWolfBehavior();
             workBehaviors.add(Pair.of(temp, customGoalWeight));
             customBehaviors.add(temp);

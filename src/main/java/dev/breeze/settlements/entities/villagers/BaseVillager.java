@@ -187,6 +187,7 @@ public class BaseVillager extends Villager {
                     .add(VillagerSensorType.NEAREST_WATER_AREA)
                     .add(VillagerSensorType.IS_MEAL_TIME)
                     .add(VillagerSensorType.NEAREST_ENCHANTING_TABLE)
+                    .add(VillagerSensorType.NEAREST_HARVESTABLE_SUGARCANE)
                     .build();
 
             return Brain.provider(customMemoryTypes, customSensorTypes);
