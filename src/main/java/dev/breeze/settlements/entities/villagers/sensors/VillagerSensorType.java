@@ -25,4 +25,10 @@ public class VillagerSensorType {
     public static final String REGISTRY_KEY_NEAREST_ENCHANTING_TABLE = "settlements_villager_nearest_enchanting_table_sensor";
     public static SensorType<VillagerNearbyEnchantingTableSensor> NEAREST_ENCHANTING_TABLE;
 
+    /**
+     * Sensor for scanning the closest harvestable sugarcane
+     */
+    public static final String REGISTRY_KEY_NEAREST_HARVESTABLE_SUGARCANE = "settlements_villager_nearest_harvestable_sugarcane_sensor";
+    public static SensorType<VillagerNearbyHarvestableSugarcaneSensor> NEAREST_HARVESTABLE_SUGARCANE;
+
 }

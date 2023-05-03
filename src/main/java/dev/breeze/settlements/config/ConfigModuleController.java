@@ -1,9 +1,6 @@
 package dev.breeze.settlements.config;
 
-import dev.breeze.settlements.config.files.EnchantItemsConfig;
-import dev.breeze.settlements.config.files.GeneralConfig;
-import dev.breeze.settlements.config.files.NitwitPranksConfig;
-import dev.breeze.settlements.config.files.WolfFetchItemConfig;
+import dev.breeze.settlements.config.files.*;
 import dev.breeze.settlements.utils.BaseModuleController;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,6 +14,7 @@ public class ConfigModuleController extends BaseModuleController {
         NitwitPranksConfig.getInstance();
         WolfFetchItemConfig.getInstance();
         EnchantItemsConfig.getInstance();
+        FarmerHarvestConfig.getInstance();
         return true;
     }
 

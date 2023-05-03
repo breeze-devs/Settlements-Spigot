@@ -11,10 +11,7 @@ import dev.breeze.settlements.entities.villagers.events.VillagerRestockEvent;
 import dev.breeze.settlements.entities.villagers.inventory.VillagerInventoryEditEvents;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
-import dev.breeze.settlements.entities.villagers.sensors.VillagerMealTimeSensor;
-import dev.breeze.settlements.entities.villagers.sensors.VillagerNearbyEnchantingTableSensor;
-import dev.breeze.settlements.entities.villagers.sensors.VillagerNearbyWaterAreaSensor;
-import dev.breeze.settlements.entities.villagers.sensors.VillagerSensorType;
+import dev.breeze.settlements.entities.villagers.sensors.*;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
 import dev.breeze.settlements.entities.wolves.memories.WolfMemoryType;
 import dev.breeze.settlements.entities.wolves.sensors.*;
@@ -205,6 +202,8 @@ public class EntityModuleController extends BaseModuleController {
         VillagerSensorType.IS_MEAL_TIME = registerSensor(VillagerSensorType.REGISTRY_KEY_IS_MEAL_TIME, VillagerMealTimeSensor::new);
         VillagerSensorType.NEAREST_ENCHANTING_TABLE = registerSensor(VillagerSensorType.REGISTRY_KEY_NEAREST_ENCHANTING_TABLE,
                 VillagerNearbyEnchantingTableSensor::new);
+        VillagerSensorType.NEAREST_HARVESTABLE_SUGARCANE = registerSensor(VillagerSensorType.REGISTRY_KEY_NEAREST_HARVESTABLE_SUGARCANE,
+                VillagerNearbyHarvestableSugarcaneSensor::new);
 
         // Wolf sensors
         WolfSensorType.OWNER = registerSensor(WolfSensorType.REGISTRY_KEY_OWNER, WolfOwnerSensor::new);
