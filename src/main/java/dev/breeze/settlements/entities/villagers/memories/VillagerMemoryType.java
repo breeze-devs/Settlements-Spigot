@@ -2,6 +2,8 @@ package dev.breeze.settlements.entities.villagers.memories;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
+import dev.breeze.settlements.utils.Habitat;
+import dev.breeze.settlements.utils.LogUtil;
 import dev.breeze.settlements.utils.StringUtil;
 import dev.breeze.settlements.utils.particle.ParticlePreset;
 import net.minecraft.core.BlockPos;
@@ -158,11 +160,45 @@ public class VillagerMemoryType {
             .itemMaterial(Material.SUGAR_CANE)
             .build();
 
+    public static final VillagerMemory<Habitat> CURRENT_HABITAT = VillagerMemory.<Habitat>builder()
+            .identifier("current_habitat")
+            .parser(habitat -> List.of("&7Current habitat: &e" + habitat.getName()))
+            .serializer(new VillagerMemory.MemorySerializer<>() {
+                @Nonnull
+                @Override
+                public StringTag toTag(@Nonnull Habitat habitat) {
+                    return StringTag.valueOf(habitat.toString());
+                }
+
+                @Nonnull
+                @Override
+                public Habitat fromTag(@Nonnull CompoundTag memoriesTag, @Nonnull String key) {
+                    String habitatString = memoriesTag.getString(key);
+                    try {
+                        return Habitat.valueOf(habitatString);
+                    } catch (IllegalArgumentException ex) {
+                        LogUtil.exception(ex, "Unable to parse villager's habitat memory %s!", habitatString);
+                        throw ex;
+                    }
+                }
+            })
+            .clickEventHandler(null)
+            .displayName("Current habitat")
+            .description(List.of("&fThe habitat that the villager is currently in"))
+            .itemMaterial(Material.GRASS_BLOCK)
+            .build();
+
     /**
      * List of all memories for bulk memory operations such as save/load
      */
-    public static final List<VillagerMemory<?>> ALL_MEMORIES = Arrays.asList(FENCE_GATE_TO_CLOSE, OWNED_DOG, OWNED_CAT, WALK_DOG_TARGET, NEAREST_WATER_AREA,
-            IS_MEAL_TIME, NEAREST_ENCHANTING_TABLE, NEAREST_HARVESTABLE_SUGARCANE);
+    public static final List<VillagerMemory<?>> ALL_MEMORIES = Arrays.asList(
+            // Pet related memories
+            OWNED_DOG, OWNED_CAT, WALK_DOG_TARGET,
+            // Point of interest (POI) related memories
+            NEAREST_WATER_AREA, NEAREST_ENCHANTING_TABLE, NEAREST_HARVESTABLE_SUGARCANE,
+            // Miscellaneous memories
+            FENCE_GATE_TO_CLOSE, IS_MEAL_TIME, CURRENT_HABITAT
+    );
 
     /**
      * Export important memories to NBT
