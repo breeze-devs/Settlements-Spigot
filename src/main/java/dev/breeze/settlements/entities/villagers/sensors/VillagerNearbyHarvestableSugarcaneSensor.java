@@ -3,13 +3,17 @@ package dev.breeze.settlements.entities.villagers.sensors;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.utils.TimeUtil;
+import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Path;
+import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -23,7 +27,7 @@ public class VillagerNearbyHarvestableSugarcaneSensor extends VillagerNearbyBloc
     }
 
     @Override
-    protected void tickSensor(@Nonnull ServerLevel world, @Nonnull BaseVillager villager) {
+    protected void tickBlockSensor(@Nonnull ServerLevel world, @Nonnull BaseVillager villager, @Nonnull Brain<Villager> brain) {
         // Detect nearby enchanting table
         Optional<BlockPos> enchantingTable = BlockPos.findClosestMatch(villager.blockPosition(), this.getRangeHorizontal(), this.getRangeVertical(), (pos) -> {
             // Check block state
@@ -35,13 +39,21 @@ public class VillagerNearbyHarvestableSugarcaneSensor extends VillagerNearbyBloc
             Path path = villager.getNavigation().createPath(pos, 2);
             return path != null;
         });
-        VillagerMemoryType.NEAREST_HARVESTABLE_SUGARCANE.set(villager.getBrain(), enchantingTable.orElse(null));
+        VillagerMemoryType.NEAREST_HARVESTABLE_SUGARCANE.set(brain, enchantingTable.orElse(null));
     }
 
     @Override
     @Nonnull
     public Set<MemoryModuleType<?>> requires() {
         return Set.of(VillagerMemoryType.NEAREST_HARVESTABLE_SUGARCANE.getMemoryModuleType());
+    }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getBaseGuiItemBuilder() {
+        return new ItemStackBuilder(Material.SUGAR_CANE)
+                .setDisplayName("&eNearest sugar cane sensor")
+                .setLore("&fInfrequently scans for the closest harvestable sugar cane");
     }
 
     /**

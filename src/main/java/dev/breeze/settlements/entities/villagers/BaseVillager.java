@@ -9,6 +9,8 @@ import dev.breeze.settlements.entities.villagers.inventory.VillagerInventory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.entities.villagers.navigation.VillagerNavigation;
+import dev.breeze.settlements.entities.villagers.sensors.BaseVillagerSensor;
+import dev.breeze.settlements.entities.villagers.sensors.VillagerSensor;
 import dev.breeze.settlements.entities.villagers.sensors.VillagerSensorType;
 import dev.breeze.settlements.utils.LogUtil;
 import dev.breeze.settlements.utils.StringUtil;
@@ -175,23 +177,22 @@ public class BaseVillager extends Villager {
             final ImmutableList<SensorType<Sensor<Villager>>> DEFAULT_SENSOR_TYPES = (ImmutableList<SensorType<Sensor<Villager>>>)
                     FieldUtils.readStaticField(Villager.class, "cC", true);
 
-            ImmutableList.Builder<MemoryModuleType<?>> customMemoryTypeBuilder = new ImmutableList.Builder<MemoryModuleType<?>>()
+            // Add custom memories
+            ImmutableList.Builder<MemoryModuleType<?>> customMemoryTypes = new ImmutableList.Builder<MemoryModuleType<?>>()
                     .addAll(DEFAULT_MEMORY_TYPES);
             for (VillagerMemory<?> memory : VillagerMemoryType.ALL_MEMORIES) {
-                customMemoryTypeBuilder.add(memory.getMemoryModuleType());
+                customMemoryTypes.add(memory.getMemoryModuleType());
             }
-            ImmutableList<MemoryModuleType<?>> customMemoryTypes = customMemoryTypeBuilder.build();
 
-            ImmutableList<SensorType<? extends Sensor<Villager>>> customSensorTypes = new ImmutableList.Builder<SensorType<? extends Sensor<Villager>>>()
-                    .addAll(DEFAULT_SENSOR_TYPES)
-                    .add(VillagerSensorType.NEAREST_WATER_AREA)
-                    .add(VillagerSensorType.IS_MEAL_TIME)
-                    .add(VillagerSensorType.NEAREST_ENCHANTING_TABLE)
-                    .add(VillagerSensorType.NEAREST_HARVESTABLE_SUGARCANE)
-                    .add(VillagerSensorType.CURRENT_HABITAT)
-                    .build();
+            // Add custom sensors
+            ImmutableList.Builder<SensorType<? extends Sensor<Villager>>> customSensorTypes =
+                    new ImmutableList.Builder<SensorType<? extends Sensor<Villager>>>()
+                            .addAll(DEFAULT_SENSOR_TYPES);
+            for (VillagerSensor<? extends BaseVillagerSensor> sensor : VillagerSensorType.ALL_SENSORS) {
+                customSensorTypes.add(sensor.getSensorType());
+            }
 
-            return Brain.provider(customMemoryTypes, customSensorTypes);
+            return Brain.provider(customMemoryTypes.build(), customSensorTypes.build());
         } catch (IllegalAccessException e) {
             LogUtil.exception(e, "Encountered exception when creating custom villager brain!");
             throw new RuntimeException(e);

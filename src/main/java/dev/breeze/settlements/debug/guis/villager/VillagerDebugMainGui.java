@@ -28,8 +28,9 @@ public class VillagerDebugMainGui implements Listener {
     private static final String INVENTORY_IDENTIFIER = "debug_villager";
 
     // Register slots for all clickable slots
-    private static final int SLOT_BEHAVIORS = InventoryUtil.toIndex(2, 6);
-    private static final int SLOT_MEMORIES = InventoryUtil.toIndex(2, 7);
+    private static final int SLOT_BEHAVIORS = InventoryUtil.toIndex(2, 5);
+    private static final int SLOT_MEMORIES = InventoryUtil.toIndex(2, 6);
+    private static final int SLOT_SENSORS = InventoryUtil.toIndex(2, 7);
     private static final int SLOT_INVENTORY = InventoryUtil.toIndex(2, 8);
     private static final int SLOT_CLOSE_MENU = InventoryUtil.rowMiddleIndex(3);
 
@@ -55,14 +56,8 @@ public class VillagerDebugMainGui implements Listener {
                 .setLore("%s &7(%d)".formatted(ReputationLevels.getTitle(reputation), reputation))
                 .build());
 
-        // Hunger level (no listener needed)
-        bukkitInventory.setItem(InventoryUtil.toIndex(2, 4), new ItemStackBuilder(Material.APPLE)
-                .setDisplayName("&e&lHunger Level")
-                .setLore("&6Peckish (example, WIP)")
-                .build());
-
         // Scheduled activity (no listener needed)
-        bukkitInventory.setItem(InventoryUtil.toIndex(2, 5), new ItemStackBuilder(Material.CLOCK)
+        bukkitInventory.setItem(InventoryUtil.toIndex(2, 4), new ItemStackBuilder(Material.CLOCK)
                 .setDisplayName("&e&lScheduled Activity")
                 .setLore(getVillagerActivityStrings(villager))
                 .build());
@@ -77,6 +72,12 @@ public class VillagerDebugMainGui implements Listener {
         bukkitInventory.setItem(SLOT_MEMORIES, new ItemStackBuilder(Material.WRITABLE_BOOK)
                 .setDisplayName("&e&lMemories")
                 .setLore("&7Click to view villager's memories")
+                .build());
+
+        // Sensors
+        bukkitInventory.setItem(SLOT_SENSORS, new ItemStackBuilder(Material.SCULK_SENSOR)
+                .setDisplayName("&e&lSensors")
+                .setLore("&7Click to view villager's sensors")
                 .build());
 
         // Inventory
@@ -109,6 +110,10 @@ public class VillagerDebugMainGui implements Listener {
         } else if (slot == SLOT_MEMORIES) {
             // Show villager's memories
             VillagerDebugMemoryGui.getViewableInventory(player, holder.getVillager()).showToPlayer(player);
+            SoundPresets.inventoryClickEnter(player);
+        } else if (slot == SLOT_SENSORS) {
+            // Show villager's sensors
+            VillagerDebugSensorGui.getViewableInventory(player, holder.getVillager()).showToPlayer(player);
             SoundPresets.inventoryClickEnter(player);
         } else if (slot == SLOT_INVENTORY) {
             // Show villager's inventory to the player, allowing edits

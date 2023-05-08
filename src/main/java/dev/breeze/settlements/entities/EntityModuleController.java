@@ -11,7 +11,9 @@ import dev.breeze.settlements.entities.villagers.events.VillagerRestockEvent;
 import dev.breeze.settlements.entities.villagers.inventory.VillagerInventoryEditEvents;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
-import dev.breeze.settlements.entities.villagers.sensors.*;
+import dev.breeze.settlements.entities.villagers.sensors.BaseVillagerSensor;
+import dev.breeze.settlements.entities.villagers.sensors.VillagerSensor;
+import dev.breeze.settlements.entities.villagers.sensors.VillagerSensorType;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
 import dev.breeze.settlements.entities.wolves.memories.WolfMemoryType;
 import dev.breeze.settlements.entities.wolves.sensors.*;
@@ -198,13 +200,9 @@ public class EntityModuleController extends BaseModuleController {
          * Build & register sensors
          */
         // Villager sensors
-        VillagerSensorType.NEAREST_WATER_AREA = registerSensor(VillagerSensorType.REGISTRY_KEY_NEAREST_WATER_AREA, VillagerNearbyWaterAreaSensor::new);
-        VillagerSensorType.IS_MEAL_TIME = registerSensor(VillagerSensorType.REGISTRY_KEY_IS_MEAL_TIME, VillagerMealTimeSensor::new);
-        VillagerSensorType.NEAREST_ENCHANTING_TABLE = registerSensor(VillagerSensorType.REGISTRY_KEY_NEAREST_ENCHANTING_TABLE,
-                VillagerNearbyEnchantingTableSensor::new);
-        VillagerSensorType.NEAREST_HARVESTABLE_SUGARCANE = registerSensor(VillagerSensorType.REGISTRY_KEY_NEAREST_HARVESTABLE_SUGARCANE,
-                VillagerNearbyHarvestableSugarcaneSensor::new);
-        VillagerSensorType.CURRENT_HABITAT = registerSensor(VillagerSensorType.REGISTRY_KEY_CURRENT_HABITAT, VillagerHabitatSensor::new);
+        for (VillagerSensor<? extends BaseVillagerSensor> sensor : VillagerSensorType.ALL_SENSORS) {
+            sensor.setSensorType(registerSensor(sensor.getIdentifier(), sensor.getSensorSupplier()));
+        }
 
         // Wolf sensors
         WolfSensorType.OWNER = registerSensor(WolfSensorType.REGISTRY_KEY_OWNER, WolfOwnerSensor::new);
@@ -223,7 +221,7 @@ public class EntityModuleController extends BaseModuleController {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private <U extends Sensor<?>> SensorType<U> registerSensor(@Nonnull String id, @Nonnull Supplier<U> factory) throws NoSuchMethodException,
+    private <U extends Sensor<?>> SensorType<U> registerSensor(@Nonnull String id, @Nonnull Supplier<?> factory) throws NoSuchMethodException,
             InvocationTargetException, InstantiationException, IllegalAccessException {
         Constructor<SensorType> constructor = SensorType.class.getDeclaredConstructor(Supplier.class);
         constructor.setAccessible(true);
