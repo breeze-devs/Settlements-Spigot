@@ -28,6 +28,8 @@ public final class EatAtMealTimeBehavior extends BaseVillagerBehavior {
     private static final ItemStack BREAD = CraftItemStack.asNMSCopy(new ItemStackBuilder(Material.BREAD).build());
     private static final ItemStack WATER_BOTTLE = CraftItemStack.asNMSCopy(new ItemStackBuilder(Material.POTION).build());
 
+    private static final int SCAN_COOLDOWN = TimeUtil.seconds(30);
+
     private static final int MIN_EAT_DURATION = TimeUtil.seconds(1);
     private static final int MAX_EAT_DURATION = TimeUtil.seconds(3);
     private static final int MIN_DRINK_DURATION = TimeUtil.seconds(1);
@@ -53,7 +55,7 @@ public final class EatAtMealTimeBehavior extends BaseVillagerBehavior {
         super(Map.of(
                 // Only run in meal times
                 VillagerMemoryType.IS_MEAL_TIME.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT
-        ), MAX_EAT_DURATION + MAX_DRINK_DURATION);
+        ), MAX_EAT_DURATION + MAX_DRINK_DURATION, SCAN_COOLDOWN);
 
         this.cooldown = this.randomCooldown();
         this.eatTimeLeft = 0;
