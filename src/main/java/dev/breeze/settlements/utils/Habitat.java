@@ -86,4 +86,8 @@ public enum Habitat {
         return null;
     }
 
+    public boolean isHot() {
+        return this == TROPICAL || this == DESERT || this == SAVANNA || this == NETHER;
+    }
+
 }

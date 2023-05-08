@@ -32,7 +32,7 @@ public class VillagerSensorType {
     public static SensorType<VillagerNearbyHarvestableSugarcaneSensor> NEAREST_HARVESTABLE_SUGARCANE;
 
     /**
-     * Sensor for scanning the closest harvestable sugarcane
+     * Sensor for scanning the current habitat
      */
     public static final String REGISTRY_KEY_CURRENT_HABITAT = "settlements_villager_current_habitat_sensor";
     public static SensorType<VillagerHabitatSensor> CURRENT_HABITAT;
