@@ -204,6 +204,7 @@ public class EntityModuleController extends BaseModuleController {
                 VillagerNearbyEnchantingTableSensor::new);
         VillagerSensorType.NEAREST_HARVESTABLE_SUGARCANE = registerSensor(VillagerSensorType.REGISTRY_KEY_NEAREST_HARVESTABLE_SUGARCANE,
                 VillagerNearbyHarvestableSugarcaneSensor::new);
+        VillagerSensorType.CURRENT_HABITAT = registerSensor(VillagerSensorType.REGISTRY_KEY_CURRENT_HABITAT, VillagerHabitatSensor::new);
 
         // Wolf sensors
         WolfSensorType.OWNER = registerSensor(WolfSensorType.REGISTRY_KEY_OWNER, WolfOwnerSensor::new);

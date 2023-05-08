@@ -35,8 +35,23 @@ public class ParticleUtil {
         location.getWorld().spawnParticle(Particle.REDSTONE, location.getX(), location.getY(), location.getZ(), count, dx, dy, dz, speed, options);
     }
 
+    /**
+     * Spawns a colored potion particle with the given RGB values and speed at the specified location
+     * - note that there can only be one particle spawned
+     *
+     * @param location the location at which to spawn the particle
+     * @param r        the red component of the particle color (0-255)
+     * @param g        the green component of the particle color (0-255)
+     * @param b        the blue component of the particle color (0-255)
+     * @param speed    the particle speed
+     */
+    public static void coloredPotion(Location location, double r, double g, double b, double speed) {
+        location.getWorld().spawnParticle(Particle.SPELL_MOB, location.getX(), location.getY(), location.getZ(), 0, r / 255D, g / 255D, b / 255D, speed);
+    }
+
     public static void blockBreak(Location location, Material blockMaterial, int count, double dx, double dy, double dz, double speed) {
-        location.getWorld().spawnParticle(Particle.BLOCK_CRACK, location.getX(), location.getY(), location.getZ(), count, dx, dy, dz, speed, blockMaterial.createBlockData());
+        location.getWorld().spawnParticle(Particle.BLOCK_CRACK, location.getX(), location.getY(), location.getZ(), count, dx, dy, dz, speed,
+                blockMaterial.createBlockData());
     }
 
     public static void itemBreak(Location location, ItemStack itemStack, int count, double dx, double dy, double dz, double speed) {

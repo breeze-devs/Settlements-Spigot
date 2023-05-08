@@ -188,6 +188,7 @@ public class BaseVillager extends Villager {
                     .add(VillagerSensorType.IS_MEAL_TIME)
                     .add(VillagerSensorType.NEAREST_ENCHANTING_TABLE)
                     .add(VillagerSensorType.NEAREST_HARVESTABLE_SUGARCANE)
+                    .add(VillagerSensorType.CURRENT_HABITAT)
                     .build();
 
             return Brain.provider(customMemoryTypes, customSensorTypes);
@@ -366,6 +367,13 @@ public class BaseVillager extends Villager {
 
     public int getExpertiseLevel() {
         return this.getVillagerData().getLevel();
+    }
+
+    /**
+     * Returns the type of the villager based on the biome it spawned in
+     */
+    public VillagerType getVillagerBiomeType() {
+        return this.getVillagerData().getType();
     }
 
     /**

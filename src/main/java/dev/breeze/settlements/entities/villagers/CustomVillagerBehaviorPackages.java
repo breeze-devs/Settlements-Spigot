@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import dev.breeze.settlements.entities.villagers.behaviors.*;
 import dev.breeze.settlements.entities.villagers.behaviors.farmer.HarvestSugarcaneBehavior;
+import dev.breeze.settlements.entities.villagers.behaviors.habitat.desert.DrinkWaterBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.pranks.LaunchFireworkBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.pranks.RingBellBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.pranks.RunAroundBehavior;
@@ -84,6 +85,12 @@ public final class CustomVillagerBehaviorPackages {
         coreBehaviors.add(Pair.of(4, temp));
         customBehaviors.add(temp);
 
+        // Drink water behavior
+        temp = new DrinkWaterBehavior();
+        coreBehaviors.add(Pair.of(4, temp));
+        customBehaviors.add(temp);
+
+        // Scan for pets behavior
         coreBehaviors.add(Pair.of(20, ScanForPetsBehaviorController.scanForPets()));
 
         // TODO: refactor this into other activities
