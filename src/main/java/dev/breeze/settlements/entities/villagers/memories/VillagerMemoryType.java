@@ -129,7 +129,7 @@ public class VillagerMemoryType {
 
     public static final VillagerMemory<Boolean> IS_MEAL_TIME = VillagerMemory.<Boolean>builder()
             .identifier("meal_time")
-            .parser(memory -> Collections.singletonList(memory ? "Yes" : "No"))
+            .parser(memory -> Collections.singletonList(memory ? "&aYes" : "&cNo"))
             .serializer(null)
             .clickEventHandler(null)
             .displayName("Meal time")
