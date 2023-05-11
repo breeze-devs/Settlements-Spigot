@@ -47,10 +47,10 @@ public class MemoryEvent implements Listener {
         if (entity instanceof VillagerWolf wolf) {
             Brain<Wolf> brain = wolf.getBrain();
             Map<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> memories = brain.getMemories();
-            MessageUtil.sendMessage(player, "&bMemories of wolf:");
+            MessageUtil.sendMessageWithoutPrefix(player, "&bMemories of wolf:");
             for (Map.Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> entry : memories.entrySet())
-                MessageUtil.sendMessage(player, "&b - %s : %s", entry.getKey().toString(), entry.getValue().toString());
-            MessageUtil.sendMessage(player, "&b - Owned by: %s (%s)", wolf.getOwner(), wolf.getOwnerUUID());
+                MessageUtil.sendMessageWithoutPrefix(player, "&b - %s : %s", entry.getKey().toString(), entry.getValue().toString());
+            MessageUtil.sendMessageWithoutPrefix(player, "&b - Owned by: %s (%s)", wolf.getOwner(), wolf.getOwnerUUID());
 
             // Display fence area visually
             if (brain.hasMemoryValue(WolfMemoryType.NEAREST_FENCE_AREA)) {
@@ -81,10 +81,10 @@ public class MemoryEvent implements Listener {
 
             Brain<Cat> brain = cat.getBrain();
             Map<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> memories = brain.getMemories();
-            MessageUtil.sendMessage(player, "&bMemories of cat:");
+            MessageUtil.sendMessageWithoutPrefix(player, "&bMemories of cat:");
             for (Map.Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> entry : memories.entrySet())
-                MessageUtil.sendMessage(player, "&b - %s : %s", entry.getKey().toString(), entry.getValue().toString());
-            MessageUtil.sendMessage(player, "&b - Owned by: %s (%s)", cat.getOwner(), cat.getOwnerUUID());
+                MessageUtil.sendMessageWithoutPrefix(player, "&b - %s : %s", entry.getKey().toString(), entry.getValue().toString());
+            MessageUtil.sendMessageWithoutPrefix(player, "&b - Owned by: %s (%s)", cat.getOwner(), cat.getOwnerUUID());
 
             // Draw line to owner
             if (cat.getOwner() != null && cat.getOwner().isAlive()) {

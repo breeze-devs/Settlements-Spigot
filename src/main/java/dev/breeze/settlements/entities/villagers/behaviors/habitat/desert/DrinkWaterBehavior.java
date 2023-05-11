@@ -53,16 +53,17 @@ public final class DrinkWaterBehavior extends BaseVillagerBehavior {
     }
 
     @Override
-    protected boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull Villager villager) {
+    protected boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull BaseVillager baseVillager) {
         // Not -1 because this method is rate limited
         this.cooldown -= this.getMaxStartConditionCheckCooldown();
-        MessageUtil.debug("&b[Debug] Cooldown for " + this.getClass().getSimpleName() + " is " + this.cooldown);
+        DebugUtil.broadcastEntity("&7Cooldown for %s is %s".formatted(this.getClass().getSimpleName(), TimeUtil.ticksToReadableTime(Math.max(0,
+                this.cooldown))), baseVillager.getStringUUID(), baseVillager.getHoverDescription());
         if (this.cooldown > 0) {
             return false;
         }
 
         // Check if it's a hot habitat
-        Habitat habitat = VillagerMemoryType.CURRENT_HABITAT.get(villager.getBrain());
+        Habitat habitat = VillagerMemoryType.CURRENT_HABITAT.get(baseVillager.getBrain());
         return habitat != null && habitat.isHot();
     }
 

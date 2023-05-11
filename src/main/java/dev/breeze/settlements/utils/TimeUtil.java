@@ -48,6 +48,10 @@ public class TimeUtil {
             readableTime.append(ticks).append(" ticks");
         }
 
+        if (readableTime.isEmpty()) {
+            readableTime.append("0");
+        }
+
         return readableTime.toString().trim();
     }
 

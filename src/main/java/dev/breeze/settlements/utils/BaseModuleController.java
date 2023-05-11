@@ -13,7 +13,7 @@ public abstract class BaseModuleController {
     public final boolean performPreload(JavaPlugin plugin) {
         try {
             boolean successful = this.preload(plugin);
-            LogUtil.info("Preloading \"%s\" %s!", getClass().getName(), (successful ? "succeeded" : "failed"));
+            DebugUtil.log("Preloading \"%s\" %s!", getClass().getName(), (successful ? "succeeded" : "failed"));
             return successful;
         } catch (Exception e) {
             LogUtil.exception(e, "Encountered exception while preloading %s module!", getClass().getName());
@@ -35,7 +35,7 @@ public abstract class BaseModuleController {
     public final boolean performLoad(JavaPlugin plugin, PluginManager pm) {
         try {
             boolean successful = this.load(plugin, pm);
-            LogUtil.info("Loading \"%s\" %s!", getClass().getName(), (successful ? "succeeded" : "failed"));
+            DebugUtil.log("Loading \"%s\" %s!", getClass().getName(), (successful ? "succeeded" : "failed"));
             return successful;
         } catch (Exception e) {
             LogUtil.exception(e, "Encountered exception while loading %s module!", getClass().getName());
@@ -54,7 +54,7 @@ public abstract class BaseModuleController {
     public final void performTeardown() {
         try {
             this.teardown();
-            LogUtil.info("Successfully torn down \"%s\" module!", getClass().getName());
+            DebugUtil.log("Successfully torn down \"%s\" module!", getClass().getName());
         } catch (Exception e) {
             LogUtil.exception(e, "Encountered exception while tearing down %s module!", getClass().getName());
         }

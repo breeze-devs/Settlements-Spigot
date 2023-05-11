@@ -1,7 +1,7 @@
 package dev.breeze.settlements.entities.villagers.sensors;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
-import dev.breeze.settlements.utils.MessageUtil;
+import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.TimeUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import net.minecraft.server.level.ServerLevel;
@@ -30,7 +30,8 @@ public abstract class BaseVillagerSensor extends Sensor<Villager> {
             return;
         }
 
-        MessageUtil.debug("&6[Debug] Ticking sensor " + this.getClass().getSimpleName() + "!");
+        DebugUtil.broadcastEntity("&6Ticking sensor %s!".formatted(this.getClass().getSimpleName()), villager.getStringUUID(),
+                baseVillager.getHoverDescription());
         this.tickSensor(world, baseVillager, baseVillager.getBrain());
     }
 

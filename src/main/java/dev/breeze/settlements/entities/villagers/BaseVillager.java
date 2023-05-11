@@ -12,8 +12,10 @@ import dev.breeze.settlements.entities.villagers.navigation.VillagerNavigation;
 import dev.breeze.settlements.entities.villagers.sensors.BaseVillagerSensor;
 import dev.breeze.settlements.entities.villagers.sensors.VillagerSensor;
 import dev.breeze.settlements.entities.villagers.sensors.VillagerSensorType;
+import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.LogUtil;
 import dev.breeze.settlements.utils.StringUtil;
+import dev.breeze.settlements.utils.VillagerUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import lombok.Getter;
 import lombok.Setter;
@@ -136,7 +138,7 @@ public class BaseVillager extends Villager {
     @Override
     public void load(@Nonnull CompoundTag nbt) {
         super.load(nbt);
-        LogUtil.info("Loading custom villager...");
+        DebugUtil.log("Loading custom villager (%s)", this.getUUID().toString());
 
         // Attempt to load saved inventory data
         if (nbt.contains(INVENTORY_NBT_TAG, Tag.TAG_COMPOUND)) {
@@ -165,6 +167,11 @@ public class BaseVillager extends Villager {
         VillagerMemoryType.save(nbt, this);
     }
 
+    @Override
+    public boolean save(@Nonnull CompoundTag nbt) {
+        DebugUtil.log("Saving custom villager (%s)", this.getUUID().toString());
+        return super.save(nbt);
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -375,6 +382,23 @@ public class BaseVillager extends Villager {
      */
     public VillagerType getVillagerBiomeType() {
         return this.getVillagerData().getType();
+    }
+
+    /**
+     * Returns a short description of this villager, primarily used in hover messages
+     */
+    public List<String> getHoverDescription() {
+        String professionDetails = this.getProfession().name();
+        if (this.getProfession() == VillagerProfession.NONE) {
+            professionDetails = "unemployed";
+        }
+        professionDetails = "%s %s".formatted(VillagerUtil.getExpertiseName(this.getExpertiseLevel(), false), professionDetails);
+
+        return List.of(
+                "Entity type: %s".formatted(ENTITY_TYPE),
+                "Profession: %s".formatted(StringUtil.toTitleCase(professionDetails)),
+                "UUID: %s".formatted(this.getStringUUID())
+        );
     }
 
     /**

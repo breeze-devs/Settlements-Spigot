@@ -15,7 +15,7 @@ import dev.breeze.settlements.entities.wolves.goals.WolfMovementLockGoal;
 import dev.breeze.settlements.entities.wolves.goals.WolfSitWhenOrderedToGoal;
 import dev.breeze.settlements.entities.wolves.memories.WolfMemoryType;
 import dev.breeze.settlements.entities.wolves.sensors.WolfSensorType;
-import dev.breeze.settlements.utils.LogUtil;
+import dev.breeze.settlements.utils.DebugUtil;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import lombok.Getter;
@@ -140,8 +140,14 @@ public class VillagerWolf extends Wolf {
     @Override
     public void load(@Nonnull CompoundTag nbt) {
         super.load(nbt);
-        LogUtil.info("Loading custom wolf...");
+        DebugUtil.log("Loading custom wolf (%s)", this.getUUID().toString());
         WolfMemoryType.load(nbt, this);
+    }
+
+    @Override
+    public boolean save(@Nonnull CompoundTag nbt) {
+        DebugUtil.log("Saving custom wolf (%s)", this.getUUID().toString());
+        return super.save(nbt);
     }
 
     /**
@@ -240,11 +246,11 @@ public class VillagerWolf extends Wolf {
      */
     private void registerBrainGoals(Brain<Wolf> brain) {
         if (this.getOwner() == null || !this.getOwner().isAlive()) {
-            LogUtil.warning("Skipping registration of wolf brain goals because owner is not available");
+            DebugUtil.log("Skipping initialization of wolf (%s) brain because owner is not available", this.getUUID().toString());
             return;
         }
 
-        LogUtil.info("Registering wolf brain goals");
+        DebugUtil.log("Initializing brain for wolf (%s)", this.getUUID().toString());
 
         // Set activity schedule
         // TODO: do we need to refine this?
@@ -332,10 +338,25 @@ public class VillagerWolf extends Wolf {
             return;
         }
 
-        LogUtil.info("Owner detected, refreshing wolf brain goals");
+        // Check base condition
+        if (this.getOwnerUUID() == null) {
+            return;
+        }
+
+        DebugUtil.log("Owner (%s) detected, refreshing wolf (%s) brain goals", this.getOwnerUUID().toString(), this.getUUID().toString());
         this.refreshBrain(this.level.getMinecraftWorld());
     }
 
+    /**
+     * Returns a short description of this villager wolf, primarily used in hover messages
+     */
+    public List<String> getHoverDescription() {
+        return List.of(
+                "Entity type: %s".formatted(ENTITY_TYPE),
+                "Owned by: %s".formatted(this.getOwner() == null ? "N/A" : this.getOwnerUUID().toString()),
+                "UUID: %s".formatted(this.getStringUUID())
+        );
+    }
 
     /*
      * Custom navigation for wolves to step over fences

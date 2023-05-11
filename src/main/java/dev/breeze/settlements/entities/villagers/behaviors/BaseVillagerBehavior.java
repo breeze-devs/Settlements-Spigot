@@ -1,6 +1,7 @@
 package dev.breeze.settlements.entities.villagers.behaviors;
 
-import dev.breeze.settlements.utils.MessageUtil;
+import dev.breeze.settlements.entities.villagers.BaseVillager;
+import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.TimeUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import lombok.Getter;
@@ -37,23 +38,35 @@ public abstract class BaseVillagerBehavior extends Behavior<Villager> {
 
     @Override
     protected final boolean checkExtraStartConditions(@Nonnull ServerLevel world, @Nonnull Villager villager) {
+        if (!(villager instanceof BaseVillager baseVillager)) {
+            return false;
+        }
+
         if (--this.startConditionCheckCooldown > 0)
             return false;
 
         this.startConditionCheckCooldown = this.maxStartConditionCheckCooldown;
-        return this.checkExtraStartConditionsRateLimited(world, villager);
+        return this.checkExtraStartConditionsRateLimited(world, baseVillager);
     }
 
-    protected abstract boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel world, @Nonnull Villager villager);
+    protected abstract boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel world, @Nonnull BaseVillager villager);
 
     @Override
     protected void start(@Nonnull ServerLevel level, @Nonnull Villager villager, long gameTime) {
-        MessageUtil.debug("&a[Debug] Villager behavior " + this.getClass().getSimpleName() + " has started");
+        if (!(villager instanceof BaseVillager baseVillager)) {
+            return;
+        }
+        DebugUtil.broadcastEntity("&aVillager behavior %s has started".formatted(this.getClass().getSimpleName()), villager.getStringUUID(),
+                baseVillager.getHoverDescription());
     }
 
     @Override
     protected void stop(@Nonnull ServerLevel level, @Nonnull Villager villager, long gameTime) {
-        MessageUtil.debug("&c[Debug] Villager behavior " + this.getClass().getSimpleName() + " has stopped");
+        if (!(villager instanceof BaseVillager baseVillager)) {
+            return;
+        }
+        DebugUtil.broadcastEntity("&cVillager behavior %s has stopped".formatted(this.getClass().getSimpleName()), villager.getStringUUID(),
+                baseVillager.getHoverDescription());
     }
 
     /**

@@ -6,6 +6,7 @@ import dev.breeze.settlements.entities.EntityModuleController;
 import dev.breeze.settlements.guis.GuiModuleController;
 import dev.breeze.settlements.test.TestModuleController;
 import dev.breeze.settlements.utils.BaseModuleController;
+import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.LogUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,7 +49,7 @@ public final class Main extends JavaPlugin {
             f.mkdir();
 
         // Preload modules
-        LogUtil.info("Preloading modules...");
+        DebugUtil.log("Preloading modules...");
         for (BaseModuleController bmc : this.moduleControllers) {
             if (!bmc.performPreload(this)) {
                 this.disableSelf("Failed to preload module '%s'!", bmc.getClass().getName());
@@ -63,13 +64,13 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         // Abandon loading if disabled
         if (this.disablePlugin) {
-            LogUtil.info("Disabling plugin due to failed initialization...");
+            LogUtil.severe("Disabling plugin due to failed initialization...");
             this.getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
         // Load modules
-        LogUtil.info("Loading modules...");
+        DebugUtil.log("Loading modules...");
         PluginManager pm = this.getServer().getPluginManager();
         for (BaseModuleController bmc : this.moduleControllers) {
             if (!bmc.performLoad(this, pm)) {

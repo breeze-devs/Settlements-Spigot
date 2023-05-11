@@ -1,6 +1,7 @@
 package dev.breeze.settlements.entities.cats.behaviors;
 
-import dev.breeze.settlements.utils.MessageUtil;
+import dev.breeze.settlements.entities.cats.VillagerCat;
+import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.TimeUtil;
 import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
@@ -34,7 +35,11 @@ public abstract class BaseCatBehavior extends Behavior<Cat> {
 
     @Override
     protected void start(@Nonnull ServerLevel level, @Nonnull Cat cat, long gameTime) {
-        MessageUtil.debug("&a[Debug] Cat behavior " + this.getClass().getSimpleName() + " has started");
+        if (!(cat instanceof VillagerCat villagerCat)) {
+            return;
+        }
+        DebugUtil.broadcastEntity("&aCat behavior %s has started".formatted(this.getClass().getSimpleName()), cat.getStringUUID(),
+                villagerCat.getHoverDescription());
     }
 
     @Override
@@ -50,7 +55,11 @@ public abstract class BaseCatBehavior extends Behavior<Cat> {
 
     @Override
     protected void stop(@Nonnull ServerLevel level, @Nonnull Cat cat, long gameTime) {
-        MessageUtil.debug("&c[Debug] Cat behavior " + this.getClass().getSimpleName() + " has stopped");
+        if (!(cat instanceof VillagerCat villagerCat)) {
+            return;
+        }
+        DebugUtil.broadcastEntity("&cCat behavior %s has stopped".formatted(this.getClass().getSimpleName()), cat.getStringUUID(),
+                villagerCat.getHoverDescription());
     }
 
 }

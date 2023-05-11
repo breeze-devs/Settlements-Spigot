@@ -15,6 +15,9 @@ public class LogUtil {
     public static void init(JavaPlugin plugin) {
         logger = plugin.getLogger();
         info("Hello (happy) world!");
+
+        // This is only sent if debugging is enabled, so it's safe to call
+        DebugUtil.log("You've enabled debugging mode, expect a LOT of log entries");
     }
 
     public static void info(String format, Object... args) {

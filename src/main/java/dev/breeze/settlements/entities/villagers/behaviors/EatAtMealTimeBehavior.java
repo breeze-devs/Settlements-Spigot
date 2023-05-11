@@ -2,7 +2,7 @@ package dev.breeze.settlements.entities.villagers.behaviors;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
-import dev.breeze.settlements.utils.MessageUtil;
+import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.RandomUtil;
 import dev.breeze.settlements.utils.SoundUtil;
 import dev.breeze.settlements.utils.TimeUtil;
@@ -65,10 +65,11 @@ public final class EatAtMealTimeBehavior extends BaseVillagerBehavior {
     }
 
     @Override
-    protected boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull Villager villager) {
+    protected boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull BaseVillager baseVillager) {
         // Not -1 because this method is rate limited
         this.cooldown -= this.getMaxStartConditionCheckCooldown();
-        MessageUtil.debug("&b[Debug] Cooldown for " + this.getClass().getSimpleName() + " is " + this.cooldown);
+        DebugUtil.broadcastEntity("&7Cooldown for %s is %s".formatted(this.getClass().getSimpleName(), TimeUtil.ticksToReadableTime(Math.max(0,
+                this.cooldown))), baseVillager.getStringUUID(), baseVillager.getHoverDescription());
         return this.cooldown <= 0;
     }
 

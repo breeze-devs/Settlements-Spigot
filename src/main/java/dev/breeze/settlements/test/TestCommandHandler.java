@@ -33,45 +33,45 @@ public class TestCommandHandler implements TabExecutor {
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, String[] args) {
         if (!(sender instanceof Player p)) {
             // Console command
-            MessageUtil.sendMessage(sender, "Go away evil console!!!");
+            MessageUtil.sendMessageWithPrefix(sender, "Go away evil console!!!");
             return true;
         }
 
-        if (!p.isOp()) {
-            // Admin-only command
-            MessageUtil.sendMessage(sender, "You must be an operator!");
+        // TODO: refactor permissions
+        // Check if the player has permission to execute the command
+        if (!p.hasPermission("settlements.admin")) {
+            MessageUtil.sendMessageWithPrefix(sender, "&cYou lack the required permission to use this command!");
         }
 
         String subCommand = args.length > 0 ? args[0].toLowerCase() : "basevillager";
-        MessageUtil.sendMessage(p, "Starting test execution...");
+        MessageUtil.sendMessageWithPrefix(p, "Starting test execution...");
         Block target = p.getTargetBlockExact(100);
 
         switch (subCommand) {
             case "basevillager" -> {
                 if (target == null) {
-                    MessageUtil.sendMessage(p, "&cInvalid block target!");
+                    MessageUtil.sendMessageWithPrefix(p, "&cInvalid block target!");
                 } else {
                     baseVillager(target, args);
                 }
             }
             case "armorstand" -> {
                 if (target == null) {
-                    MessageUtil.sendMessage(p, "&cInvalid block target!");
+                    MessageUtil.sendMessageWithPrefix(p, "&cInvalid block target!");
                 } else if (args.length != 4) {
-                    MessageUtil.sendMessage(p, "&cInvalid Arguments!");
+                    MessageUtil.sendMessageWithPrefix(p, "&cInvalid Arguments!");
                 } else {
                     armorstand(p, target, args);
                 }
             }
             case "advacement" -> advancement(p, args);
-            case "toggledebug" -> toggleDebug(p);
             default -> {
-                MessageUtil.sendMessage(p, "&cInvalid testing format!");
+                MessageUtil.sendMessageWithPrefix(p, "&cInvalid testing format!");
                 return true;
             }
         }
 
-        MessageUtil.sendMessage(p, "Test execution complete!");
+        MessageUtil.sendMessageWithPrefix(p, "Test execution complete!");
         return true;
     }
 
@@ -86,7 +86,6 @@ public class TestCommandHandler implements TabExecutor {
             tabComplete.add("BaseVillager");
             tabComplete.add("Armorstand");
             tabComplete.add("Advacement");
-            tabComplete.add("ToggleDebug");
         }
         return tabComplete.stream().filter(completion -> completion.toLowerCase().contains(args[args.length - 1].toLowerCase())).toList();
     }
@@ -99,7 +98,7 @@ public class TestCommandHandler implements TabExecutor {
         float pitch = Float.parseFloat(args[1]);
         float yaw = Float.parseFloat(args[2]);
         float roll = Float.parseFloat(args[3]);
-        MessageUtil.sendMessage(p, "&aPitch: %f, Yaw: %f, Roll: %f", pitch, yaw, roll);
+        MessageUtil.sendMessageWithPrefix(p, "&aPitch: %f, Yaw: %f, Roll: %f", pitch, yaw, roll);
 
         ServerLevel level = ((CraftWorld) p.getWorld()).getHandle();
         ArmorStand armorStand = new ArmorStand(level, target.getX(), target.getY() + 1, target.getZ());
@@ -113,10 +112,5 @@ public class TestCommandHandler implements TabExecutor {
     public static void advancement(Player p, String[] args) {
         Bukkit.getUnsafe().loadAdvancement(KeyUtils.newKey(""), "");
         Advancement advancement = Bukkit.getAdvancement(KeyUtils.newKey(""));
-    }
-
-    public static void toggleDebug(Player p) {
-        MessageUtil.toggleDebugging();
-        MessageUtil.sendMessage(p, MessageUtil.isDebugging() ? "&aEnabled Debugging!" : "&cDisabled Debugging");
     }
 }
