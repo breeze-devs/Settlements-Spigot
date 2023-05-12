@@ -14,7 +14,7 @@ import dev.breeze.settlements.entities.cats.goals.CatSitWhenOrderedToGoal;
 import dev.breeze.settlements.entities.cats.memories.CatMemoryType;
 import dev.breeze.settlements.entities.cats.sensors.CatSensorType;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
-import dev.breeze.settlements.utils.LogUtil;
+import dev.breeze.settlements.utils.DebugUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.nbt.CompoundTag;
@@ -125,14 +125,14 @@ public class VillagerCat extends Cat {
     @Override
     public void load(@Nonnull CompoundTag nbt) {
         super.load(nbt);
-        LogUtil.info("Loading custom cat...");
+        DebugUtil.log("Loading custom cat (%s)", this.getUUID().toString());
 
         // TODO: restore any NBT data if needed
     }
 
     @Override
     public boolean save(@Nonnull CompoundTag nbt) {
-        LogUtil.info("Saving custom cat");
+        DebugUtil.log("Saving custom cat (%s)", this.getUUID().toString());
         return super.save(nbt);
     }
 
@@ -222,11 +222,11 @@ public class VillagerCat extends Cat {
      */
     private void registerBrainGoals(Brain<Cat> brain) {
         if (this.getOwner() == null || !this.getOwner().isAlive()) {
-            LogUtil.warning("Skipping registration of cat brain goals because owner is not available");
+            DebugUtil.log("Skipping initialization of cat (%s) brain because owner is not available", this.getUUID().toString());
             return;
         }
 
-        LogUtil.info("Registering cat brain goals");
+        DebugUtil.log("Initializing brain for cat (%s)", this.getUUID().toString());
 
         // Set activity schedule
         // - cat is active from dusk (13000) to dawn (22000) & when villagers are working (2000-9000)
@@ -305,8 +305,24 @@ public class VillagerCat extends Cat {
             return;
         }
 
-        LogUtil.info("Owner detected, refreshing cat brain goals");
+        // Check base condition
+        if (this.getOwnerUUID() == null) {
+            return;
+        }
+
+        DebugUtil.log("Owner (%s) detected, refreshing cat (%s) brain goals", this.getOwnerUUID().toString(), this.getUUID().toString());
         this.refreshBrain(this.level.getMinecraftWorld());
+    }
+
+    /**
+     * Returns a short description of this villager cat, primarily used in hover messages
+     */
+    public List<String> getHoverDescription() {
+        return List.of(
+                "Entity type: %s".formatted(ENTITY_TYPE),
+                "Owned by: %s".formatted(this.getOwner() == null ? "N/A" : this.getOwnerUUID().toString()),
+                "UUID: %s".formatted(this.getStringUUID())
+        );
     }
 
 }

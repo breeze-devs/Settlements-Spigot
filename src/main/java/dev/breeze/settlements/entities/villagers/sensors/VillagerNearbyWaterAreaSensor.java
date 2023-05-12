@@ -3,13 +3,16 @@ package dev.breeze.settlements.entities.villagers.sensors;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.utils.TimeUtil;
+import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.craftbukkit.v1_19_R2.block.data.CraftBlockData;
@@ -26,10 +29,10 @@ public class VillagerNearbyWaterAreaSensor extends VillagerNearbyBlockSensor {
     }
 
     @Override
-    protected void tickSensor(@Nonnull ServerLevel world, @Nonnull BaseVillager villager) {
+    protected void tickBlockSensor(@Nonnull ServerLevel world, @Nonnull BaseVillager villager, @Nonnull Brain<Villager> brain) {
         // Detect nearby water areas
         Optional<BlockPos> nearestWaterArea = this.findNearestWaterArea(world, villager);
-        VillagerMemoryType.NEAREST_WATER_AREA.set(villager.getBrain(), nearestWaterArea.orElse(null));
+        VillagerMemoryType.NEAREST_WATER_AREA.set(brain, nearestWaterArea.orElse(null));
     }
 
     @Override
@@ -37,6 +40,15 @@ public class VillagerNearbyWaterAreaSensor extends VillagerNearbyBlockSensor {
     public Set<MemoryModuleType<?>> requires() {
         return Set.of(VillagerMemoryType.NEAREST_WATER_AREA.getMemoryModuleType());
     }
+
+    @Nonnull
+    @Override
+    public ItemStackBuilder getBaseGuiItemBuilder() {
+        return new ItemStackBuilder(Material.FISHING_ROD)
+                .setDisplayName("&eNearest fishable water area sensor")
+                .setLore("&fInfrequently scans for the closest water area that's big enough to fish");
+    }
+
 
     private Optional<BlockPos> findNearestWaterArea(@Nonnull ServerLevel world, @Nonnull Villager villager) {
         return BlockPos.findClosestMatch(villager.blockPosition(), this.getRangeHorizontal(), this.getRangeVertical(), (pos) -> {

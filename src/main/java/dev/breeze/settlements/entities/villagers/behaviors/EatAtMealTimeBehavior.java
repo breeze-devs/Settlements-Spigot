@@ -2,7 +2,7 @@ package dev.breeze.settlements.entities.villagers.behaviors;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
-import dev.breeze.settlements.utils.MessageUtil;
+import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.RandomUtil;
 import dev.breeze.settlements.utils.SoundUtil;
 import dev.breeze.settlements.utils.TimeUtil;
@@ -27,6 +27,8 @@ public final class EatAtMealTimeBehavior extends BaseVillagerBehavior {
 
     private static final ItemStack BREAD = CraftItemStack.asNMSCopy(new ItemStackBuilder(Material.BREAD).build());
     private static final ItemStack WATER_BOTTLE = CraftItemStack.asNMSCopy(new ItemStackBuilder(Material.POTION).build());
+
+    private static final int SCAN_COOLDOWN = TimeUtil.seconds(30);
 
     private static final int MIN_EAT_DURATION = TimeUtil.seconds(1);
     private static final int MAX_EAT_DURATION = TimeUtil.seconds(3);
@@ -53,7 +55,7 @@ public final class EatAtMealTimeBehavior extends BaseVillagerBehavior {
         super(Map.of(
                 // Only run in meal times
                 VillagerMemoryType.IS_MEAL_TIME.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT
-        ), MAX_EAT_DURATION + MAX_DRINK_DURATION);
+        ), MAX_EAT_DURATION + MAX_DRINK_DURATION, SCAN_COOLDOWN);
 
         this.cooldown = this.randomCooldown();
         this.eatTimeLeft = 0;
@@ -63,10 +65,11 @@ public final class EatAtMealTimeBehavior extends BaseVillagerBehavior {
     }
 
     @Override
-    protected boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull Villager villager) {
+    protected boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull BaseVillager baseVillager) {
         // Not -1 because this method is rate limited
         this.cooldown -= this.getMaxStartConditionCheckCooldown();
-        MessageUtil.debug("&b[Debug] Cooldown for " + this.getClass().getSimpleName() + " is " + this.cooldown);
+        DebugUtil.broadcastEntity("&7Cooldown for %s is %s".formatted(this.getClass().getSimpleName(), TimeUtil.ticksToReadableTime(Math.max(0,
+                this.cooldown))), baseVillager.getStringUUID(), baseVillager.getHoverDescription());
         return this.cooldown <= 0;
     }
 

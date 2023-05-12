@@ -1,11 +1,11 @@
 package dev.breeze.settlements.entities.villagers.sensors;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
+import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.schedule.Activity;
 
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 @Getter
-public abstract class VillagerNearbyBlockSensor extends Sensor<Villager> {
+public abstract class VillagerNearbyBlockSensor extends BaseVillagerSensor {
 
     /**
      * How far away to scan horizontally
@@ -48,25 +48,31 @@ public abstract class VillagerNearbyBlockSensor extends Sensor<Villager> {
     }
 
     @Override
-    protected final void doTick(@Nonnull ServerLevel world, @Nonnull Villager villager) {
-        Brain<Villager> brain = villager.getBrain();
-        if (!(villager instanceof BaseVillager baseVillager)) {
-            return;
-        }
-
+    protected void tickSensor(@Nonnull ServerLevel world, @Nonnull BaseVillager villager, @Nonnull Brain<Villager> brain) {
         // Check if current activity is allowed
         // - if allowed list is empty, we default to allowed
         if (!this.allowedActivities.isEmpty() && !this.allowedActivities.contains(brain.getSchedule().getActivityAt((int) world.getWorld().getTime()))) {
             return;
         }
 
-        this.tickSensor(world, baseVillager);
+        this.tickBlockSensor(world, villager, brain);
     }
 
-    protected abstract void tickSensor(@Nonnull ServerLevel world, @Nonnull BaseVillager villager);
+    protected abstract void tickBlockSensor(@Nonnull ServerLevel world, @Nonnull BaseVillager villager, @Nonnull Brain<Villager> brain);
 
     @Override
     @Nonnull
     public abstract Set<MemoryModuleType<?>> requires();
+
+    @Nonnull
+    public final ItemStackBuilder getGuiItemBuilderAbstract() {
+        ItemStackBuilder builder = this.getBaseGuiItemBuilder();
+        builder.appendLore("&fHorizontal range: %d blocks".formatted(this.rangeHorizontal));
+        builder.appendLore("&fVertical range: %d blocks".formatted(this.rangeVertical));
+        return builder;
+    }
+
+    @Nonnull
+    public abstract ItemStackBuilder getBaseGuiItemBuilder();
 
 }

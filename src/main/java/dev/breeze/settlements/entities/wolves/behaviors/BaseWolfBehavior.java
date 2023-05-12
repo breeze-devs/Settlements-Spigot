@@ -1,6 +1,7 @@
 package dev.breeze.settlements.entities.wolves.behaviors;
 
-import dev.breeze.settlements.utils.MessageUtil;
+import dev.breeze.settlements.entities.wolves.VillagerWolf;
+import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.TimeUtil;
 import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
@@ -34,7 +35,12 @@ public abstract class BaseWolfBehavior extends Behavior<Wolf> {
 
     @Override
     protected void start(@Nonnull ServerLevel level, @Nonnull Wolf wolf, long gameTime) {
-        MessageUtil.debug("&a[Debug] Wolf behavior " + this.getClass().getSimpleName() + " has started");
+        if (!(wolf instanceof VillagerWolf villagerWolf)) {
+            return;
+        }
+
+        DebugUtil.broadcastEntity("&aWolf behavior %s has started".formatted(this.getClass().getSimpleName()), wolf.getStringUUID(),
+                villagerWolf.getHoverDescription());
     }
 
     @Override
@@ -50,7 +56,12 @@ public abstract class BaseWolfBehavior extends Behavior<Wolf> {
 
     @Override
     protected void stop(@Nonnull ServerLevel level, @Nonnull Wolf wolf, long gameTime) {
-        MessageUtil.debug("&c[Debug] Wolf behavior " + this.getClass().getSimpleName() + " has stopped");
+        if (!(wolf instanceof VillagerWolf villagerWolf)) {
+            return;
+        }
+
+        DebugUtil.broadcastEntity("&cWolf behavior %s has stopped".formatted(this.getClass().getSimpleName()), wolf.getStringUUID(),
+                villagerWolf.getHoverDescription());
     }
 
 }

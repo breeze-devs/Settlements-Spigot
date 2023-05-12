@@ -22,15 +22,15 @@ public class TimeUtil {
         return hours * HOUR_IN_TICKS;
     }
 
-    public static String ticksToReadableTime(int ticks) {
+    public static String ticksToReadableTime(long ticks) {
         // Split into time units
-        int hours = ticks / HOUR_IN_TICKS;
+        long hours = ticks / HOUR_IN_TICKS;
         ticks %= HOUR_IN_TICKS;
 
-        int minutes = ticks / MINUTE_IN_TICKS;
+        long minutes = ticks / MINUTE_IN_TICKS;
         ticks %= MINUTE_IN_TICKS;
 
-        int seconds = ticks / SECOND_IN_TICKS;
+        long seconds = ticks / SECOND_IN_TICKS;
         ticks %= SECOND_IN_TICKS;
 
         // Build the string
@@ -46,6 +46,10 @@ public class TimeUtil {
         }
         if (ticks > 0) {
             readableTime.append(ticks).append(" ticks");
+        }
+
+        if (readableTime.isEmpty()) {
+            readableTime.append("0");
         }
 
         return readableTime.toString().trim();

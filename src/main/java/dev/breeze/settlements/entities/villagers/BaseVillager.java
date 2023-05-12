@@ -9,9 +9,13 @@ import dev.breeze.settlements.entities.villagers.inventory.VillagerInventory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.entities.villagers.navigation.VillagerNavigation;
+import dev.breeze.settlements.entities.villagers.sensors.BaseVillagerSensor;
+import dev.breeze.settlements.entities.villagers.sensors.VillagerSensor;
 import dev.breeze.settlements.entities.villagers.sensors.VillagerSensorType;
+import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.LogUtil;
 import dev.breeze.settlements.utils.StringUtil;
+import dev.breeze.settlements.utils.VillagerUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import lombok.Getter;
 import lombok.Setter;
@@ -134,7 +138,7 @@ public class BaseVillager extends Villager {
     @Override
     public void load(@Nonnull CompoundTag nbt) {
         super.load(nbt);
-        LogUtil.info("Loading custom villager...");
+        DebugUtil.log("Loading custom villager (%s)", this.getUUID().toString());
 
         // Attempt to load saved inventory data
         if (nbt.contains(INVENTORY_NBT_TAG, Tag.TAG_COMPOUND)) {
@@ -163,6 +167,11 @@ public class BaseVillager extends Villager {
         VillagerMemoryType.save(nbt, this);
     }
 
+    @Override
+    public boolean save(@Nonnull CompoundTag nbt) {
+        DebugUtil.log("Saving custom villager (%s)", this.getUUID().toString());
+        return super.save(nbt);
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -175,23 +184,22 @@ public class BaseVillager extends Villager {
             final ImmutableList<SensorType<Sensor<Villager>>> DEFAULT_SENSOR_TYPES = (ImmutableList<SensorType<Sensor<Villager>>>)
                     FieldUtils.readStaticField(Villager.class, "cC", true);
 
-            ImmutableList.Builder<MemoryModuleType<?>> customMemoryTypeBuilder = new ImmutableList.Builder<MemoryModuleType<?>>()
+            // Add custom memories
+            ImmutableList.Builder<MemoryModuleType<?>> customMemoryTypes = new ImmutableList.Builder<MemoryModuleType<?>>()
                     .addAll(DEFAULT_MEMORY_TYPES);
             for (VillagerMemory<?> memory : VillagerMemoryType.ALL_MEMORIES) {
-                customMemoryTypeBuilder.add(memory.getMemoryModuleType());
+                customMemoryTypes.add(memory.getMemoryModuleType());
             }
-            ImmutableList<MemoryModuleType<?>> customMemoryTypes = customMemoryTypeBuilder.build();
 
-            ImmutableList<SensorType<? extends Sensor<Villager>>> customSensorTypes = new ImmutableList.Builder<SensorType<? extends Sensor<Villager>>>()
-                    .addAll(DEFAULT_SENSOR_TYPES)
-                    .add(VillagerSensorType.NEAREST_WATER_AREA)
-                    .add(VillagerSensorType.IS_MEAL_TIME)
-                    .add(VillagerSensorType.NEAREST_ENCHANTING_TABLE)
-                    .add(VillagerSensorType.NEAREST_HARVESTABLE_SUGARCANE)
-                    .add(VillagerSensorType.CURRENT_HABITAT)
-                    .build();
+            // Add custom sensors
+            ImmutableList.Builder<SensorType<? extends Sensor<Villager>>> customSensorTypes =
+                    new ImmutableList.Builder<SensorType<? extends Sensor<Villager>>>()
+                            .addAll(DEFAULT_SENSOR_TYPES);
+            for (VillagerSensor<? extends BaseVillagerSensor> sensor : VillagerSensorType.ALL_SENSORS) {
+                customSensorTypes.add(sensor.getSensorType());
+            }
 
-            return Brain.provider(customMemoryTypes, customSensorTypes);
+            return Brain.provider(customMemoryTypes.build(), customSensorTypes.build());
         } catch (IllegalAccessException e) {
             LogUtil.exception(e, "Encountered exception when creating custom villager brain!");
             throw new RuntimeException(e);
@@ -374,6 +382,23 @@ public class BaseVillager extends Villager {
      */
     public VillagerType getVillagerBiomeType() {
         return this.getVillagerData().getType();
+    }
+
+    /**
+     * Returns a short description of this villager, primarily used in hover messages
+     */
+    public List<String> getHoverDescription() {
+        String professionDetails = this.getProfession().name();
+        if (this.getProfession() == VillagerProfession.NONE) {
+            professionDetails = "unemployed";
+        }
+        professionDetails = "%s %s".formatted(VillagerUtil.getExpertiseName(this.getExpertiseLevel(), false), professionDetails);
+
+        return List.of(
+                "Entity type: %s".formatted(ENTITY_TYPE),
+                "Profession: %s".formatted(StringUtil.toTitleCase(professionDetails)),
+                "UUID: %s".formatted(this.getStringUUID())
+        );
     }
 
     /**

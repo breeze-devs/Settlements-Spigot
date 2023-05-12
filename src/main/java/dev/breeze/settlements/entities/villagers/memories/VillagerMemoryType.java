@@ -1,6 +1,7 @@
 package dev.breeze.settlements.entities.villagers.memories;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
+import dev.breeze.settlements.entities.villagers.sensors.VillagerMealTimeSensor;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
 import dev.breeze.settlements.utils.Habitat;
 import dev.breeze.settlements.utils.LogUtil;
@@ -128,16 +129,16 @@ public class VillagerMemoryType {
 
     public static final VillagerMemory<Boolean> IS_MEAL_TIME = VillagerMemory.<Boolean>builder()
             .identifier("meal_time")
-            .parser(memory -> Collections.singletonList(memory ? "Yes" : "No"))
+            .parser(memory -> Collections.singletonList(memory ? "&aYes" : "&cNo"))
             .serializer(null)
             .clickEventHandler(null)
             .displayName("Meal time")
             .description(List.of(
                     "&fIs it a good time to eat now?",
                     "&fMeal times:",
-                    "&7- Breakfast: 1800 - 2200 ticks",
-                    "&7- Lunch: 5800 - 6200 ticks",
-                    "&7- Dinner: 10800 - 11200 ticks"
+                    "&7- Breakfast: %d - %d ticks".formatted(VillagerMealTimeSensor.BREAKFAST_START, VillagerMealTimeSensor.BREAKFAST_END),
+                    "&7- Lunch: %d - %d ticks".formatted(VillagerMealTimeSensor.LUNCH_START, VillagerMealTimeSensor.LUNCH_END),
+                    "&7- Dinner: %d - %d ticks".formatted(VillagerMealTimeSensor.DINNER_START, VillagerMealTimeSensor.DINNER_END)
             ))
             .itemMaterial(Material.BREAD)
             .build();

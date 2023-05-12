@@ -34,7 +34,7 @@ public final class WalkDogBehavior extends BaseVillagerBehavior {
     }
 
     @Override
-    protected boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull Villager villager) {
+    protected boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull BaseVillager baseVillager) {
         return true;
     }
 

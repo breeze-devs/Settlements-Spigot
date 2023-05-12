@@ -28,6 +28,7 @@ public final class DrinkWaterBehavior extends BaseVillagerBehavior {
                     .setBasePotionEffect(new PotionData(PotionType.WATER))
                     .build());
 
+    private static final int SCAN_COOLDOWN = TimeUtil.minutes(1);
     public static final int TICK_INTERVAL = TimeUtil.ticks(5);
 
     private static final int MIN_OVERHEAT_DURATION = TimeUtil.seconds(5);
@@ -44,7 +45,7 @@ public final class DrinkWaterBehavior extends BaseVillagerBehavior {
     public DrinkWaterBehavior() {
         super(Map.of(
                 VillagerMemoryType.CURRENT_HABITAT.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT
-        ), MAX_OVERHEAT_DURATION + DRINK_DURATION);
+        ), MAX_OVERHEAT_DURATION + DRINK_DURATION, SCAN_COOLDOWN);
 
         this.cooldown = this.randomCooldown();
         this.overheatTimeLeft = 0;
@@ -52,16 +53,17 @@ public final class DrinkWaterBehavior extends BaseVillagerBehavior {
     }
 
     @Override
-    protected boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull Villager villager) {
+    protected boolean checkExtraStartConditionsRateLimited(@Nonnull ServerLevel level, @Nonnull BaseVillager baseVillager) {
         // Not -1 because this method is rate limited
         this.cooldown -= this.getMaxStartConditionCheckCooldown();
-        MessageUtil.debug("&b[Debug] Cooldown for " + this.getClass().getSimpleName() + " is " + this.cooldown);
+        DebugUtil.broadcastEntity("&7Cooldown for %s is %s".formatted(this.getClass().getSimpleName(), TimeUtil.ticksToReadableTime(Math.max(0,
+                this.cooldown))), baseVillager.getStringUUID(), baseVillager.getHoverDescription());
         if (this.cooldown > 0) {
             return false;
         }
 
         // Check if it's a hot habitat
-        Habitat habitat = VillagerMemoryType.CURRENT_HABITAT.get(villager.getBrain());
+        Habitat habitat = VillagerMemoryType.CURRENT_HABITAT.get(baseVillager.getBrain());
         return habitat != null && habitat.isHot();
     }
 

@@ -1,5 +1,6 @@
 package dev.breeze.settlements.debug;
 
+import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.MessageUtil;
 import dev.breeze.settlements.utils.SoundUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
@@ -23,27 +24,28 @@ public class DebugCommandHandler implements TabExecutor {
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, String[] args) {
         if (!(sender instanceof Player p)) {
             // Console command
-            MessageUtil.sendMessage(sender, "Go away evil console!!!");
+            MessageUtil.sendMessageWithPrefix(sender, "Go away evil console!!!");
             return true;
         }
 
-        if (!p.isOp()) {
-            // Admin-only command
-            MessageUtil.sendMessage(sender, "You must be an operator to use this command!");
+        // TODO: refactor permissions
+        // Check if the player has permission to execute the command
+        if (!p.hasPermission("settlements.admin")) {
+            MessageUtil.sendMessageWithPrefix(sender, "&cYou lack the required permission to use this command!");
         }
 
         String subCommand = args.length > 0 ? args[0].toLowerCase() : "help";
         switch (subCommand) {
+            case "toggle" -> toggleDebug(p);
             case "tool" -> debugTool(p);
             default -> {
                 // Help or other
                 // TODO: send help message
-                MessageUtil.sendMessage(p, "&cInvalid debug format!");
+                MessageUtil.sendMessageWithPrefix(p, "&cInvalid debug format!");
                 return true;
             }
         }
 
-        MessageUtil.sendMessage(p, "Test execution complete!");
         return true;
     }
 
@@ -55,10 +57,16 @@ public class DebugCommandHandler implements TabExecutor {
         }
 
         if (args.length == 1) {
+            tabComplete.add("toggle");
             tabComplete.add("tool");
             tabComplete.add("help");
         }
         return tabComplete.stream().filter(completion -> completion.toLowerCase().contains(args[args.length - 1].toLowerCase())).toList();
+    }
+
+    public static void toggleDebug(Player p) {
+        DebugUtil.toggleDebugging();
+        MessageUtil.sendMessageWithPrefix(p, "%s debugging mode", DebugUtil.isDebuggingEnabled() ? "&aEnabled" : "&cDisabled");
     }
 
     private static void debugTool(Player p) {
@@ -69,7 +77,7 @@ public class DebugCommandHandler implements TabExecutor {
                 .build();
         p.getInventory().addItem(debugStick);
         SoundUtil.playSound(p, Sound.ENTITY_ITEM_PICKUP, 1);
-        MessageUtil.sendMessage(p, "&eYou've obtained a debug tool");
+        MessageUtil.sendMessageWithPrefix(p, "&eYou've obtained a debug tool");
     }
 
 }

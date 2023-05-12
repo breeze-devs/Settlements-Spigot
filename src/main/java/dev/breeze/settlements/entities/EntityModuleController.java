@@ -11,11 +11,14 @@ import dev.breeze.settlements.entities.villagers.events.VillagerRestockEvent;
 import dev.breeze.settlements.entities.villagers.inventory.VillagerInventoryEditEvents;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
-import dev.breeze.settlements.entities.villagers.sensors.*;
+import dev.breeze.settlements.entities.villagers.sensors.BaseVillagerSensor;
+import dev.breeze.settlements.entities.villagers.sensors.VillagerSensor;
+import dev.breeze.settlements.entities.villagers.sensors.VillagerSensorType;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
 import dev.breeze.settlements.entities.wolves.memories.WolfMemoryType;
 import dev.breeze.settlements.entities.wolves.sensors.*;
 import dev.breeze.settlements.utils.BaseModuleController;
+import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.LogUtil;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -94,19 +97,22 @@ public class EntityModuleController extends BaseModuleController {
     @SuppressWarnings("JavaReflectionMemberAccess")
     private void registerEntities(Map<String, EntityType.Builder<Entity>> entityTypeMap) throws IllegalAccessException, InvocationTargetException,
             NoSuchMethodException, NoSuchFieldException {
+        LogUtil.info("Registering custom entities, it's normal if you see messages like 'No data fixer registered for XXX'");
+        DebugUtil.log("Attempting to register custom entities...");
+
         // Get entity type registry
         DedicatedServer dedicatedServer = ((CraftServer) Bukkit.getServer()).getServer();
         WritableRegistry<EntityType<?>> entityTypeRegistry =
                 (WritableRegistry<EntityType<?>>) dedicatedServer.registryAccess().registryOrThrow(Registries.ENTITY_TYPE);
 
         // Unfreeze registry
-        LogUtil.info("Unfreezing entity type registry (1/2)...");
+        DebugUtil.log("> Unfreezing entity type registry (1/2)...");
         // l = private boolean frozen
         Field frozen = MappedRegistry.class.getDeclaredField("l");
         frozen.setAccessible(true);
         frozen.set(entityTypeRegistry, false);
 
-        LogUtil.info("Unfreezing entity type registry (2/2)...");
+        DebugUtil.log("> Unfreezing entity type registry (2/2)...");
         // m = private Map<T, Holder.Reference<T>> unregisteredIntrusiveHolders;
         Field unregisteredHolderMap = MappedRegistry.class.getDeclaredField("m");
         unregisteredHolderMap.setAccessible(true);
@@ -120,12 +126,15 @@ public class EntityModuleController extends BaseModuleController {
         // Build & register entities
         for (Map.Entry<String, EntityType.Builder<Entity>> entry : entityTypeMap.entrySet()) {
             register.invoke(null, entry.getKey(), entry.getValue());
+            DebugUtil.log("> Registered entity '%s' successfully!", entry.getKey());
         }
 
         // Re-freeze registry
-        LogUtil.info("Re-freezing entity type registry...");
+        DebugUtil.log("> Re-freezing entity type registry...");
         BuiltInRegistries.ENTITY_TYPE.freeze();
         unregisteredHolderMap.set(BuiltInRegistries.ENTITY_TYPE, null);
+
+        DebugUtil.log("Custom entities registered successfully!");
     }
 
     /**
@@ -134,13 +143,15 @@ public class EntityModuleController extends BaseModuleController {
      */
     @SuppressWarnings("JavaReflectionMemberAccess")
     private void registerMemories() throws IllegalAccessException, NoSuchMethodException, NoSuchFieldException {
+        DebugUtil.log("Attempting to register custom memories...");
+
         // Get memory module type registry
         DedicatedServer dedicatedServer = ((CraftServer) Bukkit.getServer()).getServer();
         WritableRegistry<MemoryModuleType<?>> registry =
                 (WritableRegistry<MemoryModuleType<?>>) dedicatedServer.registryAccess().registryOrThrow(Registries.MEMORY_MODULE_TYPE);
 
         // Unfreeze registry
-        LogUtil.info("Unfreezing memory module type registry...");
+        DebugUtil.log("> Unfreezing memory module type registry...");
         // l = private boolean frozen
         Field frozen = MappedRegistry.class.getDeclaredField("l");
         frozen.setAccessible(true);
@@ -150,11 +161,13 @@ public class EntityModuleController extends BaseModuleController {
          * Build & register memories
          */
         // Villager memories
+        DebugUtil.log("> Registering custom villager memories...");
         for (VillagerMemory<?> memory : VillagerMemoryType.ALL_MEMORIES) {
             memory.setMemoryModuleType(registerMemory(memory.getIdentifier(), null));
         }
 
         // Wolf memories
+        DebugUtil.log("> Registering custom wolf memories...");
         WolfMemoryType.NEARBY_ITEMS = registerMemory(WolfMemoryType.REGISTRY_KEY_NEARBY_ITEMS, null);
         WolfMemoryType.NEARBY_SNIFFABLE_ENTITIES = registerMemory(WolfMemoryType.REGISTRY_KEY_SNIFFABLE_ENTITIES, null);
         WolfMemoryType.RECENTLY_SNIFFED_ENTITIES = registerMemory(WolfMemoryType.REGISTRY_KEY_RECENTLY_SNIFFED_ENTITIES, null);
@@ -162,11 +175,14 @@ public class EntityModuleController extends BaseModuleController {
         WolfMemoryType.NEARBY_SHEEP = registerMemory(WolfMemoryType.REGISTRY_KEY_NEARBY_SHEEP, null);
 
         // Cat memories
+        DebugUtil.log("> Registering custom cat memories...");
         CatMemoryType.NEARBY_ITEMS = registerMemory(CatMemoryType.REGISTRY_KEY_NEARBY_ITEMS, null);
 
         // Re-freeze registry
-        LogUtil.info("Re-freezing memory module type registry...");
+        DebugUtil.log("> Re-freezing memory module type registry...");
         BuiltInRegistries.MEMORY_MODULE_TYPE.freeze();
+
+        DebugUtil.log("Custom memories registered successfully!");
     }
 
     private <U> MemoryModuleType<U> registerMemory(@Nonnull String id, @Nullable Codec<U> codec) {
@@ -183,12 +199,14 @@ public class EntityModuleController extends BaseModuleController {
     @SuppressWarnings("JavaReflectionMemberAccess")
     private void registerSensors() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException,
             InstantiationException {
+        DebugUtil.log("Attempting to register custom sensors...");
+
         // Get sensor type registry
         DedicatedServer dedicatedServer = ((CraftServer) Bukkit.getServer()).getServer();
         WritableRegistry<SensorType<?>> registry = (WritableRegistry<SensorType<?>>) dedicatedServer.registryAccess().registryOrThrow(Registries.SENSOR_TYPE);
 
         // Unfreeze registry
-        LogUtil.info("Unfreezing sensor type registry...");
+        DebugUtil.log("> Unfreezing sensor type registry...");
         // l = private boolean frozen
         Field frozen = MappedRegistry.class.getDeclaredField("l");
         frozen.setAccessible(true);
@@ -198,15 +216,13 @@ public class EntityModuleController extends BaseModuleController {
          * Build & register sensors
          */
         // Villager sensors
-        VillagerSensorType.NEAREST_WATER_AREA = registerSensor(VillagerSensorType.REGISTRY_KEY_NEAREST_WATER_AREA, VillagerNearbyWaterAreaSensor::new);
-        VillagerSensorType.IS_MEAL_TIME = registerSensor(VillagerSensorType.REGISTRY_KEY_IS_MEAL_TIME, VillagerMealTimeSensor::new);
-        VillagerSensorType.NEAREST_ENCHANTING_TABLE = registerSensor(VillagerSensorType.REGISTRY_KEY_NEAREST_ENCHANTING_TABLE,
-                VillagerNearbyEnchantingTableSensor::new);
-        VillagerSensorType.NEAREST_HARVESTABLE_SUGARCANE = registerSensor(VillagerSensorType.REGISTRY_KEY_NEAREST_HARVESTABLE_SUGARCANE,
-                VillagerNearbyHarvestableSugarcaneSensor::new);
-        VillagerSensorType.CURRENT_HABITAT = registerSensor(VillagerSensorType.REGISTRY_KEY_CURRENT_HABITAT, VillagerHabitatSensor::new);
+        DebugUtil.log("> Registering custom villager sensors...");
+        for (VillagerSensor<? extends BaseVillagerSensor> sensor : VillagerSensorType.ALL_SENSORS) {
+            sensor.setSensorType(registerSensor(sensor.getIdentifier(), sensor.getSensorSupplier()));
+        }
 
         // Wolf sensors
+        DebugUtil.log("> Registering custom wolf sensors...");
         WolfSensorType.OWNER = registerSensor(WolfSensorType.REGISTRY_KEY_OWNER, WolfOwnerSensor::new);
         WolfSensorType.NEARBY_ITEMS = registerSensor(WolfSensorType.REGISTRY_KEY_NEARBY_ITEMS, WolfNearbyItemsSensor::new);
         WolfSensorType.NEARBY_SNIFFABLE_ENTITIES = registerSensor(WolfSensorType.REGISTRY_KEY_NEARBY_SNIFFABLE_ENTITIES, WolfSniffableEntitiesSensor::new);
@@ -214,16 +230,19 @@ public class EntityModuleController extends BaseModuleController {
         WolfSensorType.NEARBY_SHEEP = registerSensor(WolfSensorType.REGISTRY_KEY_NEARBY_SHEEP, WolfNearbySheepSensor::new);
 
         // Cat sensors
+        DebugUtil.log("> Registering custom sensor memories...");
         CatSensorType.OWNER = registerSensor(CatSensorType.REGISTRY_KEY_OWNER, CatOwnerSensor::new);
         CatSensorType.NEARBY_ITEMS = registerSensor(CatSensorType.REGISTRY_KEY_NEARBY_ITEMS, CatNearbyItemsSensor::new);
 
         // Re-freeze registry
-        LogUtil.info("Re-freezing sensor type registry...");
+        DebugUtil.log("> Re-freezing sensor type registry...");
         BuiltInRegistries.SENSOR_TYPE.freeze();
+
+        DebugUtil.log("Custom sensors registered successfully!");
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private <U extends Sensor<?>> SensorType<U> registerSensor(@Nonnull String id, @Nonnull Supplier<U> factory) throws NoSuchMethodException,
+    private <U extends Sensor<?>> SensorType<U> registerSensor(@Nonnull String id, @Nonnull Supplier<?> factory) throws NoSuchMethodException,
             InvocationTargetException, InstantiationException, IllegalAccessException {
         Constructor<SensorType> constructor = SensorType.class.getDeclaredConstructor(Supplier.class);
         constructor.setAccessible(true);
