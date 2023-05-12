@@ -21,7 +21,7 @@ public class DebugModuleController extends BaseModuleController {
         plugin.getCommand("settlements_debug").setExecutor(new DebugCommandHandler());
 
         // Register events
-        pm.registerEvents(new MemoryEvent(), plugin);
+        pm.registerEvents(new DebugStickEvent(), plugin);
 
         // Inventory events
         pm.registerEvents(new VillagerDebugMainGui(), plugin);
