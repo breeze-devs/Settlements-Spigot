@@ -1,5 +1,6 @@
 package dev.breeze.settlements.entities.villagers.memories;
 
+import dev.breeze.settlements.debug.guis.villager.VillagerDebugShoppingListGui;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.sensors.VillagerMealTimeSensor;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
@@ -10,7 +11,9 @@ import dev.breeze.settlements.utils.particle.ParticlePreset;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.npc.Villager;
 import org.bukkit.Bukkit;
@@ -65,7 +68,11 @@ public class VillagerMemoryType {
                     return UUID.fromString(memoriesTag.getString(key));
                 }
             })
-            .clickEventHandler((player, memory) -> {
+            .clickEventHandler((player, baseVillager, memory) -> {
+                if (memory == null) {
+                    return;
+                }
+
                 Entity wolf = Bukkit.getEntity((UUID) memory);
                 if (wolf == null) {
                     return;
@@ -95,7 +102,11 @@ public class VillagerMemoryType {
                     return UUID.fromString(memoriesTag.getString(key));
                 }
             })
-            .clickEventHandler((player, memory) -> {
+            .clickEventHandler((player, baseVillager, memory) -> {
+                if (memory == null) {
+                    return;
+                }
+
                 Entity cat = Bukkit.getEntity((UUID) memory);
                 if (cat == null) {
                     return;
@@ -189,6 +200,77 @@ public class VillagerMemoryType {
             .itemMaterial(Material.GRASS_BLOCK)
             .build();
 
+    public static final VillagerMemory<HashMap<Material, Integer>> SHOPPING_LIST = VillagerMemory.<HashMap<Material, Integer>>builder()
+            .identifier("shopping_list")
+            .parser(shopping_list -> List.of("&7Shopping list has &e%d &7item types".formatted(shopping_list.size())))
+            .serializer(new VillagerMemory.MemorySerializer<>() {
+                @Nonnull
+                @Override
+                public ListTag toTag(@Nonnull HashMap<Material, Integer> memory) {
+                    ListTag listTag = new ListTag();
+                    for (Map.Entry<Material, Integer> entry : memory.entrySet()) {
+                        CompoundTag itemTag = new CompoundTag();
+                        itemTag.putString("material", entry.getKey().name());
+                        itemTag.putInt("amount", entry.getValue());
+                        listTag.add(itemTag);
+                    }
+                    return listTag;
+                }
+
+                @Nonnull
+                @Override
+                public HashMap<Material, Integer> fromTag(@Nonnull CompoundTag memoriesTag, @Nonnull String key) {
+                    ListTag listTag = memoriesTag.getList(key, ListTag.TAG_COMPOUND);
+                    HashMap<Material, Integer> shoppingList = new HashMap<>();
+                    for (Tag tag : listTag) {
+                        CompoundTag itemTag = (CompoundTag) tag;
+                        try {
+                            Material material = Material.valueOf(itemTag.getString("material"));
+                            int amount = itemTag.getInt("amount");
+                            shoppingList.put(material, amount);
+                        } catch (IllegalArgumentException ex) {
+                            LogUtil.exception(ex, "Unable to parse villager's shopping list memory (%s, %d), ignoring item",
+                                    itemTag.getString("material"), itemTag.getInt("amount"));
+                        }
+                    }
+                    return shoppingList;
+                }
+            })
+            .clickEventHandler((player, baseVillager, memory) -> VillagerDebugShoppingListGui.getViewableInventory(player, baseVillager).showToPlayer(player))
+            .displayName("Shopping list")
+            .description(List.of("&fThe items that the villager wants to trade for", "&eClick &7to view/edit the shopping list"))
+            .itemMaterial(Material.CHEST)
+            .build();
+
+    @SuppressWarnings("unchecked")
+    public static final VillagerMemory<Map<UUID, Material>> NEARBY_SELLERS = VillagerMemory.<Map<UUID, Material>>builder()
+            .identifier("nearby_sellers")
+            .parser(sellers -> List.of("&7Found &e%d &7sellers".formatted(sellers.size())))
+            .serializer(null)
+            .clickEventHandler((player, baseVillager, memory) -> {
+                if (memory == null) {
+                    return;
+                }
+
+                Map<UUID, Material> memoryMap = (Map<UUID, Material>) memory;
+                // Do nothing if there are no sellers
+                if (memoryMap.isEmpty()) {
+                    return;
+                }
+                for (UUID sellerUuid : memoryMap.keySet()) {
+                    Entity sellerVillager = Bukkit.getEntity(sellerUuid);
+                    if (sellerVillager == null) {
+                        continue;
+                    }
+                    highlightLocation(player, sellerVillager.getLocation().add(0, 0.2, 0));
+                }
+                player.closeInventory();
+            })
+            .displayName("Nearby sellers")
+            .description(List.of("&fThe sellers that the villager wants to trade with", "&eClick &7to show the sellers' locations"))
+            .itemMaterial(Material.VILLAGER_SPAWN_EGG)
+            .build();
+
     /**
      * List of all memories for bulk memory operations such as save/load
      */
@@ -197,6 +279,8 @@ public class VillagerMemoryType {
             OWNED_DOG, OWNED_CAT, WALK_DOG_TARGET,
             // Point of interest (POI) related memories
             NEAREST_WATER_AREA, NEAREST_ENCHANTING_TABLE, NEAREST_HARVESTABLE_SUGARCANE,
+            // Trading related memories
+            SHOPPING_LIST, NEARBY_SELLERS,
             // Miscellaneous memories
             FENCE_GATE_TO_CLOSE, IS_MEAL_TIME, CURRENT_HABITAT
     );
@@ -204,7 +288,7 @@ public class VillagerMemoryType {
     /**
      * Export important memories to NBT
      * - only certain memories are persistent
-     * - other are deleted upon unloading
+     * - others are deleted upon unloading
      */
     public static void save(@Nonnull CompoundTag nbt, @Nonnull BaseVillager villager) {
         Brain<Villager> brain = villager.getBrain();
@@ -215,6 +299,8 @@ public class VillagerMemoryType {
 
         // Write to NBT tag
         nbt.put(NBT_TAG_NAME, memories);
+
+        LogUtil.info("Saved villager memories: %s", memories.toString());
     }
 
     /**

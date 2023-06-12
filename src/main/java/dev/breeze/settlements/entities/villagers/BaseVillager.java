@@ -59,6 +59,9 @@ public class BaseVillager extends Villager {
     public static final String ENTITY_TYPE = "settlements_villager";
     private static final String INVENTORY_NBT_TAG = "custom_inventory";
 
+    // TODO: perhaps associate this with personality
+    public static final double MIN_FRIENDSHIP_TO_TRADE = -0.25;
+
     private static final Map<VillagerProfession, Material> PROFESSION_MATERIAL_MAP = Map.ofEntries(
             Map.entry(VillagerProfession.NONE, Material.BARRIER),
             Map.entry(VillagerProfession.ARMORER, Material.BLAST_FURNACE),
@@ -356,6 +359,86 @@ public class BaseVillager extends Villager {
             // Inventory is full, don't pick up
             return false;
         }
+    }
+
+    /*
+     * Villager friendship methods
+     */
+    public float getFriendshipTowards(@Nonnull BaseVillager villager) {
+        // TODO: implement friendship system
+        // TODO: potential range = [-1, 1] where + is friendly and - is hostile?
+        return 0;
+    }
+
+    /**
+     * Calculates the price modifier towards another villager based on their friendship
+     * - this number will be multiplied to the price of the trade offer
+     *
+     * @param buyer the buying villager
+     * @return the price modifier towards the buyer villager
+     */
+    public float getPriceModifierTowardsVillager(@Nonnull BaseVillager buyer) {
+        // TODO: check friendship towards the buyer & return appropriate price modifier
+        return 1f;
+    }
+
+    /*
+     * Internal trading methods
+     */
+
+    /**
+     * Gets how many emeralds this villager has
+     */
+    public int getEmeraldBalance() {
+        // TODO: change this to the actual emerald balance
+        return 999999;
+    }
+
+    public void setEmeraldBalance(int balance) {
+        // TODO: set actual balance
+    }
+
+    public int getStock(@Nonnull Material material) {
+        // TODO: check if the villager is actually selling the material, not just present in the inventory
+        return this.getCustomInventory().count(material);
+    }
+
+    /**
+     * Gets the price that this villager is willing to sell the item(s) for
+     * <p>
+     * The decision is made based on:
+     * - the friendship between seller & buyer
+     * - how many items of the given type the villager has
+     * - whether the villager is selling it or keeping it for themselves
+     */
+    public int priceWillingToSellAt(@Nonnull BaseVillager buyer, @Nonnull Material material, final int count, final int offerPrice) {
+        // Check friendship towards the buyer
+        if (this.getFriendshipTowards(buyer) < MIN_FRIENDSHIP_TO_TRADE) {
+            return -1;
+        }
+
+        // Check material availability
+        int availableCount = this.getStock(material);
+        if (availableCount == 0) {
+            return -1;
+        }
+
+        // TODO: Get the market price of the item
+        int price = 3;
+
+        // TODO: offer price can influence the initial price
+        price = offerPrice;
+
+        // Apply friendship price modifier
+        float priceModifier = this.getPriceModifierTowardsVillager(buyer);
+
+        // Add further discount if there isn't enough in stock
+        if (availableCount < count) {
+            // Not enough items available, set price modifier to be proportional to the amount
+            priceModifier *= (float) count / availableCount;
+        }
+
+        return Math.round(price * priceModifier);
     }
 
     /*

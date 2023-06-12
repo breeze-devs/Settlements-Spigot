@@ -74,10 +74,8 @@ public class VillagerDebugMemoryGui implements Listener {
             MemoryClickHandler<?> clickHandler = memory.getClickEventHandler();
             if (clickHandler != null) {
                 Object memoryValue = memory.get(holder.getVillager().getBrain());
-                if (memoryValue != null) {
-                    clickHandler.onClick(player, memoryValue);
-                    SoundPresets.inventoryClickEnter(player);
-                }
+                clickHandler.onClick(player, holder.getVillager(), memoryValue);
+                SoundPresets.inventoryClickEnter(player);
             }
         }
     }

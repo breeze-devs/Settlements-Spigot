@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a custom villager memory
@@ -148,7 +149,11 @@ public class VillagerMemory<T> {
         }
 
         // Save to the memories tag
-        memoriesTag.put(this.identifier, this.serializer.toTag(brain.getMemory(this.memoryModuleType).get()));
+        T memory = this.get(brain);
+        if (memory == null) {
+            return;
+        }
+        memoriesTag.put(this.identifier, Objects.requireNonNull(this.serializer).toTag(memory));
     }
 
     /**
@@ -164,7 +169,7 @@ public class VillagerMemory<T> {
         }
 
         // Load memories to brain
-        brain.setMemory(this.memoryModuleType, this.serializer.fromTag(memoriesTag, this.identifier));
+        this.set(brain, Objects.requireNonNull(this.serializer).fromTag(memoriesTag, this.identifier));
     }
 
     /**

@@ -7,6 +7,7 @@ import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import dev.breeze.settlements.utils.itemstack.ItemUtil;
 import lombok.Getter;
 import net.minecraft.nbt.*;
+import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -293,6 +294,10 @@ public class VillagerInventory {
         return this.count(item) > amount;
     }
 
+    public boolean contains(@Nonnull Material material, int amount) {
+        return this.count(material) > amount;
+    }
+
     /**
      * Checks whether the inventory can fit at least one 'stack' of the specified item
      *
@@ -313,6 +318,16 @@ public class VillagerInventory {
         int hasAmount = 0;
         for (ItemStack loop : this.items) {
             if (loop != null && loop.isSimilar(item)) {
+                hasAmount += loop.getAmount();
+            }
+        }
+        return hasAmount;
+    }
+
+    public int count(@Nonnull Material material) {
+        int hasAmount = 0;
+        for (ItemStack loop : this.items) {
+            if (loop != null && loop.getType() == material) {
                 hasAmount += loop.getAmount();
             }
         }

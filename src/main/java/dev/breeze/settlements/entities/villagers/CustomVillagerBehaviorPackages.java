@@ -229,6 +229,9 @@ public final class CustomVillagerBehaviorPackages {
         // Custom behavior container
         List<BaseVillagerBehavior> customBehaviors = new ArrayList<>();
 
+        // Internal trade behavior (higher weight)
+        addChoiceBehavior(new TradeItemsBehavior(), customMeetChoiceBehaviors, 5, customBehaviors);
+
         // Feed wolf behavior
         if (profession == VillagerProfession.BUTCHER) {
             addChoiceBehavior(new FeedWolfBehavior(), customMeetChoiceBehaviors, 1, customBehaviors);

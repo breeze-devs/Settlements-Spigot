@@ -1,5 +1,6 @@
 package dev.breeze.settlements.entities.villagers.memories;
 
+import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.utils.particle.ParticlePreset;
 import lombok.Builder;
 import net.minecraft.core.BlockPos;
@@ -53,7 +54,11 @@ public class VillagerBlockPosMemory extends VillagerMemory<BlockPos> {
     private static class BlockPosClickEventHandler implements MemoryClickHandler<BlockPos> {
 
         @Override
-        public void onClick(@Nonnull Player player, @Nonnull Object memory) {
+        public void onClick(@Nonnull Player player, @Nonnull BaseVillager baseVillager, @Nullable Object memory) {
+            if (memory == null) {
+                return;
+            }
+
             player.closeInventory();
             BlockPos pos = (BlockPos) memory;
             Location target = new Location(player.getWorld(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
