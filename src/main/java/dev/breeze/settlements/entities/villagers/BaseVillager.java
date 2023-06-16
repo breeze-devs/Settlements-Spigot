@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import dev.breeze.settlements.config.files.WolfFetchItemConfig;
 import dev.breeze.settlements.entities.villagers.behaviors.BaseVillagerBehavior;
+import dev.breeze.settlements.entities.villagers.emeralds.VillagerEmeraldManager;
 import dev.breeze.settlements.entities.villagers.inventory.VillagerInventory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
@@ -88,6 +89,10 @@ public class BaseVillager extends Villager {
     private VillagerInventory customInventory;
 
     @Getter
+    @Nonnull
+    private VillagerEmeraldManager villagerEmeraldManager;
+
+    @Getter
     @Setter
     private boolean defaultWalkTargetDisabled;
 
@@ -122,8 +127,9 @@ public class BaseVillager extends Villager {
         // this.initPathfinderGoals();
         this.refreshBrain(this.level.getMinecraftWorld());
 
-        // Configure inventory
+        // Configure extra data
         this.customInventory = new VillagerInventory(this, VillagerInventory.DEFAULT_INVENTORY_ROWS);
+        this.villagerEmeraldManager = new VillagerEmeraldManager(this);
 
         // Initialize miscellaneous variables
         this.defaultWalkTargetDisabled = false;
@@ -385,60 +391,14 @@ public class BaseVillager extends Villager {
     /*
      * Internal trading methods
      */
-
-    /**
-     * Gets how many emeralds this villager has
-     */
-    public int getEmeraldBalance() {
-        // TODO: change this to the actual emerald balance
-        return 999999;
-    }
-
-    public void setEmeraldBalance(int balance) {
-        // TODO: set actual balance
-    }
-
     public int getStock(@Nonnull Material material) {
         // TODO: check if the villager is actually selling the material, not just present in the inventory
         return this.getCustomInventory().count(material);
     }
 
-    /**
-     * Gets the price that this villager is willing to sell the item(s) for
-     * <p>
-     * The decision is made based on:
-     * - the friendship between seller & buyer
-     * - how many items of the given type the villager has
-     * - whether the villager is selling it or keeping it for themselves
-     */
-    public int priceWillingToSellAt(@Nonnull BaseVillager buyer, @Nonnull Material material, final int count, final int offerPrice) {
-        // Check friendship towards the buyer
-        if (this.getFriendshipTowards(buyer) < MIN_FRIENDSHIP_TO_TRADE) {
-            return -1;
-        }
-
-        // Check material availability
-        int availableCount = this.getStock(material);
-        if (availableCount == 0) {
-            return -1;
-        }
-
-        // TODO: Get the market price of the item
-        int price = 3;
-
-        // TODO: offer price can influence the initial price
-        price = offerPrice;
-
-        // Apply friendship price modifier
-        float priceModifier = this.getPriceModifierTowardsVillager(buyer);
-
-        // Add further discount if there isn't enough in stock
-        if (availableCount < count) {
-            // Not enough items available, set price modifier to be proportional to the amount
-            priceModifier *= (float) count / availableCount;
-        }
-
-        return Math.round(price * priceModifier);
+    public int evaluatePrice(@Nonnull Material material) {
+        // TODO: change to actual price evaluation
+        return 3;
     }
 
     /*
@@ -499,6 +459,10 @@ public class BaseVillager extends Villager {
      */
     public void clearHeldItem() {
         this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+    }
+
+    public static double getActualEyeHeight() {
+        return 1.5;
     }
 
 }

@@ -21,7 +21,7 @@ import java.util.UUID;
 public class VillagerNearbySellerSensor extends BaseVillagerSensor {
 
     // TODO: 3 minutes
-    private static final int SENSE_COOLDOWN = TimeUtil.seconds(10);
+    private static final int SENSE_COOLDOWN = TimeUtil.seconds(30);
 
     public VillagerNearbySellerSensor() {
         super(SENSE_COOLDOWN);

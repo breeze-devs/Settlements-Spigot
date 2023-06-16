@@ -2,10 +2,11 @@ package dev.breeze.settlements.entities.villagers.behaviors;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
-import dev.breeze.settlements.utils.MessageUtil;
-import dev.breeze.settlements.utils.TimeUtil;
+import dev.breeze.settlements.utils.*;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
+import dev.breeze.settlements.utils.particle.ParticleUtil;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -13,11 +14,11 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R2.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -28,11 +29,27 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
     private static final ItemStack EMERALD = CraftItemStack.asNMSCopy(new ItemStackBuilder(Material.EMERALD).build());
 
     @Nullable
-    private BaseVillager tradeTarget;
+    private BaseVillager seller;
     @Nullable
     private Material material;
+    @Nullable
+    private ItemStack materialItem;
     private int amount;
-    private int initialPrice;
+    private int sellerTargetPrice; // also initial price
+    private int buyerTargetPrice;
+    private double currentPrice; // double, rounded when the deal is made
+
+    private float friendship;
+    private float sellerMood;
+    private float buyerMood;
+
+    // Animation variables
+    private boolean tradePerformed;
+    private boolean tradeSuccessful;
+
+    private int haggleTicksLeft;
+    private int throwEmeraldTicksLeft;
+    private int waitUntilThrowProductTicksLeft;
 
     public TradeItemsBehavior() {
         // Preconditions to this behavior
@@ -43,14 +60,29 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
                         // There should be sellers we've identified nearby
                         VillagerMemoryType.NEARBY_SELLERS.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT
                 ), TimeUtil.seconds(5), 0,
-                TimeUtil.seconds(10), Math.pow(3, 2),
+                TimeUtil.seconds(10), Math.pow(4, 2),
                 5, 1,
                 TimeUtil.seconds(20), TimeUtil.seconds(20));
 
-        this.tradeTarget = null;
+        this.seller = null;
         this.material = null;
+        this.materialItem = null;
         this.amount = 0;
-        this.initialPrice = 0;
+
+        this.sellerTargetPrice = 0;
+        this.buyerTargetPrice = 0;
+        this.currentPrice = 0.0;
+
+        this.friendship = 0;
+        this.sellerMood = 0;
+        this.buyerMood = 0;
+
+        this.tradePerformed = false;
+        this.tradeSuccessful = false;
+
+        this.haggleTicksLeft = 0;
+        this.throwEmeraldTicksLeft = 0;
+        this.waitUntilThrowProductTicksLeft = 0;
     }
 
     @Override
@@ -104,65 +136,186 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
                 continue;
             }
 
-            this.tradeTarget = sellerVillager;
+            this.seller = sellerVillager;
             this.material = entry.getValue();
+            this.materialItem = CraftItemStack.asNMSCopy(new ItemStackBuilder(this.material).build());
             this.amount = Math.min(stock, shoppingList.get(entry.getValue()));
-            this.initialPrice = amount * 2; // TODO: evaluate price for item
-            break;
+
+            this.sellerTargetPrice = this.seller.evaluatePrice(this.material) * this.amount;
+            this.buyerTargetPrice = baseVillager.evaluatePrice(this.material) * this.amount;
+            this.currentPrice = this.sellerTargetPrice;
+
+            this.friendship = baseVillager.getFriendshipTowards(sellerVillager);
+            this.sellerMood = 1;
+            this.buyerMood = 1;
+
+            this.tradePerformed = false;
+            this.tradeSuccessful = false;
+            // Min 2 seconds, max 7 seconds
+            this.haggleTicksLeft = TimeUtil.seconds(2) + RandomUtil.RANDOM.nextInt(TimeUtil.seconds(5));
+            this.throwEmeraldTicksLeft = 0;
+            this.waitUntilThrowProductTicksLeft = TimeUtil.seconds(1);
+            return true;
         }
 
-        return this.tradeTarget != null;
+        return false;
     }
 
     @Override
     protected boolean checkExtraCanStillUseConditions(ServerLevel vel, Villager villager, long gameTime) {
-        return this.tradeTarget != null && this.tradeTarget.isAlive();
+        return this.seller != null && this.seller.isAlive();
     }
 
     @Override
     protected void tickExtra(ServerLevel level, Villager villager, long gameTime) {
-        if (this.tradeTarget == null) {
+        if (this.seller == null || this.materialItem == null) {
             return;
         }
         if (villager instanceof BaseVillager baseVillager) {
             baseVillager.setHeldItem(EMERALD);
         }
-        villager.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(this.tradeTarget, true));
+        this.seller.setHeldItem(this.materialItem);
+
+        villager.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(this.seller, true));
+        this.seller.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(villager, true));
     }
 
     @Override
     protected void navigateToTarget(ServerLevel level, Villager villager, long gameTime) {
-        if (this.tradeTarget == null) {
+        if (this.seller == null) {
             return;
         }
-        villager.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(this.tradeTarget, 0.5F, 2));
+        villager.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(this.seller, 0.5F, 3));
+        this.seller.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(villager, 0.5F, 3));
     }
 
     @Override
     protected void interactWithTarget(ServerLevel level, Villager villager, long gameTime) {
-        if (this.tradeTarget == null || !(villager instanceof BaseVillager baseVillager)) {
+        if (this.seller == null || this.material == null || !(villager instanceof BaseVillager baseVillager)) {
+            return;
+        }
+        if (!villager.getNavigation().isDone()) {
+            villager.getNavigation().stop();
+        }
+        if (!this.seller.getNavigation().isDone()) {
+            this.seller.getNavigation().stop();
+        }
+
+        // Calculate trade logic first, then display animations
+        if (!this.tradePerformed) {
+            this.performTrade(baseVillager);
+
+            // Determine how long throwing the emerald will take based on the deal price
+            this.throwEmeraldTicksLeft = Math.min(TimeUtil.seconds(1), ((int) this.currentPrice) / 2);
+        }
+
+        // Display haggle animation
+        if (--this.haggleTicksLeft > 0) {
+            if (this.haggleTicksLeft % 15 == 0) {
+                Villager villagerToHmm = RandomUtil.RANDOM.nextBoolean() ? baseVillager : this.seller;
+                boolean approval = RandomUtil.RANDOM.nextBoolean();
+                villagerToHmm.playSound(approval ? SoundEvents.VILLAGER_YES : SoundEvents.VILLAGER_NO, 0.3F, 0.75F + RandomUtil.RANDOM.nextFloat() * 0.5F);
+                ParticleUtil.globalParticle(LocationUtil.fromNmsEntity(villagerToHmm).add(0, BaseVillager.getActualEyeHeight(), 0),
+                        approval ? Particle.VILLAGER_HAPPY : Particle.VILLAGER_ANGRY, approval ? 5 : 2, 0.3, 0.3, 0.3, 0.1);
+            }
             return;
         }
 
-        int price = this.tradeTarget.priceWillingToSellAt(baseVillager, Objects.requireNonNull(this.material), this.amount, this.initialPrice);
-        // TODO: haggle if necessary
-        // TODO: subtract emeralds
+        // If not successful trade, display angry animation
+        // TODO: add seller to blacklist for a while
+        // TODO: decrement friendship
+        if (!this.tradeSuccessful) {
+            Location sellerLocation = LocationUtil.fromNmsEntity(this.seller).add(0, BaseVillager.getActualEyeHeight(), 0);
+            Location buyerLocation = LocationUtil.fromNmsEntity(baseVillager).add(0, BaseVillager.getActualEyeHeight(), 0);
+            SoundUtil.playSoundPublic(sellerLocation, Sound.ENTITY_VILLAGER_NO, 0.2F, 0.75F + RandomUtil.RANDOM.nextFloat() * 0.5F);
+            SoundUtil.playSoundPublic(buyerLocation, Sound.ENTITY_VILLAGER_NO, 0.2F, 0.75F + RandomUtil.RANDOM.nextFloat() * 0.5F);
 
-        // TODO: if successful trade, add to inventory
-        boolean tradeSuccessful = baseVillager.getEmeraldBalance() >= price;
-        if (tradeSuccessful) {
+            ParticleUtil.globalParticle(sellerLocation, Particle.VILLAGER_ANGRY, 3, 0.3, 0.3, 0.3, 0.1);
+            ParticleUtil.globalParticle(buyerLocation, Particle.VILLAGER_ANGRY, 2, 0.3, 0.3, 0.3, 0.1);
+
+            // Stop behavior
+            this.doStop(level, villager, gameTime);
+            return;
+        }
+
+        // Display throw emerald animation
+        if (--this.throwEmeraldTicksLeft > 0) {
+            throwItemAt(baseVillager, this.seller, Material.EMERALD, RandomUtil.RANDOM.nextBoolean() ? 1 : 2);
+            SoundUtil.playSoundPublic(LocationUtil.fromNmsEntity(baseVillager), Sound.ENTITY_ITEM_PICKUP, 0.2F, 2F);
+            return;
+        }
+
+        // Wait a bit before throwing the product
+        if (--this.waitUntilThrowProductTicksLeft > 0) {
+            return;
+        }
+
+        // Seller throws sold item animation (last animation)
+        Location sellerLocation = LocationUtil.fromNmsEntity(this.seller).add(0, BaseVillager.getActualEyeHeight(), 0);
+        throwItemAt(this.seller, baseVillager, this.material, this.amount);
+        SoundUtil.playSoundPublic(sellerLocation, Sound.ENTITY_ITEM_PICKUP, 0.2F, 2F);
+
+        // Display after-trade effects
+        Location buyerLocation = LocationUtil.fromNmsEntity(baseVillager).add(0, BaseVillager.getActualEyeHeight(), 0);
+        SoundUtil.playSoundPublic(sellerLocation, Sound.ENTITY_VILLAGER_CELEBRATE, 0.2F, 0.75F + RandomUtil.RANDOM.nextFloat() * 0.5F);
+        SoundUtil.playSoundPublic(buyerLocation, Sound.ENTITY_VILLAGER_CELEBRATE, 0.2F, 0.75F + RandomUtil.RANDOM.nextFloat() * 0.5F);
+
+        ParticleUtil.globalParticle(sellerLocation, Particle.VILLAGER_HAPPY, 10, 0.3, 0.3, 0.3, 0.1);
+        ParticleUtil.globalParticle(buyerLocation, Particle.VILLAGER_HAPPY, 10, 0.3, 0.3, 0.3, 0.1);
+
+        // Stop behavior
+        this.doStop(level, villager, gameTime);
+    }
+
+    private void performTrade(@Nonnull BaseVillager baseVillager) {
+        // Safety check
+        if (this.tradePerformed) {
+            return;
+        }
+        this.tradePerformed = true;
+
+        // Silence the warnings, since we've checked before
+        assert this.seller != null;
+        assert this.material != null;
+
+        // Determine the price to sell at
+        // - the final price will be stored in 'currentPrice' after haggling
+        boolean keepHaggling = true;
+        while (keepHaggling && this.sellerMood > 0 && this.buyerMood > 0) {
+            DebugUtil.broadcastEntity("Haggling: price=%f, seller mood=%f, buyer mood=%f".formatted(this.currentPrice, this.sellerMood, this.buyerMood),
+                    baseVillager.getStringUUID(), Collections.emptyList());
+            keepHaggling = false;
+
+            // Check if the buyer wants to haggle
+            if (shouldHaggle(this.currentPrice, this.buyerTargetPrice, this.friendship, baseVillager.getVillagerEmeraldManager().getEmeralds())) {
+                this.currentPrice = getHaggledPrice(this.currentPrice, this.buyerTargetPrice);
+                this.sellerMood -= getRandomMoodDecrement(this.friendship);
+                keepHaggling = true;
+            }
+
+            // Check if the seller wants to haggle as well
+            if (shouldHaggle(this.currentPrice, this.buyerTargetPrice, this.friendship, this.seller.getVillagerEmeraldManager().getEmeralds())) {
+                this.currentPrice = getHaggledPrice(this.currentPrice, this.sellerTargetPrice);
+                this.buyerMood -= getRandomMoodDecrement(this.friendship);
+                keepHaggling = true;
+            }
+        }
+
+        // Price is settled, do the trade now
+        int dealPrice = Math.toIntExact(Math.round(this.currentPrice));
+        this.tradeSuccessful = baseVillager.getVillagerEmeraldManager().canAfford(dealPrice);
+        if (this.tradeSuccessful) {
+            // Withdraw/deposit emeralds
+            baseVillager.getVillagerEmeraldManager().withdrawEmeralds(dealPrice);
+            this.seller.getVillagerEmeraldManager().depositEmeralds(dealPrice);
+
+            // Add/remove item to inventory
             org.bukkit.inventory.ItemStack purchased = new ItemStackBuilder(this.material).setAmount(this.amount).build();
-
-            // Buyer logic
             baseVillager.getCustomInventory().addItem(purchased);
-            baseVillager.setEmeraldBalance(baseVillager.getEmeraldBalance() - price);
-
-            // Seller logic
-            this.tradeTarget.getCustomInventory().remove(purchased, this.amount);
-            this.tradeTarget.setEmeraldBalance(this.tradeTarget.getEmeraldBalance() + price);
+            this.seller.getCustomInventory().remove(purchased, this.amount);
 
             // Update or remove item from shopping list memory
-            HashMap<Material, Integer> shoppingList = VillagerMemoryType.SHOPPING_LIST.get(villager.getBrain());
+            HashMap<Material, Integer> shoppingList = VillagerMemoryType.SHOPPING_LIST.get(baseVillager.getBrain());
             if (shoppingList.get(this.material) > this.amount) {
                 // Only bought partial amount, update shopping list
                 shoppingList.put(this.material, shoppingList.get(this.material) - this.amount);
@@ -170,18 +323,15 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
                 // Bought enough, remove from shopping list
                 shoppingList.remove(this.material);
             }
-            VillagerMemoryType.SHOPPING_LIST.set(villager.getBrain(), shoppingList);
+            VillagerMemoryType.SHOPPING_LIST.set(baseVillager.getBrain(), shoppingList);
 
             // Remove seller from seller memory
-            Map<UUID, Material> sellerList = VillagerMemoryType.NEARBY_SELLERS.get(villager.getBrain());
-            sellerList.remove(this.tradeTarget.getUUID());
-            VillagerMemoryType.NEARBY_SELLERS.set(villager.getBrain(), sellerList);
+            Map<UUID, Material> sellerList = VillagerMemoryType.NEARBY_SELLERS.get(baseVillager.getBrain());
+            sellerList.remove(this.seller.getUUID());
+            VillagerMemoryType.NEARBY_SELLERS.set(baseVillager.getBrain(), sellerList);
 
-            MessageUtil.broadcast("Trade successful: " + this.material + " x" + this.amount + " for " + price + " emeralds");
+            MessageUtil.broadcast("Trade successful: " + this.material + " x" + this.amount + " for " + dealPrice + " emeralds");
         }
-
-        // Stop behavior
-        this.doStop(level, villager, gameTime);
     }
 
     @Override
@@ -197,20 +347,35 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
         villager.getBrain().eraseMemory(MemoryModuleType.INTERACTION_TARGET);
 
         // Reset variables
-        this.tradeTarget = null;
+        this.seller = null;
         this.material = null;
+        this.materialItem = null;
         this.amount = 0;
-        this.initialPrice = 0;
+
+        this.sellerTargetPrice = 0;
+        this.buyerTargetPrice = 0;
+        this.currentPrice = 0.0;
+
+        this.friendship = 0;
+        this.sellerMood = 0;
+        this.buyerMood = 0;
+
+        this.tradePerformed = false;
+        this.tradeSuccessful = false;
+
+        this.haggleTicksLeft = 0;
+        this.throwEmeraldTicksLeft = 0;
+        this.waitUntilThrowProductTicksLeft = 0;
     }
 
     @Override
     protected boolean hasTarget() {
-        return this.tradeTarget != null;
+        return this.seller != null;
     }
 
     @Override
     protected boolean isTargetReachable(Villager villager) {
-        return this.tradeTarget != null && villager.distanceToSqr(this.tradeTarget) < this.getInteractRangeSquared();
+        return this.seller != null && villager.distanceToSqr(this.seller) < this.getInteractRangeSquared();
     }
 
     @Nonnull
@@ -219,6 +384,49 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
         return new ItemStackBuilder(Material.EMERALD)
                 .setDisplayName("&eTrade items behavior")
                 .setLore("&7Trades items needed with nearby villagers");
+    }
+
+    private static void throwItemAt(@Nonnull BaseVillager thrower, @Nonnull BaseVillager receiver, @Nonnull Material material, int amount) {
+        Location headLocation = LocationUtil.fromNmsEntity(thrower).add(0, BaseVillager.getActualEyeHeight(), 0);
+        // TODO: 1.20 replace with item display
+        Item itemEntity = thrower.getLevel().getWorld().dropItem(headLocation,
+                new ItemStackBuilder(material).setAmount(amount).setLore(RandomUtil.randomString()).build());
+        itemEntity.setVelocity(LocationUtil.fromNmsEntity(receiver).subtract(headLocation).toVector().normalize().multiply(0.4).setY(0.15));
+        itemEntity.setPickupDelay(32767);
+        itemEntity.setTicksLived(6000 - TimeUtil.ticks(15));
+    }
+
+    private static boolean shouldHaggle(double currentPrice, double targetPrice, double friendship, int villagerEmeraldBalance) {
+        double delta = Math.abs(currentPrice - targetPrice);
+        // If the price difference is insignificant, don't haggle; checks
+        // - if the delta price compared to the current price is insignificant (< 15%)
+        // - if the delta price is insignificant (< 1%) compared to the villager's emerald balance
+        if (Math.abs(delta / currentPrice) < 0.15 && Math.abs(delta / villagerEmeraldBalance) < 0.01) {
+            return false;
+        }
+
+        // Calculate the haggling chance using the sigmoid function
+        double shift = 3;
+        double haggleChance = 1 / (1 + Math.exp(shift + 0.9 * friendship - 0.6 * Math.abs(delta)));
+        // Roll the dice
+        return Math.random() < haggleChance;
+    }
+
+    private static double getHaggledPrice(double currentPrice, double targetPrice) {
+        double interpolationPoint = 0.7;
+        return currentPrice + (interpolationPoint * (targetPrice - currentPrice));
+    }
+
+    private static float getRandomMoodDecrement(float friendship) {
+        // This multiplier should be small for higher friendship values, and vice versa
+        float friendshipMultiplier = 1 / friendship;
+        // If friendship is negative, this multiplier will be fixed at 2
+        if (friendship < 0) {
+            friendshipMultiplier = 2;
+        }
+
+        // Generates a random number between 0 and 0.2, multiplied by the friendship multiplier
+        return RandomUtil.RANDOM.nextFloat() * 0.2F * friendshipMultiplier;
     }
 
 }

@@ -1,6 +1,7 @@
 package dev.breeze.settlements.utils;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.EulerAngle;
@@ -124,6 +125,11 @@ public class LocationUtil {
     @Nonnull
     public static Location fromBlockPos(@Nonnull World world, @Nonnull BlockPos blockPos) {
         return new Location(world, blockPos.getX(), blockPos.getY(), blockPos.getZ());
+    }
+
+    @Nonnull
+    public static Location fromNmsEntity(@Nonnull Entity entity) {
+        return new Location(entity.getLevel().getWorld(), entity.getX(), entity.getY(), entity.getZ());
     }
 
 }
