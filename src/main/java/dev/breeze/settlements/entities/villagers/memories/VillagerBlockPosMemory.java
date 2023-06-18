@@ -1,6 +1,7 @@
 package dev.breeze.settlements.entities.villagers.memories;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
+import dev.breeze.settlements.utils.SoundPresets;
 import dev.breeze.settlements.utils.particle.ParticlePreset;
 import lombok.Builder;
 import net.minecraft.core.BlockPos;
@@ -10,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -54,16 +56,18 @@ public class VillagerBlockPosMemory extends VillagerMemory<BlockPos> {
     private static class BlockPosClickEventHandler implements MemoryClickHandler<BlockPos> {
 
         @Override
-        public void onClick(@Nonnull Player player, @Nonnull BaseVillager baseVillager, @Nullable Object memory) {
+        public void onClick(@Nonnull Player player, @Nonnull BaseVillager baseVillager, @Nullable Object memory, @Nonnull ClickType clickType) {
             if (memory == null) {
                 return;
             }
 
+            // Close inventory
             player.closeInventory();
-            BlockPos pos = (BlockPos) memory;
-            Location target = new Location(player.getWorld(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+            SoundPresets.inventoryClickExit(player);
 
             // Highlight location
+            BlockPos pos = (BlockPos) memory;
+            Location target = new Location(player.getWorld(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
             ParticlePreset.displayLinePrivate(player, player.getEyeLocation(), target, 15, Particle.END_ROD, 2, 0, 0, 0, 0);
             ParticlePreset.displayCirclePrivate(player, target, 1, 20, Particle.VILLAGER_HAPPY, 1, 0, 0, 0, 0);
         }

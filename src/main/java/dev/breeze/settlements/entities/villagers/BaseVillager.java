@@ -3,9 +3,9 @@ package dev.breeze.settlements.entities.villagers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
+import dev.breeze.settlements.config.files.InternalTradingConfig;
 import dev.breeze.settlements.config.files.WolfFetchItemConfig;
 import dev.breeze.settlements.entities.villagers.behaviors.BaseVillagerBehavior;
-import dev.breeze.settlements.entities.villagers.emeralds.VillagerEmeraldManager;
 import dev.breeze.settlements.entities.villagers.inventory.VillagerInventory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemory;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
@@ -49,10 +49,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class BaseVillager extends Villager {
@@ -61,7 +58,7 @@ public class BaseVillager extends Villager {
     private static final String INVENTORY_NBT_TAG = "custom_inventory";
 
     // TODO: perhaps associate this with personality
-    public static final double MIN_FRIENDSHIP_TO_TRADE = -0.25;
+    public static final double MIN_FRIENDSHIP_TO_TRADE = InternalTradingConfig.getInstance().getMinFriendshipToTrade().getValue();
 
     private static final Map<VillagerProfession, Material> PROFESSION_MATERIAL_MAP = Map.ofEntries(
             Map.entry(VillagerProfession.NONE, Material.BARRIER),
@@ -89,10 +86,6 @@ public class BaseVillager extends Villager {
     private VillagerInventory customInventory;
 
     @Getter
-    @Nonnull
-    private VillagerEmeraldManager villagerEmeraldManager;
-
-    @Getter
     @Setter
     private boolean defaultWalkTargetDisabled;
 
@@ -100,7 +93,7 @@ public class BaseVillager extends Villager {
      * Constructor called when Minecraft tries to load the entity
      */
     public BaseVillager(@Nonnull EntityType<? extends Villager> entityType, @Nonnull Level level) {
-        super(EntityType.VILLAGER, level); // TODO
+        super(EntityType.VILLAGER, level);
         this.init();
     }
 
@@ -129,7 +122,6 @@ public class BaseVillager extends Villager {
 
         // Configure extra data
         this.customInventory = new VillagerInventory(this, VillagerInventory.DEFAULT_INVENTORY_ROWS);
-        this.villagerEmeraldManager = new VillagerEmeraldManager(this);
 
         // Initialize miscellaneous variables
         this.defaultWalkTargetDisabled = false;
@@ -386,6 +378,31 @@ public class BaseVillager extends Villager {
     public float getPriceModifierTowardsVillager(@Nonnull BaseVillager buyer) {
         // TODO: check friendship towards the buyer & return appropriate price modifier
         return 1f;
+    }
+
+    /*
+     * Emerald balance shortcut methods
+     */
+    public int getEmeraldBalance() {
+        return Objects.requireNonNull(VillagerMemoryType.EMERALD_BALANCE.get(this.getBrain()));
+    }
+
+    public void setEmeraldBalance(int amount) {
+        VillagerMemoryType.EMERALD_BALANCE.set(this.getBrain(), amount);
+    }
+
+    public boolean canAfford(int amount) {
+        return this.getEmeraldBalance() >= amount;
+    }
+
+    public void depositEmeralds(int amount) {
+        this.setEmeraldBalance(this.getEmeraldBalance() + amount);
+    }
+
+    public void withdrawEmeralds(int amount) {
+        // TODO: do we want to throw an exception if the villager can't afford it?
+        // TODO: or do we want to allow the villager to go into debt?
+        this.setEmeraldBalance(this.getEmeraldBalance() - amount);
     }
 
     /*

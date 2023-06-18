@@ -139,10 +139,27 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
             this.seller = sellerVillager;
             this.material = entry.getValue();
             this.materialItem = CraftItemStack.asNMSCopy(new ItemStackBuilder(this.material).build());
-            this.amount = Math.min(stock, shoppingList.get(entry.getValue()));
+
+            // Calculate the amount we want to buy using the following criteria:
+            // 1. evaluate price & see how many we can afford
+            // 2. minimum of #1 and the amount we want to buy
+            // 3. minimum of #2 and the amount the seller has in stock
+            int selfPriceEvaluation = baseVillager.evaluatePrice(this.material);
+            MessageUtil.broadcast("Self price evaluation: " + selfPriceEvaluation);
+            int canAfford = baseVillager.getEmeraldBalance() / selfPriceEvaluation;
+            MessageUtil.broadcast("Balance: %d - Can afford: %d".formatted(baseVillager.getEmeraldBalance(), canAfford));
+            int canBuy = Math.min(canAfford, shoppingList.get(entry.getValue()));
+            MessageUtil.broadcast("Can buy: %d - Stock: %d".formatted(canBuy, stock));
+            this.amount = Math.min(stock, canBuy);
+
+            // Check if we can actually buy something
+            if (this.amount <= 0) {
+                iterator.remove();
+                continue;
+            }
 
             this.sellerTargetPrice = this.seller.evaluatePrice(this.material) * this.amount;
-            this.buyerTargetPrice = baseVillager.evaluatePrice(this.material) * this.amount;
+            this.buyerTargetPrice = Math.min(selfPriceEvaluation * this.amount, baseVillager.getEmeraldBalance());
             this.currentPrice = this.sellerTargetPrice;
 
             this.friendship = baseVillager.getFriendshipTowards(sellerVillager);
@@ -151,8 +168,8 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
 
             this.tradePerformed = false;
             this.tradeSuccessful = false;
-            // Min 2 seconds, max 7 seconds
-            this.haggleTicksLeft = TimeUtil.seconds(2) + RandomUtil.RANDOM.nextInt(TimeUtil.seconds(5));
+            // Min 3 seconds, max 8 seconds
+            this.haggleTicksLeft = TimeUtil.seconds(3) + RandomUtil.RANDOM.nextInt(TimeUtil.seconds(5));
             this.throwEmeraldTicksLeft = 0;
             this.waitUntilThrowProductTicksLeft = TimeUtil.seconds(1);
             return true;
@@ -206,7 +223,7 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
             this.performTrade(baseVillager);
 
             // Determine how long throwing the emerald will take based on the deal price
-            this.throwEmeraldTicksLeft = Math.min(TimeUtil.seconds(1), ((int) this.currentPrice) / 2);
+            this.throwEmeraldTicksLeft = Math.min(TimeUtil.seconds(1), 1 + ((int) this.currentPrice) / 4);
         }
 
         // Display haggle animation
@@ -282,19 +299,19 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
         // - the final price will be stored in 'currentPrice' after haggling
         boolean keepHaggling = true;
         while (keepHaggling && this.sellerMood > 0 && this.buyerMood > 0) {
-            DebugUtil.broadcastEntity("Haggling: price=%f, seller mood=%f, buyer mood=%f".formatted(this.currentPrice, this.sellerMood, this.buyerMood),
-                    baseVillager.getStringUUID(), Collections.emptyList());
+            DebugUtil.broadcastEntity("Haggling: price=%f [b=%d,s=%d], seller mood=%f, buyer mood=%f".formatted(this.currentPrice, this.buyerTargetPrice,
+                    this.sellerTargetPrice, this.sellerMood, this.buyerMood), baseVillager.getStringUUID(), Collections.emptyList());
             keepHaggling = false;
 
             // Check if the buyer wants to haggle
-            if (shouldHaggle(this.currentPrice, this.buyerTargetPrice, this.friendship, baseVillager.getVillagerEmeraldManager().getEmeralds())) {
+            if (shouldHaggle(this.currentPrice, this.buyerTargetPrice, this.friendship, baseVillager.getEmeraldBalance())) {
                 this.currentPrice = getHaggledPrice(this.currentPrice, this.buyerTargetPrice);
                 this.sellerMood -= getRandomMoodDecrement(this.friendship);
                 keepHaggling = true;
             }
 
             // Check if the seller wants to haggle as well
-            if (shouldHaggle(this.currentPrice, this.buyerTargetPrice, this.friendship, this.seller.getVillagerEmeraldManager().getEmeralds())) {
+            if (shouldHaggle(this.currentPrice, this.buyerTargetPrice, this.friendship, this.seller.getEmeraldBalance())) {
                 this.currentPrice = getHaggledPrice(this.currentPrice, this.sellerTargetPrice);
                 this.buyerMood -= getRandomMoodDecrement(this.friendship);
                 keepHaggling = true;
@@ -303,11 +320,11 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
 
         // Price is settled, do the trade now
         int dealPrice = Math.toIntExact(Math.round(this.currentPrice));
-        this.tradeSuccessful = baseVillager.getVillagerEmeraldManager().canAfford(dealPrice);
+        this.tradeSuccessful = baseVillager.canAfford(dealPrice);
         if (this.tradeSuccessful) {
             // Withdraw/deposit emeralds
-            baseVillager.getVillagerEmeraldManager().withdrawEmeralds(dealPrice);
-            this.seller.getVillagerEmeraldManager().depositEmeralds(dealPrice);
+            baseVillager.withdrawEmeralds(dealPrice);
+            this.seller.depositEmeralds(dealPrice);
 
             // Add/remove item to inventory
             org.bukkit.inventory.ItemStack purchased = new ItemStackBuilder(this.material).setAmount(this.amount).build();

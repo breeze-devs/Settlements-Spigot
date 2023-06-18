@@ -6,6 +6,7 @@ import dev.breeze.settlements.entities.villagers.sensors.VillagerMealTimeSensor;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
 import dev.breeze.settlements.utils.Habitat;
 import dev.breeze.settlements.utils.LogUtil;
+import dev.breeze.settlements.utils.SoundPresets;
 import dev.breeze.settlements.utils.StringUtil;
 import dev.breeze.settlements.utils.particle.ParticlePreset;
 import net.minecraft.core.BlockPos;
@@ -68,7 +69,7 @@ public class VillagerMemoryType {
                     return UUID.fromString(memoriesTag.getString(key));
                 }
             })
-            .clickEventHandler((player, baseVillager, memory) -> {
+            .clickEventHandler((player, baseVillager, memory, clickType) -> {
                 if (memory == null) {
                     return;
                 }
@@ -79,6 +80,7 @@ public class VillagerMemoryType {
                 }
 
                 player.closeInventory();
+                SoundPresets.inventoryClickExit(player);
                 highlightLocation(player, wolf.getLocation().add(0, 0.2, 0));
             })
             .displayName("Tamed wolf")
@@ -102,7 +104,7 @@ public class VillagerMemoryType {
                     return UUID.fromString(memoriesTag.getString(key));
                 }
             })
-            .clickEventHandler((player, baseVillager, memory) -> {
+            .clickEventHandler((player, baseVillager, memory, clickType) -> {
                 if (memory == null) {
                     return;
                 }
@@ -114,6 +116,7 @@ public class VillagerMemoryType {
 
                 // Close inventory & display particles to the tamed cat
                 player.closeInventory();
+                SoundPresets.inventoryClickExit(player);
                 highlightLocation(player, cat.getLocation().add(0, 0.2, 0));
             })
             .displayName("Tamed cat")
@@ -236,7 +239,10 @@ public class VillagerMemoryType {
                     return shoppingList;
                 }
             })
-            .clickEventHandler((player, baseVillager, memory) -> VillagerDebugShoppingListGui.getViewableInventory(player, baseVillager).showToPlayer(player))
+            .clickEventHandler((player, baseVillager, memory, clickType) -> {
+                VillagerDebugShoppingListGui.getViewableInventory(player, baseVillager).showToPlayer(player);
+                SoundPresets.inventoryClickEnter(player);
+            })
             .displayName("Shopping list")
             .description(List.of("&fThe items that the villager wants to trade for", "&eClick &7to view/edit the shopping list"))
             .itemMaterial(Material.CHEST)
@@ -247,7 +253,7 @@ public class VillagerMemoryType {
             .identifier("nearby_sellers")
             .parser(sellers -> List.of("&7Found &e%d &7sellers".formatted(sellers.size())))
             .serializer(null)
-            .clickEventHandler((player, baseVillager, memory) -> {
+            .clickEventHandler((player, baseVillager, memory, clickType) -> {
                 if (memory == null) {
                     return;
                 }
@@ -265,11 +271,14 @@ public class VillagerMemoryType {
                     highlightLocation(player, sellerVillager.getLocation().add(0, 0.2, 0));
                 }
                 player.closeInventory();
+                SoundPresets.inventoryClickExit(player);
             })
             .displayName("Nearby sellers")
             .description(List.of("&fThe sellers that the villager wants to trade with", "&eClick &7to show the sellers' locations"))
             .itemMaterial(Material.VILLAGER_SPAWN_EGG)
             .build();
+
+    public static final VillagerMemory<Integer> EMERALD_BALANCE = VillagerEmeraldBalanceMemory.emeraldMemoryBuilder().build();
 
     /**
      * List of all memories for bulk memory operations such as save/load
@@ -280,7 +289,7 @@ public class VillagerMemoryType {
             // Point of interest (POI) related memories
             NEAREST_WATER_AREA, NEAREST_ENCHANTING_TABLE, NEAREST_HARVESTABLE_SUGARCANE,
             // Trading related memories
-            SHOPPING_LIST, NEARBY_SELLERS,
+            SHOPPING_LIST, NEARBY_SELLERS, EMERALD_BALANCE,
             // Miscellaneous memories
             FENCE_GATE_TO_CLOSE, IS_MEAL_TIME, CURRENT_HABITAT
     );
