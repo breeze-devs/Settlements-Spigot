@@ -66,7 +66,7 @@ public class VillagerDebugShoppingListGui implements Listener {
 
         // Notify player
         MessageUtil.sendMessageWithPrefix(event.getPlayer(), "&aUpdated shopping list for villager!");
-        SoundPresets.inventorySave((Player) event.getPlayer());
+        SoundPresets.inventoryClose((Player) event.getPlayer());
     }
 
 }

@@ -38,7 +38,7 @@ public class VillagerInventoryEditEvents implements Listener {
 
         // Notify player
         MessageUtil.sendMessageWithPrefix(event.getPlayer(), "&aUpdated custom inventory for villager!");
-        SoundPresets.inventorySave((Player) event.getPlayer());
+        SoundPresets.inventoryClose((Player) event.getPlayer());
     }
 
     private static ItemStack parseAmount(ItemStack item) {

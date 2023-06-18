@@ -9,6 +9,7 @@ import dev.breeze.settlements.entities.wolves.memories.WolfMemoryType;
 import dev.breeze.settlements.entities.wolves.sensors.WolfFenceAreaSensor;
 import dev.breeze.settlements.utils.MessageUtil;
 import dev.breeze.settlements.utils.RayTraceUtil;
+import dev.breeze.settlements.utils.SoundPresets;
 import dev.breeze.settlements.utils.TimeUtil;
 import dev.breeze.settlements.utils.particle.ParticlePreset;
 import dev.breeze.settlements.utils.particle.ParticleUtil;
@@ -153,6 +154,7 @@ public class DebugStickEvent implements Listener {
             Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), () -> {
                 player.closeInventory();
                 player.openInventory(VillagerDebugMainGui.getViewableInventory(player, villager).getBukkitInventory());
+                SoundPresets.inventoryOpen(player);
             }, TimeUtil.ticks(5));
         }
     }

@@ -118,10 +118,10 @@ public class VillagerDebugMainGui implements Listener {
         } else if (slot == SLOT_INVENTORY) {
             // Show villager's inventory to the player, allowing edits
             holder.getVillager().getCustomInventory().getViewableInventory().showToPlayer(player);
-            SoundPresets.inventoryClickEnter(player);
+            SoundPresets.inventoryOpen(player);
         } else if (slot == SLOT_CLOSE_MENU) {
             player.closeInventory();
-            SoundPresets.inventoryClickExit(player);
+            SoundPresets.inventoryClose(player);
         }
     }
 

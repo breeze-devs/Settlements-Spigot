@@ -2,7 +2,7 @@ package dev.breeze.settlements.entities.villagers.sensors;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
-import dev.breeze.settlements.utils.MessageUtil;
+import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.TimeUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import net.minecraft.server.level.ServerLevel;
@@ -20,8 +20,7 @@ import java.util.UUID;
 
 public class VillagerNearbySellerSensor extends BaseVillagerSensor {
 
-    // TODO: 3 minutes
-    private static final int SENSE_COOLDOWN = TimeUtil.seconds(10);
+    private static final int SENSE_COOLDOWN = TimeUtil.minutes(3);
 
     public VillagerNearbySellerSensor() {
         super(SENSE_COOLDOWN);
@@ -46,18 +45,33 @@ public class VillagerNearbySellerSensor extends BaseVillagerSensor {
             if (!(nearbyEntity instanceof BaseVillager nearbyVillager)) {
                 continue;
             }
-            // TODO: there may be a bug where villager KEY is overridden by another item it sells
+
             // Loop through each item in the shopping list
             // - note that this does not remove the item from the shopping list
             // - meaning that the same item can be bought from multiple sellers (albeit at different prices)
             // - the item should be removed from the shopping list when the villager buys the item
             for (Map.Entry<Material, Integer> entry : shoppingList.entrySet()) {
-                // Check stock and friendship
-                if (nearbyVillager.getStock(entry.getKey()) > 0
-                        && nearbyVillager.getFriendshipTowards(baseVillager) > BaseVillager.MIN_FRIENDSHIP_TO_TRADE) {
-                    sellerMap.put(nearbyVillager.getUUID(), entry.getKey());
-                    MessageUtil.broadcast("Added seller with stock of " + nearbyVillager.getStock(entry.getKey()) + "x " + entry.getKey().name());
+                // Evaluate the price & check if we can afford it
+                int evaluatedPrice = baseVillager.evaluatePrice(entry.getKey());
+                int canAfford = baseVillager.getEmeraldBalance() / evaluatedPrice;
+                if (canAfford <= 0) {
+                    continue;
                 }
+
+                // Check stock and friendship
+                if (nearbyVillager.getStock(entry.getKey()) <= 0
+                        || nearbyVillager.getFriendshipTowards(baseVillager) < BaseVillager.MIN_FRIENDSHIP_TO_TRADE
+                        || baseVillager.getFriendshipTowards(nearbyVillager) < BaseVillager.MIN_FRIENDSHIP_TO_TRADE) {
+                    continue;
+                }
+
+                // Add the seller
+                sellerMap.put(nearbyVillager.getUUID(), entry.getKey());
+                DebugUtil.broadcastEntity("Added seller with %dx %s".formatted(nearbyVillager.getStock(entry.getKey()), entry.getKey().name()),
+                        nearbyVillager.getStringUUID(), nearbyVillager.getHoverDescription());
+
+                // Break the loop because we don't want to add the same seller twice
+                break;
             }
         }
 

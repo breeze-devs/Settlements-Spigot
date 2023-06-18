@@ -53,14 +53,13 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
 
     public TradeItemsBehavior() {
         // Preconditions to this behavior
-        // TODO: scan CD: 20s / behavior CD: 20s
         super(Map.of(
                         // We should have a shopping list
                         VillagerMemoryType.SHOPPING_LIST.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT,
                         // There should be sellers we've identified nearby
                         VillagerMemoryType.NEARBY_SELLERS.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT
-                ), TimeUtil.seconds(5), 0,
-                TimeUtil.seconds(10), Math.pow(4, 2),
+                ), TimeUtil.seconds(30), 0,
+                TimeUtil.seconds(20), Math.pow(4, 2),
                 5, 1,
                 TimeUtil.seconds(20), TimeUtil.seconds(20));
 
@@ -145,11 +144,8 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
             // 2. minimum of #1 and the amount we want to buy
             // 3. minimum of #2 and the amount the seller has in stock
             int selfPriceEvaluation = baseVillager.evaluatePrice(this.material);
-            MessageUtil.broadcast("Self price evaluation: " + selfPriceEvaluation);
             int canAfford = baseVillager.getEmeraldBalance() / selfPriceEvaluation;
-            MessageUtil.broadcast("Balance: %d - Can afford: %d".formatted(baseVillager.getEmeraldBalance(), canAfford));
             int canBuy = Math.min(canAfford, shoppingList.get(entry.getValue()));
-            MessageUtil.broadcast("Can buy: %d - Stock: %d".formatted(canBuy, stock));
             this.amount = Math.min(stock, canBuy);
 
             // Check if we can actually buy something
@@ -181,6 +177,16 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
     @Override
     protected boolean checkExtraCanStillUseConditions(ServerLevel vel, Villager villager, long gameTime) {
         return this.seller != null && this.seller.isAlive();
+    }
+
+    @Override
+    protected void start(@Nonnull ServerLevel level, @Nonnull Villager villager, long gameTime) {
+        super.start(level, villager, gameTime);
+
+        if (this.seller != null) {
+            villager.getBrain().setMemory(MemoryModuleType.INTERACTION_TARGET, this.seller);
+            this.seller.getBrain().setMemory(MemoryModuleType.INTERACTION_TARGET, villager);
+        }
     }
 
     @Override
@@ -321,34 +327,50 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
         // Price is settled, do the trade now
         int dealPrice = Math.toIntExact(Math.round(this.currentPrice));
         this.tradeSuccessful = baseVillager.canAfford(dealPrice);
-        if (this.tradeSuccessful) {
-            // Withdraw/deposit emeralds
-            baseVillager.withdrawEmeralds(dealPrice);
-            this.seller.depositEmeralds(dealPrice);
-
-            // Add/remove item to inventory
-            org.bukkit.inventory.ItemStack purchased = new ItemStackBuilder(this.material).setAmount(this.amount).build();
-            baseVillager.getCustomInventory().addItem(purchased);
-            this.seller.getCustomInventory().remove(purchased, this.amount);
-
-            // Update or remove item from shopping list memory
-            HashMap<Material, Integer> shoppingList = VillagerMemoryType.SHOPPING_LIST.get(baseVillager.getBrain());
-            if (shoppingList.get(this.material) > this.amount) {
-                // Only bought partial amount, update shopping list
-                shoppingList.put(this.material, shoppingList.get(this.material) - this.amount);
-            } else {
-                // Bought enough, remove from shopping list
-                shoppingList.remove(this.material);
-            }
-            VillagerMemoryType.SHOPPING_LIST.set(baseVillager.getBrain(), shoppingList);
-
-            // Remove seller from seller memory
-            Map<UUID, Material> sellerList = VillagerMemoryType.NEARBY_SELLERS.get(baseVillager.getBrain());
-            sellerList.remove(this.seller.getUUID());
-            VillagerMemoryType.NEARBY_SELLERS.set(baseVillager.getBrain(), sellerList);
-
-            MessageUtil.broadcast("Trade successful: " + this.material + " x" + this.amount + " for " + dealPrice + " emeralds");
+        if (!this.tradeSuccessful) {
+            DebugUtil.broadcastEntity("&cTrade failed (insufficient funds): &e%s &cx&e%d &cfor &e%d &cemeralds"
+                            .formatted(this.material.name(), this.amount, dealPrice),
+                    baseVillager.getStringUUID(), List.of(
+                            "Buyer balance: %d".formatted(baseVillager.getEmeraldBalance()),
+                            "Seller balance: %d".formatted(this.seller.getEmeraldBalance()),
+                            "Buyer mood: %f".formatted(this.buyerMood),
+                            "Seller Mood: %f".formatted(this.sellerMood)
+                    ));
+            return;
         }
+
+        // Withdraw/deposit emeralds
+        baseVillager.withdrawEmeralds(dealPrice);
+        this.seller.depositEmeralds(dealPrice);
+
+        // Add/remove item to inventory
+        org.bukkit.inventory.ItemStack purchased = new ItemStackBuilder(this.material).setAmount(this.amount).build();
+        baseVillager.getCustomInventory().addItem(purchased);
+        this.seller.getCustomInventory().remove(purchased, this.amount);
+
+        // Update or remove item from shopping list memory
+        HashMap<Material, Integer> shoppingList = VillagerMemoryType.SHOPPING_LIST.get(baseVillager.getBrain());
+        if (shoppingList.get(this.material) > this.amount) {
+            // Only bought partial amount, update shopping list
+            shoppingList.put(this.material, shoppingList.get(this.material) - this.amount);
+        } else {
+            // Bought enough, remove from shopping list
+            shoppingList.remove(this.material);
+        }
+        VillagerMemoryType.SHOPPING_LIST.set(baseVillager.getBrain(), shoppingList);
+
+        // Remove seller from seller memory
+        Map<UUID, Material> sellerList = VillagerMemoryType.NEARBY_SELLERS.get(baseVillager.getBrain());
+        sellerList.remove(this.seller.getUUID());
+        VillagerMemoryType.NEARBY_SELLERS.set(baseVillager.getBrain(), sellerList);
+
+        DebugUtil.broadcastEntity("&aTrade successful: &e%s &ax&e%d &afor &e%d &aemeralds".formatted(this.material.name(), this.amount, dealPrice),
+                baseVillager.getStringUUID(), List.of(
+                        "Buyer balance: %d".formatted(baseVillager.getEmeraldBalance()),
+                        "Seller balance: %d".formatted(this.seller.getEmeraldBalance()),
+                        "Buyer mood: %f".formatted(this.buyerMood),
+                        "Seller Mood: %f".formatted(this.sellerMood)
+                ));
     }
 
     @Override

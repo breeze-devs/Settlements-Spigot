@@ -4,10 +4,7 @@ import dev.breeze.settlements.debug.guis.villager.VillagerDebugShoppingListGui;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.sensors.VillagerMealTimeSensor;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
-import dev.breeze.settlements.utils.Habitat;
-import dev.breeze.settlements.utils.LogUtil;
-import dev.breeze.settlements.utils.SoundPresets;
-import dev.breeze.settlements.utils.StringUtil;
+import dev.breeze.settlements.utils.*;
 import dev.breeze.settlements.utils.particle.ParticlePreset;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -241,7 +238,7 @@ public class VillagerMemoryType {
             })
             .clickEventHandler((player, baseVillager, memory, clickType) -> {
                 VillagerDebugShoppingListGui.getViewableInventory(player, baseVillager).showToPlayer(player);
-                SoundPresets.inventoryClickEnter(player);
+                SoundPresets.inventoryOpen(player);
             })
             .displayName("Shopping list")
             .description(List.of("&fThe items that the villager wants to trade for", "&eClick &7to view/edit the shopping list"))
@@ -309,7 +306,7 @@ public class VillagerMemoryType {
         // Write to NBT tag
         nbt.put(NBT_TAG_NAME, memories);
 
-        LogUtil.info("Saved villager memories: %s", memories.toString());
+        DebugUtil.log("Saved villager (%s) memories: %s", villager.getStringUUID(), memories.toString());
     }
 
     /**
@@ -326,6 +323,8 @@ public class VillagerMemoryType {
         for (VillagerMemory<?> memory : ALL_MEMORIES) {
             memory.load(memories, brain);
         }
+
+        DebugUtil.log("Loaded villager (%s) memories: %s", villager.getStringUUID(), memories.toString());
     }
 
     /*
