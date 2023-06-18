@@ -429,7 +429,10 @@ public class BaseVillager extends Villager {
         VillagerProfession profession = this.getProfession();
         return new ItemStackBuilder(PROFESSION_MATERIAL_MAP.get(profession))
                 .setDisplayName("&e&lProfession")
-                .setLore("&7" + (profession == VillagerProfession.NONE ? "Unemployed" : StringUtil.toTitleCase(profession.name())))
+                .setLore(
+                        "&f%s".formatted(profession == VillagerProfession.NONE ? "Unemployed" : StringUtil.toTitleCase(profession.name())),
+                        "&7Expertise: %s".formatted(VillagerUtil.getExpertiseName(this.getExpertiseLevel(), true))
+                )
                 .build();
     }
 

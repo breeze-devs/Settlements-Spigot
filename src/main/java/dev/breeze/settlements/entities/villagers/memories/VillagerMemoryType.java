@@ -313,13 +313,17 @@ public class VillagerMemoryType {
      * Attempts to load the custom memories to the villager brain
      */
     public static void load(@Nonnull CompoundTag nbt, @Nonnull BaseVillager villager) {
-        // Safety check
-        if (!nbt.contains(NBT_TAG_NAME))
-            return;
-
-        // Load memories to brain
         Brain<Villager> brain = villager.getBrain();
-        CompoundTag memories = nbt.getCompound(NBT_TAG_NAME);
+
+        // Use empty tag if not found (to facilitate default memory values)
+        CompoundTag memories;
+        if (!nbt.contains(NBT_TAG_NAME)) {
+            memories = new CompoundTag();
+        } else {
+            memories = nbt.getCompound(NBT_TAG_NAME);
+        }
+
+        // Load memories
         for (VillagerMemory<?> memory : ALL_MEMORIES) {
             memory.load(memories, brain);
         }

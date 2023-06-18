@@ -7,10 +7,8 @@ import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.wolves.VillagerWolf;
 import dev.breeze.settlements.entities.wolves.memories.WolfMemoryType;
 import dev.breeze.settlements.entities.wolves.sensors.WolfFenceAreaSensor;
-import dev.breeze.settlements.utils.MessageUtil;
-import dev.breeze.settlements.utils.RayTraceUtil;
-import dev.breeze.settlements.utils.SoundPresets;
-import dev.breeze.settlements.utils.TimeUtil;
+import dev.breeze.settlements.utils.*;
+import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import dev.breeze.settlements.utils.particle.ParticlePreset;
 import dev.breeze.settlements.utils.particle.ParticleUtil;
 import net.minecraft.core.BlockPos;
@@ -27,12 +25,14 @@ import net.minecraft.world.entity.animal.Wolf;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R2.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -41,6 +41,14 @@ import java.util.Optional;
 
 public class DebugStickEvent implements Listener {
 
+    public static final ItemStack SETTLEMENTS_DEBUG_STICK = new ItemStackBuilder(Material.BLAZE_ROD)
+            .setDisplayName("&a&lSettlements &f&lDebug Stick")
+            .setLore("&eRight click &fa custom entity to view debug information",
+                    "&7or just simply aim at something from far away")
+            .addEnchantment(Enchantment.VANISHING_CURSE, 1)
+            .hideFlags(ItemFlag.HIDE_ENCHANTS)
+            .build();
+
     /**
      * Event handler for right-clicking with the debug stick
      */
@@ -48,7 +56,7 @@ public class DebugStickEvent implements Listener {
     public void onClickEntity(PlayerInteractAtEntityEvent event) {
         Player player = event.getPlayer();
         ItemStack item = player.getInventory().getItem(event.getHand());
-        if (item.getType() != Material.DEBUG_STICK || !item.hasItemMeta()) {
+        if (!item.isSimilar(SETTLEMENTS_DEBUG_STICK)) {
             return;
         }
 
@@ -67,13 +75,14 @@ public class DebugStickEvent implements Listener {
         }
 
         ItemStack item = event.getItem();
-        if (item == null || item.getType() != Material.DEBUG_STICK || !item.hasItemMeta()) {
+        if (item == null || !item.isSimilar(SETTLEMENTS_DEBUG_STICK)) {
             return;
         }
 
         event.setCancelled(true);
 
         Player player = event.getPlayer();
+        SoundUtil.playSound(player, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 0.3F, 0.75F + RandomUtil.RANDOM.nextFloat() / 2F);
 
         // Ray trace the entity
         int maxRayTraceDistance = 60;
@@ -82,10 +91,11 @@ public class DebugStickEvent implements Listener {
 
         // We found no targets
         if (rayTraceResult == null) {
-            // Display not found particles
+            // Display "not found" particles
             Location target = player.getEyeLocation().add(player.getLocation().getDirection().normalize().multiply(maxRayTraceDistance));
             ParticlePreset.displayLinePrivate(player, player.getEyeLocation(), target, maxRayTraceDistance, Particle.END_ROD, 1, 0, 0, 0, 0);
-            ParticleUtil.playerParticle(player, target, Particle.END_ROD, 15, 0.1, 0.1, 0.1, 1);
+            ParticleUtil.playerParticle(player, target, Particle.END_ROD, 20, 0.1, 0.1, 0.1, 1);
+            SoundUtil.playSound(player, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 0.3F, 0.75F + RandomUtil.RANDOM.nextFloat() / 2F);
             return;
         }
 

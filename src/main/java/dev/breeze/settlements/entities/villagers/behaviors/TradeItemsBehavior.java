@@ -430,7 +430,7 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
         // TODO: 1.20 replace with item display
         Item itemEntity = thrower.getLevel().getWorld().dropItem(headLocation,
                 new ItemStackBuilder(material).setAmount(amount).setLore(RandomUtil.randomString()).build());
-        itemEntity.setVelocity(LocationUtil.fromNmsEntity(receiver).subtract(headLocation).toVector().normalize().multiply(0.4).setY(0.15));
+        itemEntity.setVelocity(LocationUtil.fromNmsEntity(receiver).subtract(headLocation).toVector().multiply(0.1).setY(0.15));
         itemEntity.setPickupDelay(32767);
         itemEntity.setTicksLived(6000 - TimeUtil.ticks(15));
     }
