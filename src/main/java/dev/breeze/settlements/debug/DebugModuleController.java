@@ -1,9 +1,6 @@
 package dev.breeze.settlements.debug;
 
-import dev.breeze.settlements.debug.guis.villager.VillagerDebugBehaviorGui;
-import dev.breeze.settlements.debug.guis.villager.VillagerDebugMainGui;
-import dev.breeze.settlements.debug.guis.villager.VillagerDebugMemoryGui;
-import dev.breeze.settlements.debug.guis.villager.VillagerDebugSensorGui;
+import dev.breeze.settlements.debug.guis.villager.*;
 import dev.breeze.settlements.utils.BaseModuleController;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,6 +25,7 @@ public class DebugModuleController extends BaseModuleController {
         pm.registerEvents(new VillagerDebugBehaviorGui(), plugin);
         pm.registerEvents(new VillagerDebugMemoryGui(), plugin);
         pm.registerEvents(new VillagerDebugSensorGui(), plugin);
+        pm.registerEvents(new VillagerDebugShoppingListGui(), plugin);
         return true;
     }
 

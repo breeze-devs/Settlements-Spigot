@@ -3,6 +3,7 @@ package dev.breeze.settlements.entities.villagers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
+import dev.breeze.settlements.config.files.InternalTradingConfig;
 import dev.breeze.settlements.config.files.WolfFetchItemConfig;
 import dev.breeze.settlements.entities.villagers.behaviors.BaseVillagerBehavior;
 import dev.breeze.settlements.entities.villagers.inventory.VillagerInventory;
@@ -48,16 +49,16 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class BaseVillager extends Villager {
 
     public static final String ENTITY_TYPE = "settlements_villager";
     private static final String INVENTORY_NBT_TAG = "custom_inventory";
+
+    // TODO: perhaps associate this with personality
+    public static final double MIN_FRIENDSHIP_TO_TRADE = InternalTradingConfig.getInstance().getMinFriendshipToTrade().getValue();
 
     private static final Map<VillagerProfession, Material> PROFESSION_MATERIAL_MAP = Map.ofEntries(
             Map.entry(VillagerProfession.NONE, Material.BARRIER),
@@ -92,7 +93,7 @@ public class BaseVillager extends Villager {
      * Constructor called when Minecraft tries to load the entity
      */
     public BaseVillager(@Nonnull EntityType<? extends Villager> entityType, @Nonnull Level level) {
-        super(EntityType.VILLAGER, level); // TODO
+        super(EntityType.VILLAGER, level);
         this.init();
     }
 
@@ -119,7 +120,7 @@ public class BaseVillager extends Villager {
         // this.initPathfinderGoals();
         this.refreshBrain(this.level.getMinecraftWorld());
 
-        // Configure inventory
+        // Configure extra data
         this.customInventory = new VillagerInventory(this, VillagerInventory.DEFAULT_INVENTORY_ROWS);
 
         // Initialize miscellaneous variables
@@ -359,6 +360,65 @@ public class BaseVillager extends Villager {
     }
 
     /*
+     * Villager friendship methods
+     */
+    public float getFriendshipTowards(@Nonnull BaseVillager villager) {
+        // TODO: implement friendship system
+        // TODO: potential range = [-1, 1] where + is friendly and - is hostile?
+        return 0;
+    }
+
+    /**
+     * Calculates the price modifier towards another villager based on their friendship
+     * - this number will be multiplied to the price of the trade offer
+     *
+     * @param buyer the buying villager
+     * @return the price modifier towards the buyer villager
+     */
+    public float getPriceModifierTowardsVillager(@Nonnull BaseVillager buyer) {
+        // TODO: check friendship towards the buyer & return appropriate price modifier
+        return 1f;
+    }
+
+    /*
+     * Emerald balance shortcut methods
+     */
+    public int getEmeraldBalance() {
+        return Objects.requireNonNull(VillagerMemoryType.EMERALD_BALANCE.get(this.getBrain()));
+    }
+
+    public void setEmeraldBalance(int amount) {
+        VillagerMemoryType.EMERALD_BALANCE.set(this.getBrain(), amount);
+    }
+
+    public boolean canAfford(int amount) {
+        return this.getEmeraldBalance() >= amount;
+    }
+
+    public void depositEmeralds(int amount) {
+        this.setEmeraldBalance(this.getEmeraldBalance() + amount);
+    }
+
+    public void withdrawEmeralds(int amount) {
+        // TODO: do we want to throw an exception if the villager can't afford it?
+        // TODO: or do we want to allow the villager to go into debt?
+        this.setEmeraldBalance(this.getEmeraldBalance() - amount);
+    }
+
+    /*
+     * Internal trading methods
+     */
+    public int getStock(@Nonnull Material material) {
+        // TODO: check if the villager is actually selling the material, not just present in the inventory
+        return this.getCustomInventory().count(material);
+    }
+
+    public int evaluatePrice(@Nonnull Material material) {
+        // TODO: change to actual price evaluation
+        return 3;
+    }
+
+    /*
      * Misc methods
      */
     public VillagerProfession getProfession() {
@@ -369,7 +429,10 @@ public class BaseVillager extends Villager {
         VillagerProfession profession = this.getProfession();
         return new ItemStackBuilder(PROFESSION_MATERIAL_MAP.get(profession))
                 .setDisplayName("&e&lProfession")
-                .setLore("&7" + (profession == VillagerProfession.NONE ? "Unemployed" : StringUtil.toTitleCase(profession.name())))
+                .setLore(
+                        "&f%s".formatted(profession == VillagerProfession.NONE ? "Unemployed" : StringUtil.toTitleCase(profession.name())),
+                        "&7Expertise: %s".formatted(VillagerUtil.getExpertiseName(this.getExpertiseLevel(), true))
+                )
                 .build();
     }
 
@@ -416,6 +479,10 @@ public class BaseVillager extends Villager {
      */
     public void clearHeldItem() {
         this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+    }
+
+    public static double getActualEyeHeight() {
+        return 1.5;
     }
 
 }

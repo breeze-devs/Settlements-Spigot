@@ -48,6 +48,14 @@ public class VillagerSensorType {
             .build();
 
     /**
+     * Sensor for scanning nearby sellers
+     */
+    public static final VillagerSensor<VillagerNearbySellerSensor> NEARBY_SELLER = VillagerSensor.<VillagerNearbySellerSensor>builder()
+            .identifier("nearby_seller")
+            .sensorSupplier(VillagerNearbySellerSensor::new)
+            .build();
+
+    /**
      * List of all memories for bulk memory operations such as save/load
      */
     public static final List<VillagerSensor<? extends BaseVillagerSensor>> ALL_SENSORS = Arrays.asList(
@@ -55,6 +63,8 @@ public class VillagerSensorType {
             NEAREST_WATER_AREA, NEAREST_HARVESTABLE_SUGARCANE, NEAREST_ENCHANTING_TABLE,
             // Time sensors
             IS_MEAL_TIME,
+            // Trading sensors
+            NEARBY_SELLER,
             // Miscellaneous sensors
             CURRENT_HABITAT
     );

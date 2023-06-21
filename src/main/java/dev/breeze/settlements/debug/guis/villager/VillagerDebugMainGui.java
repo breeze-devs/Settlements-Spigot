@@ -14,6 +14,7 @@ import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 
@@ -32,11 +33,15 @@ public class VillagerDebugMainGui implements Listener {
     private static final int SLOT_MEMORIES = InventoryUtil.toIndex(2, 6);
     private static final int SLOT_SENSORS = InventoryUtil.toIndex(2, 7);
     private static final int SLOT_INVENTORY = InventoryUtil.toIndex(2, 8);
-    private static final int SLOT_CLOSE_MENU = InventoryUtil.rowMiddleIndex(3);
+
+    private static final int SLOT_EMERALD_BALANCE = InventoryUtil.toIndex(3, 2);
+    private static final int SLOT_KILL = InventoryUtil.toIndex(3, 8);
+
+    private static final int SLOT_CLOSE_MENU = InventoryUtil.rowMiddleIndex(4);
 
     @Nonnull
     public static CustomInventory getViewableInventory(Player player, BaseVillager villager) {
-        CustomInventory inventory = new CustomInventory(3, "&9Debug - Villager", new VillagerDebugInventoryHolder(INVENTORY_IDENTIFIER, villager));
+        CustomInventory inventory = new CustomInventory(4, "&9Debug - Villager", new VillagerDebugInventoryHolder(INVENTORY_IDENTIFIER, villager));
         Inventory bukkitInventory = inventory.getBukkitInventory();
 
         // Create inventory border (no listener needed)
@@ -86,6 +91,18 @@ public class VillagerDebugMainGui implements Listener {
                 .setLore("&7Click to view custom inventory")
                 .build());
 
+        // Emerald balance
+        bukkitInventory.setItem(SLOT_EMERALD_BALANCE, new ItemStackBuilder(Material.EMERALD)
+                .setDisplayName("&e&lEmerald Balance")
+                .setLore("&7The villager has &e%d &7emeralds".formatted(villager.getEmeraldBalance()))
+                .build());
+
+        // Kill button
+        bukkitInventory.setItem(SLOT_KILL, new ItemStackBuilder(Material.BARRIER)
+                .setDisplayName("&c&lKill Villager")
+                .setLore("&cRight click &7to kill villager", "&7This action will not affect your reputation")
+                .build());
+
         // Exit button
         bukkitInventory.setItem(SLOT_CLOSE_MENU, ItemPreset.INVENTORY_BACK_BUTTON.getBuilder().setDisplayName("&cClose Menu").build());
 
@@ -118,10 +135,17 @@ public class VillagerDebugMainGui implements Listener {
         } else if (slot == SLOT_INVENTORY) {
             // Show villager's inventory to the player, allowing edits
             holder.getVillager().getCustomInventory().getViewableInventory().showToPlayer(player);
-            SoundPresets.inventoryClickEnter(player);
+            SoundPresets.inventoryOpen(player);
+        } else if (slot == SLOT_KILL) {
+            // Kill villager
+            if (event.getClick() == ClickType.RIGHT) {
+                holder.getVillager().kill();
+                player.closeInventory();
+                SoundPresets.inventoryClose(player);
+            }
         } else if (slot == SLOT_CLOSE_MENU) {
             player.closeInventory();
-            SoundPresets.inventoryClickExit(player);
+            SoundPresets.inventoryClose(player);
         }
     }
 

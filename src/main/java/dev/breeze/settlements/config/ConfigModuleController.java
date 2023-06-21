@@ -11,10 +11,12 @@ public class ConfigModuleController extends BaseModuleController {
     protected boolean preload(JavaPlugin plugin) {
         // Create instances of all config singletons
         GeneralConfig.getInstance();
-        NitwitPranksConfig.getInstance();
-        WolfFetchItemConfig.getInstance();
+
         EnchantItemsConfig.getInstance();
         FarmerHarvestConfig.getInstance();
+        InternalTradingConfig.getInstance();
+        NitwitPranksConfig.getInstance();
+        WolfFetchItemConfig.getInstance();
         return true;
     }
 

@@ -3,14 +3,11 @@ package dev.breeze.settlements.debug;
 import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.MessageUtil;
 import dev.breeze.settlements.utils.SoundUtil;
-import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,12 +67,7 @@ public class DebugCommandHandler implements TabExecutor {
     }
 
     private static void debugTool(Player p) {
-        ItemStack debugStick = new ItemStackBuilder(Material.DEBUG_STICK)
-                .setDisplayName("&a&lSettlements &f&lDebug Stick")
-                .setLore("&eRight click &fan entity added by this plugin to view debug information",
-                        "&7oh by the way, this also works as a regular debug stick")
-                .build();
-        p.getInventory().addItem(debugStick);
+        p.getInventory().addItem(DebugStickEvent.SETTLEMENTS_DEBUG_STICK);
         SoundUtil.playSound(p, Sound.ENTITY_ITEM_PICKUP, 1);
         MessageUtil.sendMessageWithPrefix(p, "&eYou've obtained a debug tool");
     }

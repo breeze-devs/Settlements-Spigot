@@ -3,7 +3,9 @@ package dev.breeze.settlements.entities.villagers.inventory;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.utils.LogUtil;
 import dev.breeze.settlements.utils.MessageUtil;
+import dev.breeze.settlements.utils.SoundPresets;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -33,6 +35,10 @@ public class VillagerInventoryEditEvents implements Listener {
                 continue;
             customInventory.addItem(parseAmount(item));
         }
+
+        // Notify player
+        MessageUtil.sendMessageWithPrefix(event.getPlayer(), "&aUpdated custom inventory for villager!");
+        SoundPresets.inventoryClose((Player) event.getPlayer());
     }
 
     private static ItemStack parseAmount(ItemStack item) {
