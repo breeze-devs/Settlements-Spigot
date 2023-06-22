@@ -14,6 +14,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -277,6 +278,16 @@ public class VillagerMemoryType {
 
     public static final VillagerMemory<Integer> EMERALD_BALANCE = VillagerEmeraldBalanceMemory.emeraldMemoryBuilder().build();
 
+    public static final VillagerMemory<List<AbstractArrow>> NEARBY_ARROWS = VillagerMemory.<List<AbstractArrow>>builder()
+            .identifier("nearby_arrows")
+            .parser(memory -> List.of("&7Found &e%d &7arrows".formatted(memory.size())))
+            .serializer(null)
+            .clickEventHandler(null)
+            .displayName("Nearby arrows")
+            .description(List.of("&fNearby visible arrows that the villager can pick up"))
+            .itemMaterial(Material.ARROW)
+            .build();
+
     /**
      * List of all memories for bulk memory operations such as save/load
      */
@@ -288,7 +299,7 @@ public class VillagerMemoryType {
             // Trading related memories
             SHOPPING_LIST, NEARBY_SELLERS, EMERALD_BALANCE,
             // Miscellaneous memories
-            FENCE_GATE_TO_CLOSE, IS_MEAL_TIME, CURRENT_HABITAT
+            FENCE_GATE_TO_CLOSE, IS_MEAL_TIME, CURRENT_HABITAT, NEARBY_ARROWS
     );
 
     /**

@@ -145,6 +145,7 @@ public final class CustomVillagerBehaviorPackages {
             customBehaviorWeightMap.put(new FishingBehavior(), customGoalWeight);
         } else if (profession == VillagerProfession.FLETCHER) {
             // TODO: pluck feather from chicken
+            customBehaviorWeightMap.put(new CollectArrowsBehavior(), customGoalWeight);
             customBehaviorWeightMap.put(new BreedAnimalsBehavior(Set.of(EntityType.CHICKEN)), customGoalWeight);
         } else if (profession == VillagerProfession.LEATHERWORKER) {
             customBehaviorWeightMap.put(new TameWolfBehavior(), customGoalWeight);
