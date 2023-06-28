@@ -17,7 +17,7 @@ java {
 }
 
 dependencies {
-    paperDevBundle("1.19.3-R0.1-SNAPSHOT")
+    paperDevBundle("1.20.1-R0.1-SNAPSHOT")
     // paperweightDevBundle("com.example.paperfork", "1.19.3-R0.1-SNAPSHOT")
 
     // You will need to manually specify the full dependency if using the groovy gradle dsl
