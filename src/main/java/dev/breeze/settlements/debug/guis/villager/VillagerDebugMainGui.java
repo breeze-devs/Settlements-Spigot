@@ -10,7 +10,7 @@ import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import dev.breeze.settlements.utils.itemstack.SkullItemStackBuilder;
 import net.minecraft.world.entity.schedule.Activity;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -170,7 +170,7 @@ public class VillagerDebugMainGui implements Listener {
         if (activity == Activity.REST) {
             highlightIndex = 4;
         } else if (activity == Activity.IDLE) {
-            long timeOfDay = villager.getLevel().getWorld().getTime();
+            long timeOfDay = villager.level().getWorld().getTime();
             if (timeOfDay < 2000) {
                 highlightIndex = 0;
             } else {

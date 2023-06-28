@@ -2,7 +2,7 @@ package dev.breeze.settlements.utils.itemstack;
 
 import dev.breeze.settlements.utils.MessageUtil;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;

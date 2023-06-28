@@ -29,8 +29,8 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_19_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
 import javax.annotation.Nonnull;
@@ -197,7 +197,7 @@ public final class FishingBehavior extends InteractAtTargetBehavior {
     public static ServerPlayer createFakePlayer(@Nonnull BaseVillager villager) {
         // Create fake player
         MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
-        ServerPlayer fakePlayer = new ServerPlayer(server, ((ServerLevel) villager.level), new GameProfile(UUID.randomUUID(), "FishingRod"));
+        ServerPlayer fakePlayer = new ServerPlayer(server, ((ServerLevel) villager.level()), new GameProfile(UUID.randomUUID(), "FishingRod"));
 
         // Set connection
         EmptyNetworkManager conn = new EmptyNetworkManager(PacketFlow.CLIENTBOUND);
@@ -210,7 +210,7 @@ public final class FishingBehavior extends InteractAtTargetBehavior {
         fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, FISHING_ROD);
         fakePlayer.setInvulnerable(true);
         adjustPlayer(fakePlayer, villager);
-        villager.level.addFreshEntity(fakePlayer, CreatureSpawnEvent.SpawnReason.CUSTOM);
+        villager.level().addFreshEntity(fakePlayer, CreatureSpawnEvent.SpawnReason.CUSTOM);
 
         // Add player to player list
         ClientboundPlayerInfoUpdatePacket infoUpdatePacket = new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER,

@@ -24,7 +24,7 @@ public class RayTraceUtil {
         Vec3 direction = source.getLookAngle();
         Vec3 end = start.add(direction.x * maxDistance, direction.y * maxDistance, direction.z * maxDistance);
 
-        List<Entity> entityList = source.getLevel().getEntities(source, source.getBoundingBox()
+        List<Entity> entityList = source.level().getEntities(source, source.getBoundingBox()
                 .expandTowards(direction.x * maxDistance, direction.y * maxDistance, direction.z * maxDistance)
                 .inflate(1.0D, 1.0D, 1.0D), EntitySelector.NO_SPECTATORS.and(Entity::isPickable));
 

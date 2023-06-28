@@ -18,7 +18,7 @@ public class WolfSitWhenOrderedToGoal extends SitWhenOrderedToGoal {
      */
     @Override
     public boolean canUse() {
-        if (this.wolf.isInWaterOrBubble() || !this.wolf.isOnGround())
+        if (this.wolf.isInWaterOrBubble() || !this.wolf.onGround)
             return false;
         return this.wolf.isOrderedToSit();
     }
