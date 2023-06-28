@@ -315,7 +315,7 @@ public final class EnchantItemBehavior extends InteractAtTargetBehavior {
     }
 
     private static boolean isEnchantingTable(@Nonnull Villager villager, @Nonnull BlockPos pos) {
-        BlockState state = villager.getLevel().getBlockState(pos);
+        BlockState state = villager.level().getBlockState(pos);
         return VillagerNearbyEnchantingTableSensor.isEnchantingTable(state);
     }
 

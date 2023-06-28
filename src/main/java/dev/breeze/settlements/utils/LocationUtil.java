@@ -129,7 +129,7 @@ public class LocationUtil {
 
     @Nonnull
     public static Location fromNmsEntity(@Nonnull Entity entity) {
-        return new Location(entity.getLevel().getWorld(), entity.getX(), entity.getY(), entity.getZ());
+        return new Location(entity.level().getWorld(), entity.getX(), entity.getY(), entity.getZ());
     }
 
 }

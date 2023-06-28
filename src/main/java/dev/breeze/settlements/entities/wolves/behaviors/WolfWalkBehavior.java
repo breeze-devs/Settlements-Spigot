@@ -192,7 +192,7 @@ public final class WolfWalkBehavior extends BaseWolfBehavior {
 
             // Spawn dig effects if isDigging
             if (this.isDigging && this.sniffDuration % 5 == 0) {
-                Location location = new Location(villagerWolf.level.getWorld(), villagerWolf.getX(), villagerWolf.getY(), villagerWolf.getZ());
+                Location location = new Location(villagerWolf.level().getWorld(), villagerWolf.getX(), villagerWolf.getY(), villagerWolf.getZ());
                 Block under = location.clone().add(0, -1, 0).getBlock();
                 ParticleUtil.blockBreak(location, under.getType(), 5, 0.4, 0.3, 0.4, 0.1);
                 SoundUtil.playSoundPublic(location, Sound.BLOCK_SAND_HIT, 0.2F, 1.4F);
@@ -292,7 +292,7 @@ public final class WolfWalkBehavior extends BaseWolfBehavior {
     }
 
     private boolean isPlayTime(Wolf wolf) {
-        return wolf.getBrain().getSchedule().getActivityAt((int) wolf.level.getWorld().getTime()) == Activity.PLAY;
+        return wolf.getBrain().getSchedule().getActivityAt((int) wolf.level().getWorld().getTime()) == Activity.PLAY;
     }
 
     /**

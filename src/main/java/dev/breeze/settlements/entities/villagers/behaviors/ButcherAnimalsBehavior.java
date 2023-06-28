@@ -10,7 +10,6 @@ import dev.breeze.settlements.utils.particle.ParticleUtil;
 import net.minecraft.core.Rotations;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -27,7 +26,7 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 
@@ -185,7 +184,7 @@ public final class ButcherAnimalsBehavior extends InteractAtTargetBehavior {
                 // Check if animation has completed
                 if (this.elapsed > ANIMATION_LENGTH) {
                     // We want to insta-kill the animal
-                    target.hurt(DamageSource.mobAttack(villager), Float.MAX_VALUE);
+                    target.hurt(villager.damageSources().mobAttack(villager), Float.MAX_VALUE);
                     ParticleUtil.blockBreak(target.getBukkitEntity().getLocation(), Material.REDSTONE_BLOCK, 30, 0.5, 0.5, 0.5, 0.1);
 
                     stopBehavior = true;
