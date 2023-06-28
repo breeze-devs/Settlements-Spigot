@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.Levelled;
-import org.bukkit.craftbukkit.v1_19_R2.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_20_R1.block.data.CraftBlockData;
 
 import javax.annotation.Nonnull;
 import java.util.List;

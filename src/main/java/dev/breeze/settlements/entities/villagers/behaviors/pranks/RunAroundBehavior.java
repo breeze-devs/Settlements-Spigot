@@ -3,10 +3,7 @@ package dev.breeze.settlements.entities.villagers.behaviors.pranks;
 import dev.breeze.settlements.config.files.NitwitPranksConfig;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.behaviors.BaseVillagerBehavior;
-import dev.breeze.settlements.utils.DebugUtil;
-import dev.breeze.settlements.utils.RandomUtil;
-import dev.breeze.settlements.utils.SoundUtil;
-import dev.breeze.settlements.utils.TimeUtil;
+import dev.breeze.settlements.utils.*;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import dev.breeze.settlements.utils.particle.ParticleUtil;
 import net.minecraft.core.BlockPos;
@@ -150,7 +147,7 @@ public final class RunAroundBehavior extends BaseVillagerBehavior {
         if (target == null)
             return null;
 
-        return new BlockPos(target);
+        return BlockPosUtil.fromVec3(target);
     }
 
     @Nonnull

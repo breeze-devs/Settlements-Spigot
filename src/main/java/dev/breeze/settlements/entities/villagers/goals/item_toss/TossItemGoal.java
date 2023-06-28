@@ -13,7 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
@@ -207,7 +207,7 @@ public class TossItemGoal extends Goal {
             return 0;
 
         // Spawn the item entity
-        World world = this.villager.level.getWorld();
+        World world = this.villager.level().getWorld();
         Location shootLocation = new Location(world, this.villager.getX(), this.villager.getY() + 1.1, this.villager.getZ());
 
         Item item = world.dropItem(shootLocation, new ItemStackBuilder(itemStack).setLore(RandomUtil.randomString()).build());

@@ -31,7 +31,7 @@ public final class ScanForPetsBehaviorController {
                 // Scan for wolves
                 if (brain.hasMemoryValue(VillagerMemoryType.OWNED_DOG.getMemoryModuleType())) {
                     UUID wolfUuid = VillagerMemoryType.OWNED_DOG.get(brain);
-                    Wolf wolf = (Wolf) villager.level.getMinecraftWorld().getEntity(wolfUuid);
+                    Wolf wolf = (Wolf) villager.level().getMinecraftWorld().getEntity(wolfUuid);
                     if (wolf == null || !wolf.isAlive()) {
                         VillagerMemoryType.OWNED_DOG.set(brain, null);
                         return false;
@@ -41,7 +41,7 @@ public final class ScanForPetsBehaviorController {
                 // Scan for cats
                 if (brain.hasMemoryValue(VillagerMemoryType.OWNED_CAT.getMemoryModuleType())) {
                     UUID catUuid = VillagerMemoryType.OWNED_CAT.get(brain);
-                    Cat cat = (Cat) villager.level.getMinecraftWorld().getEntity(catUuid);
+                    Cat cat = (Cat) villager.level().getMinecraftWorld().getEntity(catUuid);
                     if (cat == null || !cat.isAlive()) {
                         VillagerMemoryType.OWNED_CAT.set(brain, null);
                         return false;

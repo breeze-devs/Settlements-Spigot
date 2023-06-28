@@ -40,7 +40,7 @@ import net.minecraft.world.entity.schedule.ScheduleBuilder;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
 import javax.annotation.Nonnull;
@@ -81,7 +81,7 @@ public class VillagerCat extends Cat {
     public VillagerCat(@Nonnull Location location) {
         super(EntityType.CAT, ((CraftWorld) location.getWorld()).getHandle());
         this.setPos(location.getX(), location.getY(), location.getZ());
-        if (!this.level.addFreshEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM)) {
+        if (!this.level().addFreshEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM)) {
             throw new IllegalStateException("Failed to add custom cat to world");
         }
 
@@ -104,7 +104,7 @@ public class VillagerCat extends Cat {
         }
 
         // Set step height to 1.5 (able to cross fences)
-        this.maxUpStep = 1.5F;
+        this.setMaxUpStep(1.5F);
 
         this.behaviorsRegisteredSuccessfully = false;
 
@@ -213,7 +213,7 @@ public class VillagerCat extends Cat {
         super.tick();
 
         // TODO: edit this?
-        this.getBrain().tick((ServerLevel) this.level, this);
+        this.getBrain().tick((ServerLevel) this.level(), this);
     }
 
     /**
@@ -280,7 +280,7 @@ public class VillagerCat extends Cat {
             return null;
 
         // Try to get owner entity
-        Entity entity = this.level.getMinecraftWorld().getEntity(this.getOwnerUUID());
+        Entity entity = this.level().getMinecraftWorld().getEntity(this.getOwnerUUID());
         if (!(entity instanceof BaseVillager villager))
             return null;
 
@@ -311,7 +311,7 @@ public class VillagerCat extends Cat {
         }
 
         DebugUtil.log("Owner (%s) detected, refreshing cat (%s) brain goals", this.getOwnerUUID().toString(), this.getUUID().toString());
-        this.refreshBrain(this.level.getMinecraftWorld());
+        this.refreshBrain(this.level().getMinecraftWorld());
     }
 
     /**

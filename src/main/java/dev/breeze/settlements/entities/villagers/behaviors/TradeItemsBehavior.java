@@ -15,8 +15,8 @@ import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 
@@ -428,7 +428,7 @@ public final class TradeItemsBehavior extends InteractAtTargetBehavior {
     private static void throwItemAt(@Nonnull BaseVillager thrower, @Nonnull BaseVillager receiver, @Nonnull Material material, int amount) {
         Location headLocation = LocationUtil.fromNmsEntity(thrower).add(0, BaseVillager.getActualEyeHeight(), 0);
         // TODO: 1.20 replace with item display
-        Item itemEntity = thrower.getLevel().getWorld().dropItem(headLocation,
+        Item itemEntity = thrower.level().getWorld().dropItem(headLocation,
                 new ItemStackBuilder(material).setAmount(amount).setLore(RandomUtil.randomString()).build());
         itemEntity.setVelocity(LocationUtil.fromNmsEntity(receiver).subtract(headLocation).toVector().multiply(0.1).setY(0.15));
         itemEntity.setPickupDelay(32767);
