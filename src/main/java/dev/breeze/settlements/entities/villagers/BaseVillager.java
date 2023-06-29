@@ -40,7 +40,7 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.schedule.Schedule;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang.reflect.FieldUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
@@ -178,12 +178,10 @@ public class BaseVillager extends Villager {
     @SuppressWarnings("unchecked")
     protected @Nonnull Brain.Provider<Villager> brainProvider() {
         try {
-            // cB = private static final ImmutableList<MemoryModuleType<?>>
-            final ImmutableList<MemoryModuleType<?>> DEFAULT_MEMORY_TYPES = (ImmutableList<MemoryModuleType<?>>) FieldUtils.readStaticField(Villager.class,
-                    "cB", true);
-            // cC = private static final ImmutableList<SensorType<? extends Sensor<? super Villager>>>
-            final ImmutableList<SensorType<Sensor<Villager>>> DEFAULT_SENSOR_TYPES = (ImmutableList<SensorType<Sensor<Villager>>>)
-                    FieldUtils.readStaticField(Villager.class, "cC", true);
+            // 1.20.1 -- cx = private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES
+            final ImmutableList<MemoryModuleType<?>> DEFAULT_MEMORY_TYPES = (ImmutableList<MemoryModuleType<?>>) FieldUtils.readStaticField(Villager.class, "cx", true);
+            // 1.20.1 -- cy = private static final ImmutableList<SensorType<? extends Sensor<? super Villager>>> SENSOR_TYPES
+            final ImmutableList<SensorType<Sensor<Villager>>> DEFAULT_SENSOR_TYPES = (ImmutableList<SensorType<Sensor<Villager>>>) FieldUtils.readStaticField(Villager.class, "cy", true);
 
             // Add custom memories
             ImmutableList.Builder<MemoryModuleType<?>> customMemoryTypes = new ImmutableList.Builder<MemoryModuleType<?>>()
