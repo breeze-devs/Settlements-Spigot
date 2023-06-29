@@ -21,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -240,7 +240,7 @@ public final class CatFetchOrEatBehavior extends BaseCatBehavior {
 
             // Display eat effect
             if (this.eatDuration % 5 == 0) {
-                Location location = new Location(cat.level.getWorld(), cat.getX(), cat.getY(), cat.getZ());
+                Location location = new Location(cat.level().getWorld(), cat.getX(), cat.getY(), cat.getZ());
                 if (this.eatItem != null)
                     ParticleUtil.itemBreak(location, this.eatItem, 5, 0.2, 0.2, 0.2, 0.05);
                 SoundUtil.playSoundPublic(location, RandomUtil.RANDOM.nextBoolean() ? Sound.ENTITY_CAT_EAT : Sound.ENTITY_GENERIC_EAT, 0.05F,

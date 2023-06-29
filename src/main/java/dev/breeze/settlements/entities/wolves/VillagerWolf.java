@@ -55,7 +55,7 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
 import javax.annotation.Nonnull;
@@ -97,7 +97,7 @@ public class VillagerWolf extends Wolf {
     public VillagerWolf(@Nonnull Location location) {
         super(EntityType.WOLF, ((CraftWorld) location.getWorld()).getHandle());
         this.setPos(location.getX(), location.getY(), location.getZ());
-        if (!this.level.addFreshEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM)) {
+        if (!this.level().addFreshEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM)) {
             throw new IllegalStateException("Failed to add custom wolf to world");
         }
 
@@ -106,7 +106,7 @@ public class VillagerWolf extends Wolf {
 
     private void init() {
         // TODO: improve navigation to ignore fences
-        this.navigation = new WolfNavigation(this, this.level);
+        this.navigation = new WolfNavigation(this, this.level());
 
         // Configure pathfinder goals
         this.initGoals();
@@ -120,7 +120,7 @@ public class VillagerWolf extends Wolf {
         }
 
         // Set step height to 1.5 (able to cross fences)
-        this.maxUpStep = 1.5F;
+        this.setMaxUpStep(1.5F);
 
         this.behaviorsRegisteredSuccessfully = false;
         this.stopFollowOwner = false;
@@ -237,7 +237,7 @@ public class VillagerWolf extends Wolf {
         super.tick();
 
         // TODO: edit this?
-        this.getBrain().tick((ServerLevel) this.level, this);
+        this.getBrain().tick((ServerLevel) this.level(), this);
     }
 
     /**
@@ -320,7 +320,7 @@ public class VillagerWolf extends Wolf {
             return null;
 
         // Try to get owner entity
-        Entity entity = this.level.getMinecraftWorld().getEntity(this.getOwnerUUID());
+        Entity entity = this.level().getMinecraftWorld().getEntity(this.getOwnerUUID());
         if (!(entity instanceof BaseVillager villager))
             return null;
 
@@ -344,7 +344,7 @@ public class VillagerWolf extends Wolf {
         }
 
         DebugUtil.log("Owner (%s) detected, refreshing wolf (%s) brain goals", this.getOwnerUUID().toString(), this.getUUID().toString());
-        this.refreshBrain(this.level.getMinecraftWorld());
+        this.refreshBrain(this.level().getMinecraftWorld());
     }
 
     /**
@@ -435,7 +435,7 @@ public class VillagerWolf extends Wolf {
                         return node;
                     }
 
-                    while (y > this.mob.level.getMinBuildHeight()) {
+                    while (y > this.mob.level().getMinBuildHeight()) {
                         --y;
                         currNodeType = this.getCachedBlockType(this.mob, x, y, z);
                         if (currNodeType != BlockPathTypes.WATER) {
@@ -452,7 +452,7 @@ public class VillagerWolf extends Wolf {
 
                     while (currNodeType == BlockPathTypes.OPEN) {
                         --y;
-                        if (y < this.mob.level.getMinBuildHeight()) {
+                        if (y < this.mob.level().getMinBuildHeight()) {
                             return this.getBlockedNode(x, j, z);
                         }
 
@@ -497,7 +497,7 @@ public class VillagerWolf extends Wolf {
          * Copied from the parent class
          */
         private double getMobJumpHeight() {
-            return Math.max(1.125D, this.mob.maxUpStep);
+            return Math.max(1.125D, this.mob.maxUpStep());
         }
 
         /**

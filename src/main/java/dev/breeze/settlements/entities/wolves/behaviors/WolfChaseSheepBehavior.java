@@ -139,7 +139,7 @@ public final class WolfChaseSheepBehavior extends BaseWolfBehavior {
         }
 
         // Set state
-        if (this.isFenceGateOpen(wolf.level)) {
+        if (this.isFenceGateOpen(wolf.level())) {
             this.state = ChaseState.CHASING_SHEEP;
         } else {
             this.state = ChaseState.OPENING_GATE;
@@ -183,7 +183,7 @@ public final class WolfChaseSheepBehavior extends BaseWolfBehavior {
             }
 
             // We are close enough to the gate, now close it
-            this.setFenceGateOpen(wolf.level, false, false);
+            this.setFenceGateOpen(wolf.level(), false, false);
 
             if (this.target == null) {
                 // If no target, stop behavior
@@ -240,7 +240,7 @@ public final class WolfChaseSheepBehavior extends BaseWolfBehavior {
 
             // We are close enough to the gate, now open it
             this.state = ChaseState.CHASING_SHEEP;
-            this.setFenceGateOpen(wolf.level, true, false);
+            this.setFenceGateOpen(wolf.level(), true, false);
             return;
         }
 
@@ -282,7 +282,7 @@ public final class WolfChaseSheepBehavior extends BaseWolfBehavior {
                 wolf.playSound(SoundEvents.WOLF_GROWL, 0.15F, 1.0F);
 
                 // Scare nearby AOE of sheep
-                List<Sheep> nearbySheep = wolf.level.getEntitiesOfClass(Sheep.class, wolf.getBoundingBox().inflate(GROWL_RADIUS, GROWL_RADIUS, GROWL_RADIUS),
+                List<Sheep> nearbySheep = wolf.level().getEntitiesOfClass(Sheep.class, wolf.getBoundingBox().inflate(GROWL_RADIUS, GROWL_RADIUS, GROWL_RADIUS),
                         (sheep -> sheep != null && sheep.isAlive()));
                 for (Sheep sheep : nearbySheep) {
                     // Randomly turns off collision temporarily to avoid crowding
@@ -309,7 +309,7 @@ public final class WolfChaseSheepBehavior extends BaseWolfBehavior {
 
         // Close gate silently
         if (this.fenceArea != null && this.isFenceGate(level, this.fenceArea)) {
-            this.setFenceGateOpen(wolf.level, false, true);
+            this.setFenceGateOpen(wolf.level(), false, true);
         }
 
         // Restore collision to sheep

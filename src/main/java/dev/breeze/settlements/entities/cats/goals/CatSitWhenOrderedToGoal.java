@@ -18,7 +18,7 @@ public class CatSitWhenOrderedToGoal extends SitWhenOrderedToGoal {
      */
     @Override
     public boolean canUse() {
-        if (this.cat.isInWaterOrBubble() || !this.cat.isOnGround())
+        if (this.cat.isInWaterOrBubble() || !this.cat.onGround())
             return false;
         return this.cat.isOrderedToSit();
     }

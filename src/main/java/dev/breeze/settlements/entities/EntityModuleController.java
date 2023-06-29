@@ -20,7 +20,6 @@ import dev.breeze.settlements.entities.wolves.sensors.*;
 import dev.breeze.settlements.utils.BaseModuleController;
 import dev.breeze.settlements.utils.DebugUtil;
 import dev.breeze.settlements.utils.LogUtil;
-import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.WritableRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,15 +31,15 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
+import org.apache.commons.lang.reflect.FieldUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_19_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -94,7 +93,6 @@ public class EntityModuleController extends BaseModuleController {
      * - must be done before the world loads
      * - after registering, '/summon' works and the entity can persist restarts
      */
-    @SuppressWarnings("JavaReflectionMemberAccess")
     private void registerEntities(Map<String, EntityType.Builder<Entity>> entityTypeMap) throws IllegalAccessException, InvocationTargetException,
             NoSuchMethodException, NoSuchFieldException {
         LogUtil.info("Registering custom entities, it's normal if you see messages like 'No data fixer registered for XXX'");
@@ -106,20 +104,15 @@ public class EntityModuleController extends BaseModuleController {
                 (WritableRegistry<EntityType<?>>) dedicatedServer.registryAccess().registryOrThrow(Registries.ENTITY_TYPE);
 
         // Unfreeze registry
-        DebugUtil.log("> Unfreezing entity type registry (1/2)...");
-        // l = private boolean frozen
-        Field frozen = MappedRegistry.class.getDeclaredField("l");
-        frozen.setAccessible(true);
-        frozen.set(entityTypeRegistry, false);
-
-        DebugUtil.log("> Unfreezing entity type registry (2/2)...");
-        // m = private Map<T, Holder.Reference<T>> unregisteredIntrusiveHolders;
-        Field unregisteredHolderMap = MappedRegistry.class.getDeclaredField("m");
-        unregisteredHolderMap.setAccessible(true);
-        unregisteredHolderMap.set(BuiltInRegistries.ENTITY_TYPE, new HashMap<>());
+        DebugUtil.log("> Unfreezing entity type registry...");
+        // 1.20.1 -- l = private boolean frozen
+        FieldUtils.writeField(entityTypeRegistry, "l", false, true);
+        // 1.20.1 -- m = private Map<T, Holder.Reference<T>> unregisteredIntrusiveHolders;
+        FieldUtils.writeField(BuiltInRegistries.ENTITY_TYPE, "m", new HashMap<>(), true);
 
         // Unlock register method
-        // a = private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder builder)
+        // 1.20.1 -- a = private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder builder)
+        // Note: we don't use MethodUtils from apache because this is a private method
         Method register = EntityType.class.getDeclaredMethod("a", String.class, EntityType.Builder.class);
         register.setAccessible(true);
 
@@ -132,7 +125,9 @@ public class EntityModuleController extends BaseModuleController {
         // Re-freeze registry
         DebugUtil.log("> Re-freezing entity type registry...");
         BuiltInRegistries.ENTITY_TYPE.freeze();
-        unregisteredHolderMap.set(BuiltInRegistries.ENTITY_TYPE, null);
+
+        // Same as above
+        FieldUtils.writeField(BuiltInRegistries.ENTITY_TYPE, "m", null, true);
 
         DebugUtil.log("Custom entities registered successfully!");
     }
@@ -141,21 +136,17 @@ public class EntityModuleController extends BaseModuleController {
      * Registers all memory types created in this module to the registry
      * - must be done before the world loads
      */
-    @SuppressWarnings("JavaReflectionMemberAccess")
     private void registerMemories() throws IllegalAccessException, NoSuchMethodException, NoSuchFieldException {
         DebugUtil.log("Attempting to register custom memories...");
 
         // Get memory module type registry
         DedicatedServer dedicatedServer = ((CraftServer) Bukkit.getServer()).getServer();
-        WritableRegistry<MemoryModuleType<?>> registry =
-                (WritableRegistry<MemoryModuleType<?>>) dedicatedServer.registryAccess().registryOrThrow(Registries.MEMORY_MODULE_TYPE);
+        WritableRegistry<MemoryModuleType<?>> registry = (WritableRegistry<MemoryModuleType<?>>) dedicatedServer.registryAccess().registryOrThrow(Registries.MEMORY_MODULE_TYPE);
 
         // Unfreeze registry
         DebugUtil.log("> Unfreezing memory module type registry...");
-        // l = private boolean frozen
-        Field frozen = MappedRegistry.class.getDeclaredField("l");
-        frozen.setAccessible(true);
-        frozen.set(registry, false);
+        // 1.20.1 -- l = private boolean frozen
+        FieldUtils.writeField(registry, "l", false, true);
 
         /*
          * Build & register memories
@@ -196,7 +187,6 @@ public class EntityModuleController extends BaseModuleController {
      * Registers all sensor types created in this module to the registry
      * - must be done before the world loads
      */
-    @SuppressWarnings("JavaReflectionMemberAccess")
     private void registerSensors() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException,
             InstantiationException {
         DebugUtil.log("Attempting to register custom sensors...");
@@ -207,10 +197,8 @@ public class EntityModuleController extends BaseModuleController {
 
         // Unfreeze registry
         DebugUtil.log("> Unfreezing sensor type registry...");
-        // l = private boolean frozen
-        Field frozen = MappedRegistry.class.getDeclaredField("l");
-        frozen.setAccessible(true);
-        frozen.set(registry, false);
+        // 1.20.1 -- l = private boolean frozen
+        FieldUtils.writeField(registry, "l", false, true);
 
         /*
          * Build & register sensors
@@ -244,6 +232,7 @@ public class EntityModuleController extends BaseModuleController {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private <U extends Sensor<?>> SensorType<U> registerSensor(@Nonnull String id, @Nonnull Supplier<?> factory) throws NoSuchMethodException,
             InvocationTargetException, InstantiationException, IllegalAccessException {
+        // Note: we don't use ConstructorUtils from apache because this is a private constructor
         Constructor<SensorType> constructor = SensorType.class.getDeclaredConstructor(Supplier.class);
         constructor.setAccessible(true);
 

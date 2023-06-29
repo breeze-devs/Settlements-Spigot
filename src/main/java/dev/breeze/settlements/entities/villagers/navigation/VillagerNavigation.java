@@ -152,7 +152,7 @@ public class VillagerNavigation extends GroundPathNavigation {
                         return node;
                     }
 
-                    while (y > this.mob.level.getMinBuildHeight()) {
+                    while (y > this.mob.level().getMinBuildHeight()) {
                         --y;
                         currNodeType = this.getCachedBlockType(this.mob, x, y, z);
                         if (currNodeType != BlockPathTypes.WATER) {
@@ -169,7 +169,7 @@ public class VillagerNavigation extends GroundPathNavigation {
 
                     while (currNodeType == BlockPathTypes.OPEN) {
                         --y;
-                        if (y < this.mob.level.getMinBuildHeight()) {
+                        if (y < this.mob.level().getMinBuildHeight()) {
                             return this.getBlockedNode(x, j, z);
                         }
 
@@ -214,7 +214,7 @@ public class VillagerNavigation extends GroundPathNavigation {
          * Copied from the parent class
          */
         private double getMobJumpHeight() {
-            return Math.max(1.125D, this.mob.maxUpStep);
+            return Math.max(1.125D, this.mob.maxUpStep());
         }
 
         /**

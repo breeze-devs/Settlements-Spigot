@@ -21,7 +21,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -63,7 +63,7 @@ public final class WashWolfBehavior extends InteractAtTargetBehavior {
 
         if (this.targetWolf == null) {
             UUID wolfUuid = VillagerMemoryType.OWNED_DOG.get(brain);
-            this.targetWolf = (Wolf) villager.level.getMinecraftWorld().getEntity(wolfUuid);
+            this.targetWolf = (Wolf) villager.level().getMinecraftWorld().getEntity(wolfUuid);
 
             // If wolf is not alive, reset memory
             if (this.targetWolf == null || !this.targetWolf.isAlive()) {
@@ -130,9 +130,10 @@ public final class WashWolfBehavior extends InteractAtTargetBehavior {
         if (this.washDuration % 5 == 0) {
             // Set the wolf to wet
             try {
-                if (this.targetWolf != null)
-                    // ci = private boolean isWet
-                    FieldUtils.writeField(this.targetWolf, "ci", true, true);
+                if (this.targetWolf != null) {
+                    // 1.20.1 -- ce = private boolean isWet
+                    FieldUtils.writeField(this.targetWolf, "ce", true, true);
+                }
             } catch (IllegalAccessException e) {
                 LogUtil.exception(e, "Encountered exception while setting isWet of Wolf to true!");
             }

@@ -12,7 +12,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.animal.*;
@@ -35,7 +34,7 @@ public class VillagerFishingHook extends FishingHook {
     private int fishTravelCountdown;
 
     public VillagerFishingHook(@Nonnull BaseVillager villager, @Nonnull ServerPlayer fakePlayer, @Nonnull BlockPos waterPos) {
-        super(EntityType.FISHING_BOBBER, villager.level);
+        super(EntityType.FISHING_BOBBER, villager.level());
 
         this.villager = villager;
 
@@ -48,12 +47,12 @@ public class VillagerFishingHook extends FishingHook {
         this.moveTo(waterPos.getCenter());
 
         // Add to world
-        if (!this.level.addFreshEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM)) {
+        if (!this.level().addFreshEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM)) {
             throw new IllegalStateException("Failed to add custom villager to world");
         }
 
         // Play sound
-        this.level.playSound(null, villager.getX(), villager.getEyeY(), villager.getZ(), SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F);
+        this.level().playSound(null, villager.getX(), villager.getEyeY(), villager.getZ(), SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F);
     }
 
     @Override
@@ -70,10 +69,10 @@ public class VillagerFishingHook extends FishingHook {
         // Do stuff
         float targetY = 0.0F;
         BlockPos pos = this.blockPosition();
-        FluidState fluid = this.level.getFluidState(pos);
+        FluidState fluid = this.level().getFluidState(pos);
 
         if (fluid.is(FluidTags.WATER)) {
-            targetY = fluid.getHeight(this.level, pos);
+            targetY = fluid.getHeight(this.level(), pos);
         }
 
         boolean isInWater = targetY > 0.0F;
@@ -100,7 +99,7 @@ public class VillagerFishingHook extends FishingHook {
             }
             this.setDeltaMovement(velocity.x * 0.9D, velocity.y - deltaVelocityY * this.random.nextDouble() * 0.2, velocity.z * 0.9);
 
-            if (isInWater && !this.level.isClientSide) {
+            if (isInWater && !this.level().isClientSide) {
                 this.tickFish();
             }
         }
@@ -124,7 +123,7 @@ public class VillagerFishingHook extends FishingHook {
     }
 
     private void tickFish() {
-        ServerLevel level = (ServerLevel) this.level;
+        ServerLevel level = (ServerLevel) this.level();
 
         // Waiting for fish
         if (--this.waitCountdown > 0) {
@@ -144,7 +143,7 @@ public class VillagerFishingHook extends FishingHook {
             double fishX = this.getX() + (double) (sinAngle * (float) this.fishTravelCountdown * 0.1F);
             double fishY = Mth.floor(this.getY()) + 1;
             double fishZ = this.getZ() + (double) (cosAngle * (float) this.fishTravelCountdown * 0.1F);
-            BlockState fishBlockState = level.getBlockState(new BlockPos(fishX, fishY - 1.0D, fishZ));
+            BlockState fishBlockState = level.getBlockState(new BlockPos(((int) fishX), ((int) fishY) - 1, ((int) fishZ)));
             if (fishBlockState.is(Blocks.WATER)) {
                 if (this.random.nextFloat() < 0.15F) {
                     level.sendParticles(ParticleTypes.BUBBLE, fishX, fishY - 0.1, fishZ, 1, sinAngle, 0.1D, cosAngle, 0.0D);
@@ -176,16 +175,16 @@ public class VillagerFishingHook extends FishingHook {
         AbstractFish fish;
         if (random < 0.6) {
             // 60% chance to spawn cod
-            fish = new Cod(EntityType.COD, this.level);
+            fish = new Cod(EntityType.COD, this.level());
         } else if (random < 0.85) {
             // 25% chance to spawn salmon
-            fish = new Salmon(EntityType.SALMON, this.level);
+            fish = new Salmon(EntityType.SALMON, this.level());
         } else if (random < 0.95) {
             // 10% chance to spawn puffer fish
-            fish = new Pufferfish(EntityType.PUFFERFISH, this.level);
+            fish = new Pufferfish(EntityType.PUFFERFISH, this.level());
         } else {
             // 5% chance to spawn tropical fish
-            fish = new TropicalFish(EntityType.TROPICAL_FISH, this.level);
+            fish = new TropicalFish(EntityType.TROPICAL_FISH, this.level());
         }
 
         // Set fish to be flying out of the water at the villager
@@ -200,11 +199,11 @@ public class VillagerFishingHook extends FishingHook {
         Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), () -> {
             if (!fish.isAlive())
                 return;
-            fish.hurt(DamageSource.DROWN, Float.MAX_VALUE);
+            fish.hurt(fish.damageSources().drown(), Float.MAX_VALUE);
         }, TimeUtil.seconds(10));
 
         // Add entity to world
-        this.level.addFreshEntity(fish);
+        this.level().addFreshEntity(fish);
 
         // Stop fishing since we've fished something up
         this.stopFishing();

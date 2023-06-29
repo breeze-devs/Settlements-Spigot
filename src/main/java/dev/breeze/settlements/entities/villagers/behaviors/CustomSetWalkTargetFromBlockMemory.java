@@ -1,7 +1,7 @@
 package dev.breeze.settlements.entities.villagers.behaviors;
 
 import dev.breeze.settlements.entities.villagers.BaseVillager;
-import net.minecraft.core.BlockPos;
+import dev.breeze.settlements.utils.BlockPosUtil;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.world.entity.ai.behavior.OneShot;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
@@ -33,7 +33,7 @@ public class CustomSetWalkTargetFromBlockMemory {
                     int l = 0;
                     int m = 1000;
 
-                    while (vec3 == null || (new BlockPos(vec3)).distManhattan(entity.blockPosition()) > maxDistance) {
+                    while (vec3 == null || BlockPosUtil.fromVec3(vec3).distManhattan(entity.blockPosition()) > maxDistance) {
                         vec3 = DefaultRandomPos.getPosTowards(entity, 15, 7, Vec3.atBottomCenterOf(globalPos.pos()), (float) Math.PI / 2F);
                         ++l;
                         if (l == m) {

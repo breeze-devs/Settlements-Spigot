@@ -28,7 +28,7 @@ import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_19_R2.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_20_R1.block.CraftBlock;
 import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 
@@ -119,8 +119,8 @@ public final class InteractWithFenceGate extends OneShot<Villager> {
      * @return whether the event is cancelled
      */
     private boolean fireEvent(Villager villager, BlockPos position) {
-        EntityInteractEvent event = new EntityInteractEvent(villager.getBukkitEntity(), CraftBlock.at(villager.level, position));
-        villager.getLevel().getCraftServer().getPluginManager().callEvent(event);
+        EntityInteractEvent event = new EntityInteractEvent(villager.getBukkitEntity(), CraftBlock.at(villager.level(), position));
+        villager.level().getCraftServer().getPluginManager().callEvent(event);
         return event.isCancelled();
     }
 

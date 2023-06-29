@@ -40,11 +40,11 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.schedule.Schedule;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang.reflect.FieldUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -103,7 +103,7 @@ public class BaseVillager extends Villager {
     public BaseVillager(@Nonnull Location location, @Nonnull VillagerType villagertype) {
         super(EntityType.VILLAGER, ((CraftWorld) location.getWorld()).getHandle(), villagertype);
         this.setPos(location.getX(), location.getY(), location.getZ());
-        if (!this.level.addFreshEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM)) {
+        if (!this.level().addFreshEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM)) {
             throw new IllegalStateException("Failed to add custom villager to world");
         }
 
@@ -112,13 +112,13 @@ public class BaseVillager extends Villager {
 
     private void init() {
         // Configure navigation controller
-        VillagerNavigation navigation = new VillagerNavigation(this, this.level);
+        VillagerNavigation navigation = new VillagerNavigation(this, this.level());
         navigation.setCanOpenDoors(true);
         navigation.setCanFloat(true);
         this.navigation = navigation;
 
         // this.initPathfinderGoals();
-        this.refreshBrain(this.level.getMinecraftWorld());
+        this.refreshBrain(this.level().getMinecraftWorld());
 
         // Configure extra data
         this.customInventory = new VillagerInventory(this, VillagerInventory.DEFAULT_INVENTORY_ROWS);
@@ -178,12 +178,10 @@ public class BaseVillager extends Villager {
     @SuppressWarnings("unchecked")
     protected @Nonnull Brain.Provider<Villager> brainProvider() {
         try {
-            // cB = private static final ImmutableList<MemoryModuleType<?>>
-            final ImmutableList<MemoryModuleType<?>> DEFAULT_MEMORY_TYPES = (ImmutableList<MemoryModuleType<?>>) FieldUtils.readStaticField(Villager.class,
-                    "cB", true);
-            // cC = private static final ImmutableList<SensorType<? extends Sensor<? super Villager>>>
-            final ImmutableList<SensorType<Sensor<Villager>>> DEFAULT_SENSOR_TYPES = (ImmutableList<SensorType<Sensor<Villager>>>)
-                    FieldUtils.readStaticField(Villager.class, "cC", true);
+            // 1.20.1 -- cx = private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES
+            final ImmutableList<MemoryModuleType<?>> DEFAULT_MEMORY_TYPES = (ImmutableList<MemoryModuleType<?>>) FieldUtils.readStaticField(Villager.class, "cx", true);
+            // 1.20.1 -- cy = private static final ImmutableList<SensorType<? extends Sensor<? super Villager>>> SENSOR_TYPES
+            final ImmutableList<SensorType<Sensor<Villager>>> DEFAULT_SENSOR_TYPES = (ImmutableList<SensorType<Sensor<Villager>>>) FieldUtils.readStaticField(Villager.class, "cy", true);
 
             // Add custom memories
             ImmutableList.Builder<MemoryModuleType<?>> customMemoryTypes = new ImmutableList.Builder<MemoryModuleType<?>>()
@@ -268,7 +266,7 @@ public class BaseVillager extends Villager {
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
         brain.setDefaultActivity(Activity.IDLE);
         brain.setActiveActivityIfPossible(Activity.IDLE);
-        brain.updateActivityFromSchedule(this.level.getDayTime(), this.level.getGameTime());
+        brain.updateActivityFromSchedule(this.level().getDayTime(), this.level().getGameTime());
     }
 
     /*
