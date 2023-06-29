@@ -130,9 +130,10 @@ public final class WashWolfBehavior extends InteractAtTargetBehavior {
         if (this.washDuration % 5 == 0) {
             // Set the wolf to wet
             try {
-                if (this.targetWolf != null)
-                    // ci = private boolean isWet
-                    FieldUtils.writeField(this.targetWolf, "ci", true, true);
+                if (this.targetWolf != null) {
+                    // 1.20.1 -- ce = private boolean isWet
+                    FieldUtils.writeField(this.targetWolf, "ce", true, true);
+                }
             } catch (IllegalAccessException e) {
                 LogUtil.exception(e, "Encountered exception while setting isWet of Wolf to true!");
             }
