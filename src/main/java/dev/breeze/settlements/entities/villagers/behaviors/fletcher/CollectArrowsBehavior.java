@@ -1,5 +1,6 @@
-package dev.breeze.settlements.entities.villagers.behaviors;
+package dev.breeze.settlements.entities.villagers.behaviors.fletcher;
 
+import dev.breeze.settlements.entities.villagers.behaviors.InteractAtTargetBehavior;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.utils.TimeUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;

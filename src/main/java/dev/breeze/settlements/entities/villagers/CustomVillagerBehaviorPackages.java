@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import dev.breeze.settlements.entities.villagers.behaviors.*;
 import dev.breeze.settlements.entities.villagers.behaviors.farmer.HarvestSugarcaneBehavior;
+import dev.breeze.settlements.entities.villagers.behaviors.fletcher.CollectArrowsBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.habitat.desert.DrinkWaterBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.pranks.LaunchFireworkBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.pranks.RingBellBehavior;
