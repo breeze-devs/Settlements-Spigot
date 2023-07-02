@@ -90,7 +90,7 @@ public final class DrinkWaterBehavior extends BaseVillagerBehavior {
 
         // Display sweat particles
         ParticleUtil.globalParticle(location, Particle.WATER_SPLASH, 3, 0.1, 0.1, 0.1, 0.1);
-        ParticleUtil.coloredPotion(location, 255, 162, 51, 1);
+        ParticleUtil.coloredPotion(location, 255, 162, 51);
 
         if (this.overheatTimeLeft < 0 && this.drinkTimeLeft >= 0) {
             // Display drinking effect

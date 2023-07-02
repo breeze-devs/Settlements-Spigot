@@ -7,6 +7,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.breeze.settlements.entities.villagers.behaviors.*;
 import dev.breeze.settlements.entities.villagers.behaviors.farmer.HarvestSugarcaneBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.fletcher.CollectArrowsBehavior;
+import dev.breeze.settlements.entities.villagers.behaviors.fletcher.MakeTippedArrowsBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.habitat.desert.DrinkWaterBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.pranks.LaunchFireworkBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.pranks.RingBellBehavior;
@@ -147,6 +148,7 @@ public final class CustomVillagerBehaviorPackages {
         } else if (profession == VillagerProfession.FLETCHER) {
             // TODO: pluck feather from chicken
             customBehaviorWeightMap.put(new CollectArrowsBehavior(), customGoalWeight);
+            customBehaviorWeightMap.put(new MakeTippedArrowsBehavior(), customGoalWeight);
             customBehaviorWeightMap.put(new BreedAnimalsBehavior(Set.of(EntityType.CHICKEN)), customGoalWeight);
         } else if (profession == VillagerProfession.LEATHERWORKER) {
             customBehaviorWeightMap.put(new TameWolfBehavior(), customGoalWeight);

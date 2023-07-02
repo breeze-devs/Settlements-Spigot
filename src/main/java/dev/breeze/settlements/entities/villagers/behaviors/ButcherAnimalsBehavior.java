@@ -124,7 +124,7 @@ public final class ButcherAnimalsBehavior extends InteractAtTargetBehavior {
         level.addFreshEntity(armorStand, CreatureSpawnEvent.SpawnReason.CUSTOM);
 
         // Add armor stand to temporary entities
-        EntityModuleController.temporaryEntities.add(this.armorStand);
+        EntityModuleController.temporaryNmsEntities.add(this.armorStand);
     }
 
     @Override
@@ -210,7 +210,7 @@ public final class ButcherAnimalsBehavior extends InteractAtTargetBehavior {
         // Remove armor stand
         if (this.armorStand != null) {
             this.armorStand.remove(Entity.RemovalReason.DISCARDED);
-            EntityModuleController.temporaryEntities.remove(this.armorStand);
+            EntityModuleController.temporaryNmsEntities.remove(this.armorStand);
         }
 
         // Remove interaction memory

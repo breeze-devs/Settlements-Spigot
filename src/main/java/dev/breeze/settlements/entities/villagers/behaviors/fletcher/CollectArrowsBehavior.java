@@ -29,7 +29,7 @@ public final class CollectArrowsBehavior extends InteractAtTargetBehavior {
         // Preconditions to this behavior
         super(Map.of(
                         VillagerMemoryType.NEARBY_ARROWS.getMemoryModuleType(), MemoryStatus.VALUE_PRESENT
-                ), TimeUtil.seconds(30), Math.pow(30, 2),
+                ), TimeUtil.seconds(20), Math.pow(30, 2),
                 TimeUtil.minutes(1), Math.pow(1, 2),
                 5, 2,
                 TimeUtil.seconds(20), TimeUtil.seconds(4));

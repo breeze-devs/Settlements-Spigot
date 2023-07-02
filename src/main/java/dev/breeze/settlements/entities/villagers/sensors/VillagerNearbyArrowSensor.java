@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class VillagerNearbyArrowSensor extends BaseVillagerSensor {
 
-    private static final int SENSE_COOLDOWN = TimeUtil.minutes(1);
+    private static final int SENSE_COOLDOWN = TimeUtil.seconds(20);
 
     private static final double RADIUS_HORIZONTAL = 15.0;
     private static final double RADIUS_VERTICAL = 5.0;

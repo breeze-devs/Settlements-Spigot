@@ -1,8 +1,10 @@
 package dev.breeze.settlements.test;
 
+import dev.breeze.settlements.Main;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.utils.KeyUtils;
 import dev.breeze.settlements.utils.MessageUtil;
+import dev.breeze.settlements.utils.TimeUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import net.minecraft.core.Rotations;
 import net.minecraft.server.level.ServerLevel;
@@ -18,10 +20,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -48,7 +53,7 @@ public class TestCommandHandler implements TabExecutor {
         Block target = p.getTargetBlockExact(100);
 
         switch (subCommand) {
-            case "basevillager" -> {
+            case "villager" -> {
                 if (target == null) {
                     MessageUtil.sendMessageWithPrefix(p, "&cInvalid block target!");
                 } else {
@@ -64,7 +69,14 @@ public class TestCommandHandler implements TabExecutor {
                     armorstand(p, target, args);
                 }
             }
-            case "advacement" -> advancement(p, args);
+            case "advancement" -> advancement(p, args);
+            case "display" -> {
+                if (target == null) {
+                    MessageUtil.sendMessageWithPrefix(p, "&cInvalid block target!");
+                } else {
+                    display(p, target, args);
+                }
+            }
             default -> {
                 MessageUtil.sendMessageWithPrefix(p, "&cInvalid testing format!");
                 return true;
@@ -83,9 +95,10 @@ public class TestCommandHandler implements TabExecutor {
         }
 
         if (args.length == 1) {
-            tabComplete.add("BaseVillager");
-            tabComplete.add("Armorstand");
-            tabComplete.add("Advacement");
+            tabComplete.add("villager");
+            tabComplete.add("armorstand");
+            tabComplete.add("advancement");
+            tabComplete.add("display");
         }
         return tabComplete.stream().filter(completion -> completion.toLowerCase().contains(args[args.length - 1].toLowerCase())).toList();
     }
@@ -113,4 +126,23 @@ public class TestCommandHandler implements TabExecutor {
         Bukkit.getUnsafe().loadAdvancement(KeyUtils.newKey(""), "");
         Advancement advancement = Bukkit.getAdvancement(KeyUtils.newKey(""));
     }
+
+    private void display(Player p, Block target, String[] args) {
+        ItemDisplay itemDisplay = (ItemDisplay) p.getWorld().spawnEntity(target.getLocation(), EntityType.ITEM_DISPLAY);
+        itemDisplay.setItemStack(new ItemStackBuilder(Material.APPLE).build());
+        itemDisplay.setInterpolationDelay(0);
+        itemDisplay.setInterpolationDuration(TimeUtil.seconds(3));
+
+        // Animation
+        Bukkit.getScheduler().runTaskLater(Main.getPlugin(), () -> itemDisplay.setTransformationMatrix(new Matrix4f(
+                1.638f, 0.000f, 1.147f, -1.000f,
+                0.000f, 1.000f, 0.000f, -0.500f,
+                -0.574f, 0.000f, 0.819f, -0.500f,
+                0.000f, 0.000f, 0.000f, 1.000f
+        )), TimeUtil.seconds(1));
+
+        // Schedule for removal
+        Bukkit.getScheduler().runTaskLater(Main.getPlugin(), itemDisplay::remove, TimeUtil.seconds(10));
+    }
+
 }
