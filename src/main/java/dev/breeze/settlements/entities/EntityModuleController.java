@@ -47,7 +47,8 @@ import java.util.function.Supplier;
 
 public class EntityModuleController extends BaseModuleController {
 
-    public static final Set<Entity> temporaryEntities = new HashSet<>();
+    public static final Set<org.bukkit.entity.Entity> temporaryBukkitEntities = new HashSet<>();
+    public static final Set<Entity> temporaryNmsEntities = new HashSet<>();
 
     @Override
     protected boolean preload(JavaPlugin plugin) {
@@ -81,7 +82,12 @@ public class EntityModuleController extends BaseModuleController {
     @Override
     protected void teardown() {
         // Remove all temporary entities
-        temporaryEntities.forEach(entity -> {
+        temporaryBukkitEntities.forEach(entity -> {
+            if (entity == null || !entity.isValid())
+                return;
+            entity.remove();
+        });
+        temporaryNmsEntities.forEach(entity -> {
             if (entity == null || !entity.isAlive())
                 return;
             entity.remove(Entity.RemovalReason.DISCARDED);
