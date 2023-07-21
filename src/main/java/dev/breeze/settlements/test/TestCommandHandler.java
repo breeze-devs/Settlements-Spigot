@@ -1,6 +1,8 @@
 package dev.breeze.settlements.test;
 
 import dev.breeze.settlements.Main;
+import dev.breeze.settlements.displays.cakes.CakeDisplay;
+import dev.breeze.settlements.displays.cakes.WhiteCakeDisplay;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.utils.KeyUtils;
 import dev.breeze.settlements.utils.MessageUtil;
@@ -20,13 +22,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -128,21 +127,12 @@ public class TestCommandHandler implements TabExecutor {
     }
 
     private void display(Player p, Block target, String[] args) {
-        ItemDisplay itemDisplay = (ItemDisplay) p.getWorld().spawnEntity(target.getLocation(), EntityType.ITEM_DISPLAY);
-        itemDisplay.setItemStack(new ItemStackBuilder(Material.APPLE).build());
-        itemDisplay.setInterpolationDelay(0);
-        itemDisplay.setInterpolationDuration(TimeUtil.seconds(3));
-
-        // Animation
-        Bukkit.getScheduler().runTaskLater(Main.getPlugin(), () -> itemDisplay.setTransformationMatrix(new Matrix4f(
-                1.638f, 0.000f, 1.147f, -1.000f,
-                0.000f, 1.000f, 0.000f, -0.500f,
-                -0.574f, 0.000f, 0.819f, -0.500f,
-                0.000f, 0.000f, 0.000f, 1.000f
-        )), TimeUtil.seconds(1));
+        // Create the item display
+        CakeDisplay cakeDisplay = WhiteCakeDisplay.getCakeDisplay();
+        cakeDisplay.spawnAll(target.getLocation().add(0, 1, 0));
 
         // Schedule for removal
-        Bukkit.getScheduler().runTaskLater(Main.getPlugin(), itemDisplay::remove, TimeUtil.seconds(10));
+        Bukkit.getScheduler().runTaskLater(Main.getPlugin(), cakeDisplay::removeAll, TimeUtil.seconds(5));
     }
 
 }

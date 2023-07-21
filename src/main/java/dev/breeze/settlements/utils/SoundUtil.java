@@ -10,12 +10,16 @@ public class SoundUtil {
 
     public static final float DEFAULT_VOLUME = 0.7f;
 
+    public static float randomPitch(float base, float delta) {
+        return base + delta * (RandomUtil.RANDOM.nextFloat() - 0.5F);
+    }
+
     public static void playSound(Player player, Sound sound, float pitch) {
         playSound(player, sound, DEFAULT_VOLUME, pitch);
     }
 
     public static void playSound(Player player, Sound sound, float volume, float pitch) {
-        player.playSound(player.getLocation(), sound, DEFAULT_VOLUME, pitch);
+        player.playSound(player.getLocation(), sound, volume, pitch);
     }
 
     public static void playSoundPublic(Location loc, Sound sound, float pitch) {
@@ -23,7 +27,7 @@ public class SoundUtil {
     }
 
     public static void playSoundPublic(Location loc, Sound sound, float volume, float pitch) {
-        loc.getWorld().playSound(loc, sound, DEFAULT_VOLUME, pitch);
+        loc.getWorld().playSound(loc, sound, volume, pitch);
     }
 
     public static void playNotes(float[] notes, Sound sound, Player p, int interval) {

@@ -2,9 +2,7 @@ package dev.breeze.settlements.utils;
 
 import org.bukkit.Location;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class RandomUtil {
 
@@ -39,6 +37,14 @@ public class RandomUtil {
                 return entry.getKey();
         }
         throw new ArithmeticException("Invalid weights! Check if any weight(s) are zero or negative");
+    }
+
+    /**
+     * Shuffles the given list in-place and returns the list itself
+     */
+    public static <T> ArrayList<T> shuffle(ArrayList<T> list) {
+        Collections.shuffle(list);
+        return list;
     }
 
 }

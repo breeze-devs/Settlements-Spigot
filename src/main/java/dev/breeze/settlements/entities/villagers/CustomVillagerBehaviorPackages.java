@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import dev.breeze.settlements.entities.villagers.behaviors.*;
 import dev.breeze.settlements.entities.villagers.behaviors.farmer.HarvestSugarcaneBehavior;
+import dev.breeze.settlements.entities.villagers.behaviors.farmer.MakeCakeBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.fletcher.CollectArrowsBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.fletcher.MakeTippedArrowsBehavior;
 import dev.breeze.settlements.entities.villagers.behaviors.habitat.desert.DrinkWaterBehavior;
@@ -142,6 +143,7 @@ public final class CustomVillagerBehaviorPackages {
             customBehaviorWeightMap.put(new TameWolfBehavior(), customGoalWeight);
             customBehaviorWeightMap.put(new TameCatBehavior(), customGoalWeight);
             customBehaviorWeightMap.put(new BreedAnimalsBehavior(Set.of(EntityType.CHICKEN)), customGoalWeight);
+            customBehaviorWeightMap.put(new MakeCakeBehavior(), customGoalWeight);
         } else if (profession == VillagerProfession.FISHERMAN) {
             customBehaviorWeightMap.put(new TameCatBehavior(), customGoalWeight);
             customBehaviorWeightMap.put(new FishingBehavior(), customGoalWeight);

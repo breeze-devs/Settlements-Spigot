@@ -288,6 +288,14 @@ public class VillagerMemoryType {
             .itemMaterial(Material.ARROW)
             .build();
 
+    public static final VillagerMemory<BlockPos> NEAREST_CRAFTING_TABLE = VillagerBlockPosMemory.blockPosMemoryBuilder()
+            .identifier("nearest_crafting_table")
+            .displayName("Nearest crafting table")
+            .description(List.of("&fThe closest visible crafting table", "&eClick &7to show the crafting table's location"))
+            .itemMaterial(Material.CRAFTING_TABLE)
+            .build();
+
+
     /**
      * List of all memories for bulk memory operations such as save/load
      */
@@ -295,7 +303,7 @@ public class VillagerMemoryType {
             // Pet related memories
             OWNED_DOG, OWNED_CAT, WALK_DOG_TARGET,
             // Point of interest (POI) related memories
-            NEAREST_WATER_AREA, NEAREST_ENCHANTING_TABLE, NEAREST_HARVESTABLE_SUGARCANE,
+            NEAREST_WATER_AREA, NEAREST_ENCHANTING_TABLE, NEAREST_HARVESTABLE_SUGARCANE, NEAREST_CRAFTING_TABLE,
             // Trading related memories
             SHOPPING_LIST, NEARBY_SELLERS, EMERALD_BALANCE,
             // Miscellaneous memories

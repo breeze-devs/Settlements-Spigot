@@ -40,12 +40,17 @@ public class VillagerSensorType {
             .sensorSupplier(VillagerNearbyArrowSensor::new)
             .build();
 
+    public static final VillagerSensor<VillagerNearbyCraftingTableSensor> NEAREST_CRAFTING_TABLE = VillagerSensor.<VillagerNearbyCraftingTableSensor>builder()
+            .identifier("nearest_crafting_table")
+            .sensorSupplier(VillagerNearbyCraftingTableSensor::new)
+            .build();
+
     /**
      * List of all memories for bulk memory operations such as save/load
      */
     public static final List<VillagerSensor<? extends BaseVillagerSensor>> ALL_SENSORS = Arrays.asList(
             // Block sensors
-            NEAREST_WATER_AREA, NEAREST_HARVESTABLE_SUGARCANE, NEAREST_ENCHANTING_TABLE,
+            NEAREST_WATER_AREA, NEAREST_HARVESTABLE_SUGARCANE, NEAREST_ENCHANTING_TABLE, NEAREST_CRAFTING_TABLE,
             // Time sensors
             IS_MEAL_TIME,
             // Trading sensors
