@@ -71,8 +71,8 @@ public class CakeDisplay extends MultiEntityDisplay {
             this.pitch = pitch;
         }
 
-        public CakeStep(@Nonnull List<TransformedDisplay> displays, int delayTicks, Sound sound, float baseVolume) {
-            this(displays, delayTicks, sound, 0.2F, SoundUtil.randomPitch(baseVolume, 0.3F));
+        public CakeStep(@Nonnull List<TransformedDisplay> displays, int delayTicks, Sound sound, float basePitch) {
+            this(displays, delayTicks, sound, 0.2F, SoundUtil.randomPitch(basePitch, 0.3F));
         }
 
         @Nonnull

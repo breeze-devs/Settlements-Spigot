@@ -1,5 +1,6 @@
 package dev.breeze.settlements.displays;
 
+import lombok.Builder;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -15,6 +16,7 @@ public class TransformedItemDisplay extends TransformedDisplay {
     @Nonnull
     private final ItemStack itemStack;
 
+    @Builder
     public TransformedItemDisplay(@Nonnull ItemStack itemStack, @Nonnull Matrix4f transform, boolean temporary) {
         super(transform, DisplayType.ITEM, temporary);
         this.itemStack = itemStack;

@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.joml.Matrix4f;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -161,6 +162,7 @@ public class WhiteCakeDisplayFactory implements CakeDisplayFactory {
             ).transpose())
             .build();
 
+    @Nonnull
     @Override
     public CakeDisplay createCakeDisplay() {
         List<CakeDisplay.CakeStep> cakeSteps = new ArrayList<>(List.of(

@@ -6,6 +6,7 @@ import dev.breeze.settlements.displays.cakes.CakeDisplayType;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.utils.KeyUtils;
 import dev.breeze.settlements.utils.MessageUtil;
+import dev.breeze.settlements.utils.RandomUtil;
 import dev.breeze.settlements.utils.TimeUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
 import net.minecraft.core.Rotations;
@@ -128,7 +129,8 @@ public class TestCommandHandler implements TabExecutor {
 
     private void display(Player p, Block target, String[] args) {
         // Create the item display
-        CakeDisplay cakeDisplay = CakeDisplayType.WHITE.getCakeDisplayFactory().createCakeDisplay();
+        CakeDisplayType cakeDisplayType = RandomUtil.choice(CakeDisplayType.values());
+        CakeDisplay cakeDisplay = cakeDisplayType.getCakeDisplayFactory().createCakeDisplay();
         cakeDisplay.spawnAll(target.getLocation().add(0, 1, 0));
 
         // Schedule for removal
