@@ -1,11 +1,12 @@
 package dev.breeze.settlements.entities.villagers.behaviors.farmer;
 
 import dev.breeze.settlements.displays.cakes.CakeDisplay;
-import dev.breeze.settlements.displays.cakes.WhiteCakeDisplay;
+import dev.breeze.settlements.displays.cakes.CakeDisplayType;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.entities.villagers.behaviors.InteractAtTargetBehavior;
 import dev.breeze.settlements.entities.villagers.memories.VillagerMemoryType;
 import dev.breeze.settlements.utils.LocationUtil;
+import dev.breeze.settlements.utils.RandomUtil;
 import dev.breeze.settlements.utils.SoundUtil;
 import dev.breeze.settlements.utils.TimeUtil;
 import dev.breeze.settlements.utils.itemstack.ItemStackBuilder;
@@ -62,7 +63,11 @@ public final class MakeCakeBehavior extends InteractAtTargetBehavior {
         }
 
         this.craftingTable = pos;
-        this.cakeDisplay = WhiteCakeDisplay.getCakeDisplay(); // TODO: change to random cake type
+
+        // Randomly select a cake type to bake
+        CakeDisplayType cakeDisplayType = RandomUtil.choice(CakeDisplayType.values());
+        this.cakeDisplay = cakeDisplayType.getCakeDisplayFactory().createCakeDisplay();
+
         this.animationTicksBeforeNextStep = 0;
         return true;
     }

@@ -11,7 +11,7 @@ import org.joml.Matrix4f;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WhiteCakeDisplay {
+public class WhiteCakeDisplayFactory implements CakeDisplayFactory {
 
     /*
      * Cake step 1
@@ -161,7 +161,8 @@ public class WhiteCakeDisplay {
             ).transpose())
             .build();
 
-    public static CakeDisplay getCakeDisplay() {
+    @Override
+    public CakeDisplay createCakeDisplay() {
         List<CakeDisplay.CakeStep> cakeSteps = new ArrayList<>(List.of(
                 new CakeDisplay.CakeStep(List.of(SPONGE_1), TimeUtil.ticks(8), Sound.BLOCK_WOOL_PLACE, 1),
                 new CakeDisplay.CakeStep(List.of(CREAM_1), TimeUtil.ticks(8), Sound.ENTITY_SLIME_SQUISH_SMALL, 1.2F),

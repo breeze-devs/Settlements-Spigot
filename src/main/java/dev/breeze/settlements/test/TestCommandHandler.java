@@ -2,7 +2,7 @@ package dev.breeze.settlements.test;
 
 import dev.breeze.settlements.Main;
 import dev.breeze.settlements.displays.cakes.CakeDisplay;
-import dev.breeze.settlements.displays.cakes.WhiteCakeDisplay;
+import dev.breeze.settlements.displays.cakes.CakeDisplayType;
 import dev.breeze.settlements.entities.villagers.BaseVillager;
 import dev.breeze.settlements.utils.KeyUtils;
 import dev.breeze.settlements.utils.MessageUtil;
@@ -128,7 +128,7 @@ public class TestCommandHandler implements TabExecutor {
 
     private void display(Player p, Block target, String[] args) {
         // Create the item display
-        CakeDisplay cakeDisplay = WhiteCakeDisplay.getCakeDisplay();
+        CakeDisplay cakeDisplay = CakeDisplayType.WHITE.getCakeDisplayFactory().createCakeDisplay();
         cakeDisplay.spawnAll(target.getLocation().add(0, 1, 0));
 
         // Schedule for removal
